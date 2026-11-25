@@ -1,6 +1,6 @@
-# Project Episteme
+# M⊗AI (Project Episteme)
 
-Project Episteme is a *proof of artificial intelligence* project that starts with category theory and aims toward **Bourbaki 2.0**. People and AI work from mathematical sources, make the hypotheses explicit, and formalize the results in Lean 4 with mathlib. People check AI-proposed statements against the sources, and the Lean kernel checks their proofs.
+M⊗AI (pronounced /moai/) is a *proof of artificial intelligence* project that starts with category theory and aims toward **Bourbaki 2.0**. People and AI work from mathematical sources, make the hypotheses explicit, and formalize the results in Lean 4 with mathlib. People check AI-proposed statements against the sources, and the Lean kernel checks their proofs.
 
 The first goal is to formalize the second edition of Saunders Mac Lane’s *Categories for the Working Mathematician* (CWM). Each definition, theorem, and example should be traceable from the source to its Lean declaration and verification record. [CWM, second edition](https://link.springer.com/book/10.1007/978-1-4757-4721-8)
 

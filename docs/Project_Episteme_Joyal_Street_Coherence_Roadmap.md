@@ -107,7 +107,7 @@ Prove the symmetric universal property and its coherence criterion by factoring 
 ### Proposed source layout (names are provisional)
 
 ```text
-Episteme/
+ProjectEpisteme/
   Braid/
     Artin.lean
     Permutation.lean
