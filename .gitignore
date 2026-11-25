@@ -1,0 +1,6 @@
+# Lake build output and local dependencies
+/.lake/
+
+# macOS Finder metadata and AppleDouble files
+.DS_Store
+._*
