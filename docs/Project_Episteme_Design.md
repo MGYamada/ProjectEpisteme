@@ -83,7 +83,7 @@ Use mathlib’s `Preadditive`, `Abelian`, and `ShortComplex` for the material sh
 3. **Build the common foundations.** Start with the basic language and universal properties of the Category track. The Monoidal category track uses functors and natural transformations. The Abelian category track uses zero objects, limits, and colimits. Both tracks can start before the Kan extension work is complete. Share sheaf prerequisites for the later abelian applications.
 4. **Verify each phase.** Compile the theorems and representative examples with minimal imports. Check key declarations with `#print axioms`. Verified proofs must be free of `sorry`, `admit`, and additional mathematical axioms. For the first CWM pass, report the number of verified main-text items and the number of cataloged exercises.
 
-The Lake library is `Episteme`. The proposed layout puts track-specific bridging lemmas and examples in `Episteme/Category/`, `Episteme/Monoidal/`, and `Episteme/Abelian/`. General braid group results can live in `Episteme/Braid/` and be imported by the monoidal modules. Source IDs are independent of Lean declaration names so several chapters can reuse a result.
+The Lake library is `ProjectEpisteme`. The proposed layout puts track-specific bridging lemmas and examples in `ProjectEpisteme/Category/`, `ProjectEpisteme/Monoidal/`, and `ProjectEpisteme/Abelian/`. General braid group results can live in `ProjectEpisteme/Braid/` and be imported by the monoidal modules. Source IDs are independent of Lean declaration names so several chapters can reuse a result.
 
 ## Questions for the pinned mathlib audit
 

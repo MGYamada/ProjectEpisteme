@@ -193,7 +193,7 @@ These are **verified library entry points**, not verified one-to-one corresponde
 The following is a suggested layout, **not an assertion that the files already exist**:
 
 ```text
-Episteme/
+ProjectEpisteme/
   Category/
     Chapter0/
       Basics.lean
