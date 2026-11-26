@@ -16,10 +16,10 @@ This report counts the rows of the [alg-d ledgers](ledger/algd/) against the [so
 | --- | --- | --- | --- | --- | --- |
 | Chapter 0 | 8 / 8 | 120 / 120 | 189 | 0 | 2 |
 | Chapter 1 | 5 / 5 | 121 / 121 | 175 | 154 | 0 |
-| Chapter 2 | 0 / 10 | 0 / 201 | — | — | not yet cataloged |
-| **Chapters 0–2** | **13 / 23** | **241 / 442** | **364** | **154** | **2** |
+| Chapter 2 | 1 / 10 | 55 / 202 | 72 | 39 | 0 |
+| **Chapters 0–2** | **14 / 23** | **296 / 443** | **436** | **193** | **2** |
 
-Verified main-text items: **154** (112 numbered items and 42 definitions or prose claims). Exercises cataloged: **2**.
+Verified main-text items: **193** (140 numbered items and 53 definitions or prose claims). Exercises cataloged: **2**.
 <!-- END GENERATED: summary -->
 
 The two Chapter 0 exercises are ALGD-C0-CDIAG-E01 and -E02. They will be proved in a later phase.
@@ -46,6 +46,8 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | [C1-NAT](ledger/algd/C1-NAT.md) | 23 | 13 (13 + 0) | 8 | 2 | 0 | 0 | 12 | 6 | 4 | 0 | 1 | 22 |
 | [C1-YONEDA](ledger/algd/C1-YONEDA.md) | 19 | 11 (9 + 2) | 5 | 3 | 0 | 5 | 7 | 4 | 1 | 0 | 2 | 12 |
 | **Chapter 1** | **175** | **121 (115 + 6)** | **38** | **16** | **0** | **5** | **61** | **49** | **44** | **3** | **13** | **154** |
+| [C2-KAN](ledger/algd/C2-KAN.md) | 72 | 55 (47 + 8) | 12 | 5 | 0 | 26 | 21 | 9 | 9 | 0 | 7 | 39 |
+| **Chapter 2** | **72** | **55 (47 + 8)** | **12** | **5** | **0** | **26** | **21** | **9** | **9** | **0** | **7** | **39** |
 <!-- END GENERATED: by-document -->
 
 ## Verified declarations
@@ -207,6 +209,45 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | ALGD-C1-YONEDA-09 | `ProjectEpisteme.AlgD.Yoneda.nonempty_iso_of_yoneda_comp_iso` | bridged |
 | ALGD-C1-YONEDA-10 | `ProjectEpisteme.AlgD.Yoneda.yonedaEquiv_natural_in_object` | existing |
 | ALGD-C1-YONEDA-11 | `ProjectEpisteme.AlgD.Yoneda.yonedaEquiv_natural_in_presheaf` | existing |
+| ALGD-C2-KAN-D01 | `ProjectEpisteme.AlgD.Kan.isLeftKanExtension_iff` | bridged |
+| ALGD-C2-KAN-D03 | `ProjectEpisteme.AlgD.Kan.isRightKanExtension_iff` | bridged |
+| ALGD-C2-KAN-D04 | `ProjectEpisteme.AlgD.Kan.IsLeftKanLift` | new-proved |
+| ALGD-C2-KAN-01 | `ProjectEpisteme.AlgD.Kan.representable_iff_hasLeftKanExtension` | bridged |
+| ALGD-C2-KAN-02 | `ProjectEpisteme.AlgD.Kan.lan_ran_adjunction` | existing |
+| ALGD-C2-KAN-03 | `ProjectEpisteme.AlgD.Kan.colimit_iff_isLeftKanExtension` | bridged |
+| ALGD-C2-KAN-04 | `ProjectEpisteme.AlgD.Kan.pointwise_leftKanExtension` | existing |
+| ALGD-C2-KAN-05 | `ProjectEpisteme.AlgD.Kan.hasLeftKanExtension_of_cocomplete` | existing |
+| ALGD-C2-KAN-06 | `ProjectEpisteme.AlgD.Kan.presheaf_hasLeftKanExtension` | existing |
+| ALGD-C2-KAN-R01 | `ProjectEpisteme.AlgD.Kan.presheaf_lan_adjunction` | existing |
+| ALGD-C2-KAN-07 | `ProjectEpisteme.AlgD.Kan.pointwise_rightKanExtension` | existing |
+| ALGD-C2-KAN-R02 | `ProjectEpisteme.AlgD.Kan.hasRightKanExtension_of_complete` | existing |
+| ALGD-C2-KAN-08 | `ProjectEpisteme.AlgD.Kan.preimage_adjoints` | bridged |
+| ALGD-C2-KAN-11 | `ProjectEpisteme.AlgD.Kan.leftKanExtension_not_pointwise` | new-proved |
+| ALGD-C2-KAN-D05 | `ProjectEpisteme.AlgD.Kan.coconeAt_eq` | existing |
+| ALGD-C2-KAN-13 | `ProjectEpisteme.AlgD.Kan.pointwiseLeftKanExtension_isPointwise` | existing |
+| ALGD-C2-KAN-14 | `ProjectEpisteme.AlgD.Kan.isPointwise_isLeftKanExtension` | existing |
+| ALGD-C2-KAN-D06 | `ProjectEpisteme.AlgD.Kan.commutesWith_iff_preserves` | bridged |
+| ALGD-C2-KAN-15 | `ProjectEpisteme.AlgD.Kan.commutesWith_of_preservesColimit` | existing |
+| ALGD-C2-KAN-D07 | `ProjectEpisteme.AlgD.Kan.IsAbsoluteLeftKanExtension` | new-proved |
+| ALGD-C2-KAN-16 | `ProjectEpisteme.AlgD.Kan.isAbsoluteLeftKanExtension_iff` | new-proved |
+| ALGD-C2-KAN-17 | `ProjectEpisteme.AlgD.Kan.isLeftAdjoint_tfae` | new-proved |
+| ALGD-C2-KAN-18 | `ProjectEpisteme.AlgD.Kan.hasTerminal_iff_hasColimit_id` | bridged |
+| ALGD-C2-KAN-19 | `ProjectEpisteme.AlgD.Kan.colimit_of_terminal` | existing |
+| ALGD-C2-KAN-D08 | `ProjectEpisteme.AlgD.Kan.IsAbsoluteRightKanExtension` | new-proved |
+| ALGD-C2-KAN-20 | `ProjectEpisteme.AlgD.Kan.isRightAdjoint_tfae` | new-proved |
+| ALGD-C2-KAN-21 | `ProjectEpisteme.AlgD.Kan.isLeftAdjoint_tfae_kanLift` | new-proved |
+| ALGD-C2-KAN-22 | `ProjectEpisteme.AlgD.Kan.isRightAdjoint_tfae_kanLift` | new-proved |
+| ALGD-C2-KAN-23 | `ProjectEpisteme.AlgD.Kan.leftAdjoint_commutesWith` | existing |
+| ALGD-C2-KAN-29 | `ProjectEpisteme.AlgD.Kan.yoneda_lan_yoneda` | existing |
+| ALGD-C2-KAN-R05 | `ProjectEpisteme.AlgD.Kan.yoneda_isLeftKanExtension_id` | existing |
+| ALGD-C2-KAN-30 | `ProjectEpisteme.AlgD.Kan.presheaf_colimit_of_representables` | existing |
+| ALGD-C2-KAN-31 | `ProjectEpisteme.AlgD.Kan.costructuredArrow_mk_isTerminal` | bridged |
+| ALGD-C2-KAN-32 | `ProjectEpisteme.AlgD.Kan.isRepresentable_iff_hasTerminal` | bridged |
+| ALGD-C2-KAN-34 | `ProjectEpisteme.AlgD.Kan.lan_yoneda` | existing |
+| ALGD-C2-KAN-36 | `ProjectEpisteme.AlgD.Kan.unit_isIso_of_fullyFaithful` | existing |
+| ALGD-C2-KAN-D10 | `ProjectEpisteme.AlgD.Kan.isDense_iff` | existing |
+| ALGD-C2-KAN-42 | `ProjectEpisteme.AlgD.Kan.yoneda_isDense` | existing |
+| ALGD-C2-KAN-54 | `ProjectEpisteme.AlgD.Kan.over_presheaf_equivalence` | existing |
 <!-- END GENERATED: verified -->
 
 Every project declaration depends only on `[propext, Classical.choice, Quot.sound]`. Two mechanisms check this: `checks/AxiomAudit.lean` covers the whole library, and the `#guard_msgs` blocks in each source module cover the individual source items. `checks/LedgerDeclarations.lean` checks that each declaration named above exists.
@@ -219,6 +260,8 @@ These rows are expected to become `new-proved` or `blocked` rather than `existin
 - **Not in mathlib**
   - General subcategories. Used by CONSTR-D06 and -08, -10, -11.
   - Skeletons as full subcategories and their uniqueness (EQUIV-D07, -19, -20).
+  - Kan lifts and absolute Kan extensions for functors (KAN-D04, -D07, -D08). They are verified as new work; mathlib has them only for bicategories.
+  - The characterization of presheaf categories by small projective, strongly generating subcategories (KAN-51).
 - **Topology and algebra prerequisites**
   - π₁ as a functor on pointed spaces (INTRO-10, CONSTR-07).
   - Seifert–van Kampen for groupoids (FUNDGPD-10, -11).
