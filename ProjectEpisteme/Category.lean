@@ -1,5 +1,6 @@
 module
 
+public import ProjectEpisteme.Category.AlgD.C1.Adjoint
 public import ProjectEpisteme.Category.AlgD.C1.Comma
 public import ProjectEpisteme.Category.AlgD.C1.Limit
 public import ProjectEpisteme.Category.AlgD.C1.Nat

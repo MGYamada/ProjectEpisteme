@@ -15,11 +15,11 @@ This report counts the rows of the [alg-d ledgers](ledger/algd/) against the [so
 | Scope | PDFs cataloged | Numbers 1..max with a row | Ledger rows | Verified | Exercises cataloged |
 | --- | --- | --- | --- | --- | --- |
 | Chapter 0 | 8 / 8 | 120 / 120 | 189 | 0 | 2 |
-| Chapter 1 | 5 / 5 | 121 / 121 | 175 | 86 | 0 |
+| Chapter 1 | 5 / 5 | 121 / 121 | 175 | 136 | 0 |
 | Chapter 2 | 0 / 10 | 0 / 201 | — | — | not yet cataloged |
-| **Chapters 0–2** | **13 / 23** | **241 / 442** | **364** | **86** | **2** |
+| **Chapters 0–2** | **13 / 23** | **241 / 442** | **364** | **136** | **2** |
 
-Verified main-text items: **86** (59 numbered items and 27 definitions or prose claims). Exercises cataloged: **2**.
+Verified main-text items: **136** (97 numbered items and 39 definitions or prose claims). Exercises cataloged: **2**.
 <!-- END GENERATED: summary -->
 
 The two Chapter 0 exercises are ALGD-C0-CDIAG-E01 and -E02. They will be proved in a later phase.
@@ -40,12 +40,12 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | [C0-SHEAF](ledger/algd/C0-SHEAF.md) | 13 | 8 (7 + 1) | 4 | 1 | 0 | 13 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [C0-UNIV](ledger/algd/C0-UNIV.md) | 23 | 14 (14 + 0) | 7 | 2 | 0 | 23 | 0 | 0 | 0 | 0 | 0 | 0 |
 | **Chapter 0** | **189** | **120 (117 + 3)** | **50** | **17** | **2** | **189** | **0** | **0** | **0** | **0** | **0** | **0** |
-| [C1-ADJOINT](ledger/algd/C1-ADJOINT.md) | 72 | 56 (55 + 1) | 9 | 7 | 0 | 72 | 0 | 0 | 0 | 0 | 0 | 0 |
+| [C1-ADJOINT](ledger/algd/C1-ADJOINT.md) | 72 | 56 (55 + 1) | 9 | 7 | 0 | 18 | 26 | 15 | 9 | 3 | 1 | 50 |
 | [C1-COMMA](ledger/algd/C1-COMMA.md) | 10 | 8 (8 + 0) | 2 | 0 | 0 | 0 | 3 | 2 | 4 | 0 | 1 | 9 |
 | [C1-LIMIT](ledger/algd/C1-LIMIT.md) | 51 | 33 (30 + 3) | 14 | 4 | 0 | 0 | 13 | 18 | 12 | 0 | 8 | 43 |
 | [C1-NAT](ledger/algd/C1-NAT.md) | 23 | 13 (13 + 0) | 8 | 2 | 0 | 0 | 12 | 6 | 4 | 0 | 1 | 22 |
 | [C1-YONEDA](ledger/algd/C1-YONEDA.md) | 19 | 11 (9 + 2) | 5 | 3 | 0 | 5 | 7 | 4 | 1 | 0 | 2 | 12 |
-| **Chapter 1** | **175** | **121 (115 + 6)** | **38** | **16** | **0** | **77** | **35** | **30** | **21** | **0** | **12** | **86** |
+| **Chapter 1** | **175** | **121 (115 + 6)** | **38** | **16** | **0** | **23** | **61** | **45** | **30** | **3** | **13** | **136** |
 <!-- END GENERATED: by-document -->
 
 ## Verified declarations
@@ -53,6 +53,56 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 <!-- BEGIN GENERATED: verified -->
 | Ledger ID | Lean declaration | Status |
 | --- | --- | --- |
+| ALGD-C1-ADJOINT-D01 | `ProjectEpisteme.AlgD.Adjoint.HomSetAdjunction` | bridged |
+| ALGD-C1-ADJOINT-01 | `ProjectEpisteme.AlgD.Adjoint.square_iff` | existing |
+| ALGD-C1-ADJOINT-02 | `ProjectEpisteme.AlgD.Adjoint.factor_iff` | bridged |
+| ALGD-C1-ADJOINT-D03 | `ProjectEpisteme.AlgD.Adjoint.unit_app_eq` | existing |
+| ALGD-C1-ADJOINT-03 | `ProjectEpisteme.AlgD.Adjoint.unit_universal` | bridged |
+| ALGD-C1-ADJOINT-04 | `ProjectEpisteme.AlgD.Adjoint.universalArrow_exists_iff` | new-proved |
+| ALGD-C1-ADJOINT-05 | `ProjectEpisteme.AlgD.Adjoint.homEquiv_eq_unit` | existing |
+| ALGD-C1-ADJOINT-06 | `ProjectEpisteme.AlgD.Adjoint.universalArrows_leftAdjoint` | bridged |
+| ALGD-C1-ADJOINT-R01 | `ProjectEpisteme.AlgD.Adjoint.isRightAdjoint_iff_corepresentable` | bridged |
+| ALGD-C1-ADJOINT-D04 | `ProjectEpisteme.AlgD.Adjoint.unit_naturality` | existing |
+| ALGD-C1-ADJOINT-07 | `ProjectEpisteme.AlgD.Adjoint.leftAdjoint_unique` | existing |
+| ALGD-C1-ADJOINT-08 | `ProjectEpisteme.AlgD.Adjoint.leftAdjoint_preserves_colimit` | existing |
+| ALGD-C1-ADJOINT-09 | `ProjectEpisteme.AlgD.Adjoint.op_adjunction` | existing |
+| ALGD-C1-ADJOINT-10 | `ProjectEpisteme.AlgD.Adjoint.counit_dual` | bridged |
+| ALGD-C1-ADJOINT-11 | `ProjectEpisteme.AlgD.Adjoint.colim_adjunction` | existing |
+| ALGD-C1-ADJOINT-12 | `ProjectEpisteme.AlgD.Adjoint.free_abelian_group` | bridged |
+| ALGD-C1-ADJOINT-13 | `ProjectEpisteme.AlgD.Adjoint.top_discrete_indiscrete` | existing |
+| ALGD-C1-ADJOINT-D05 | `ProjectEpisteme.AlgD.Adjoint.split_iff` | existing |
+| ALGD-C1-ADJOINT-14 | `ProjectEpisteme.AlgD.Adjoint.split_epi_mono` | existing |
+| ALGD-C1-ADJOINT-15 | `ProjectEpisteme.AlgD.Adjoint.isIso_of_mono_of_split_epi` | existing |
+| ALGD-C1-ADJOINT-R02 | `ProjectEpisteme.AlgD.Adjoint.isIso_of_epi_of_split_mono` | existing |
+| ALGD-C1-ADJOINT-16 | `ProjectEpisteme.AlgD.Adjoint.map_split_epi` | existing |
+| ALGD-C1-ADJOINT-17 | `ProjectEpisteme.AlgD.Adjoint.yoneda_split` | bridged |
+| ALGD-C1-ADJOINT-18 | `ProjectEpisteme.AlgD.Adjoint.faithful_full_criteria` | existing |
+| ALGD-C1-ADJOINT-19 | `ProjectEpisteme.AlgD.Adjoint.triple_fullyFaithful` | bridged |
+| ALGD-C1-ADJOINT-20 | `ProjectEpisteme.AlgD.Adjoint.HomSetAdjunction.right_triangle` | new-proved |
+| ALGD-C1-ADJOINT-R03 | `ProjectEpisteme.AlgD.Adjoint.HomSetAdjunction.left_triangle` | new-proved |
+| ALGD-C1-ADJOINT-21 | `ProjectEpisteme.AlgD.Adjoint.adjunction_of_triangle` | bridged |
+| ALGD-C1-ADJOINT-D06 | `CategoryTheory.Adjunction` | existing |
+| ALGD-C1-ADJOINT-22 | `ProjectEpisteme.AlgD.Adjoint.counit_isIso_of_iso` | existing |
+| ALGD-C1-ADJOINT-23 | `ProjectEpisteme.AlgD.Adjoint.adjunction_of_equivalence` | bridged |
+| ALGD-C1-ADJOINT-24 | `ProjectEpisteme.AlgD.Adjoint.equivalence_preserves` | existing |
+| ALGD-C1-ADJOINT-25 | `ProjectEpisteme.AlgD.Adjoint.hasColimits_of_equivalence` | existing |
+| ALGD-C1-ADJOINT-R04 | `ProjectEpisteme.AlgD.Adjoint.unit_counit_iso_consequences` | bridged |
+| ALGD-C1-ADJOINT-R05 | `ProjectEpisteme.AlgD.Adjoint.isEquivalence_of_fullyFaithful` | bridged |
+| ALGD-C1-ADJOINT-R06 | `ProjectEpisteme.AlgD.Adjoint.free_vectorSpace` | new-proved |
+| ALGD-C1-ADJOINT-26 | `ProjectEpisteme.AlgD.Adjoint.comp_adjunction` | existing |
+| ALGD-C1-ADJOINT-27 | `ProjectEpisteme.AlgD.Adjoint.postcomp_adjunction` | existing |
+| ALGD-C1-ADJOINT-28 | `ProjectEpisteme.AlgD.Adjoint.precomp_adjunction` | existing |
+| ALGD-C1-ADJOINT-29 | `ProjectEpisteme.AlgD.Adjoint.presheaf_adjunction` | bridged |
+| ALGD-C1-ADJOINT-D07 | `ProjectEpisteme.AlgD.Adjoint.unitFixed_le_essImage` | new-proved |
+| ALGD-C1-ADJOINT-30 | `ProjectEpisteme.AlgD.Adjoint.fixedPoint_equivalence` | new-proved |
+| ALGD-C1-ADJOINT-31 | `ProjectEpisteme.AlgD.Adjoint.idempotent_tfae` | new-proved |
+| ALGD-C1-ADJOINT-33 | `ProjectEpisteme.AlgD.Adjoint.unitFixed_reflective` | new-proved |
+| ALGD-C1-ADJOINT-45 | `ProjectEpisteme.AlgD.Adjoint.free_group` | existing |
+| ALGD-C1-ADJOINT-46 | `ProjectEpisteme.AlgD.Adjoint.abelianization` | existing |
+| ALGD-C1-ADJOINT-47 | `ProjectEpisteme.AlgD.Adjoint.module_forget` | bridged |
+| ALGD-C1-ADJOINT-48 | `ProjectEpisteme.AlgD.Adjoint.top_adjoint_triple` | existing |
+| ALGD-C1-ADJOINT-54 | `ProjectEpisteme.AlgD.Adjoint.stoneCech_adjunction` | existing |
+| ALGD-C1-ADJOINT-56 | `ProjectEpisteme.AlgD.Adjoint.Ex56.idem_adjunctions` | new-proved |
 | ALGD-C1-COMMA-D01 | `ProjectEpisteme.AlgD.CommaCategory.comma_category` | existing |
 | ALGD-C1-COMMA-01 | `ProjectEpisteme.AlgD.CommaCategory.comma_id_fromPUnit` | existing |
 | ALGD-C1-COMMA-02 | `ProjectEpisteme.AlgD.CommaCategory.comma_to_punit` | bridged |
@@ -151,16 +201,17 @@ These rows are expected to become `new-proved` or `blocked` rather than `existin
 - **Not in mathlib**
   - General subcategories. Used by CONSTR-D06 and -08, -10, -11.
   - Skeletons as full subcategories and their uniqueness (EQUIV-D07, -19, -20).
-  - Idempotent adjunctions (ADJOINT-30 to -34).
+  - Idempotent adjunctions: the factorization 定理 32 and 系 34 (ADJOINT-32, -34). ADJOINT-30, -31 and -33 are proved.
   - Adjunctions with a parameter: 定理 41 and 系 42 (ADJOINT-41, -42). mathlib lists this as a TODO in `ParametrizedAdjunction`.
 - **Topology and algebra prerequisites**
   - π₁ as a functor on pointed spaces (INTRO-10, CONSTR-07).
   - Seifert–van Kampen for groupoids (FUNDGPD-10, -11).
   - The p-adic integers as a limit in Set (UNIV-14, LIMIT-11).
   - Gelfand–Naimark as an equivalence (EQUIV-03).
-  - Several algebraic examples in ADJOINT (例 50–53, 55, 56).
+  - Algebraic examples in ADJOINT. 例 49–51 are deferred. 例 52, 53 and 55 are `blocked`: mathlib has no Henselization, free lattices or Ban_1.
 - **Source issues**
   - Typos in adjoint.pdf, limit.pdf and nat.pdf (例 4).
   - A missing boundedness hypothesis in UNIV-13 and LIMIT-10.
   - A missing nonemptiness hypothesis in SHEAF 例 6.
   - A missing injectivity hypothesis in ADJOINT 例 51.
+  - A missing commutativity hypothesis in ADJOINT 例 50.
