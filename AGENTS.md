@@ -23,7 +23,7 @@ Check the changed modules with `lake env lean <file.lean>` while working. Run `l
 
 For each verified item, record the corresponding Lean declaration and the review of its hypotheses and conclusion against the source. Identify candidates, unresolved prerequisites, and any verification that could not run. Report progress against the scope and the actual state of verification.
 
-- A ledger row may be `existing`, `bridged`, or `new-proved` only when its Lean cell begins with the fully qualified declaration. A `ProjectEpisteme` declaration's docstring must start with the row's ID in backticks. After changing a ledger, run `python3 checks/ledger.py --write`. It regenerates the tables in `docs/algd-coverage.md` and the Lean check `checks/LedgerDeclarations.lean`.
+- A ledger row may be `existing`, `bridged`, or `new-proved` only when its Lean cell begins with the fully qualified declaration. A `ProjectEpisteme` declaration's docstring must start with the row's ID in backticks. A declaration shared by several rows starts with all their IDs, separated by commas. After changing a ledger, run `python3 checks/ledger.py --write`. It regenerates the tables in `docs/algd-coverage.md` and the Lean check `checks/LedgerDeclarations.lean`.
 - The CI workflow runs on every pull request to `main` and on every push to `main`. Require these three jobs for merges into `main`:
   - **Ledger checks** tests and runs `checks/ledger.py`. It checks the ledgers against the source index, the coverage report, the Lean docstrings, and the Markdown links.
   - **Detect Lean changes** decides whether the Lean steps run.

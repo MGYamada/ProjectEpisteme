@@ -16,10 +16,10 @@ This report counts the rows of the [alg-d ledgers](ledger/algd/) against the [so
 | --- | --- | --- | --- | --- | --- |
 | Chapter 0 | 8 / 8 | 120 / 120 | 189 | 0 | 2 |
 | Chapter 1 | 5 / 5 | 121 / 121 | 175 | 154 | 0 |
-| Chapter 2 | 3 / 10 | 72 / 202 | 105 | 95 | 0 |
-| **Chapters 0–2** | **16 / 23** | **313 / 443** | **469** | **249** | **2** |
+| Chapter 2 | 4 / 10 | 96 / 202 | 141 | 124 | 0 |
+| **Chapters 0–2** | **17 / 23** | **337 / 443** | **505** | **278** | **2** |
 
-Verified main-text items: **249** (179 numbered items and 70 definitions or prose claims). Exercises cataloged: **2**.
+Verified main-text items: **278** (197 numbered items and 81 definitions or prose claims). Exercises cataloged: **2**.
 <!-- END GENERATED: summary -->
 
 The two Chapter 0 exercises are ALGD-C0-CDIAG-E01 and -E02. They will be proved in a later phase.
@@ -46,10 +46,11 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | [C1-NAT](ledger/algd/C1-NAT.md) | 23 | 13 (13 + 0) | 8 | 2 | 0 | 0 | 12 | 6 | 4 | 0 | 1 | 22 |
 | [C1-YONEDA](ledger/algd/C1-YONEDA.md) | 19 | 11 (9 + 2) | 5 | 3 | 0 | 5 | 7 | 4 | 1 | 0 | 2 | 12 |
 | **Chapter 1** | **175** | **121 (115 + 6)** | **38** | **16** | **0** | **5** | **61** | **49** | **44** | **3** | **13** | **154** |
+| [C2-AFT](ledger/algd/C2-AFT.md) | 36 | 24 (23 + 1) | 11 | 1 | 0 | 6 | 4 | 15 | 10 | 0 | 1 | 29 |
 | [C2-COYONEDA](ledger/algd/C2-COYONEDA.md) | 6 | 2 (2 + 0) | 0 | 4 | 0 | 0 | 1 | 2 | 3 | 0 | 0 | 6 |
 | [C2-FILTERED](ledger/algd/C2-FILTERED.md) | 27 | 15 (15 + 0) | 9 | 3 | 0 | 0 | 6 | 9 | 9 | 0 | 3 | 24 |
 | [C2-KAN](ledger/algd/C2-KAN.md) | 72 | 55 (47 + 8) | 12 | 5 | 0 | 0 | 23 | 11 | 31 | 0 | 7 | 65 |
-| **Chapter 2** | **105** | **72 (64 + 8)** | **21** | **12** | **0** | **0** | **30** | **22** | **43** | **0** | **10** | **95** |
+| **Chapter 2** | **141** | **96 (87 + 9)** | **32** | **13** | **0** | **6** | **34** | **37** | **53** | **0** | **11** | **124** |
 <!-- END GENERATED: by-document -->
 
 ## Verified declarations
@@ -211,6 +212,35 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | ALGD-C1-YONEDA-09 | `ProjectEpisteme.AlgD.Yoneda.nonempty_iso_of_yoneda_comp_iso` | bridged |
 | ALGD-C1-YONEDA-10 | `ProjectEpisteme.AlgD.Yoneda.yonedaEquiv_natural_in_object` | existing |
 | ALGD-C1-YONEDA-11 | `ProjectEpisteme.AlgD.Yoneda.yonedaEquiv_natural_in_presheaf` | existing |
+| ALGD-C2-AFT-01 | `ProjectEpisteme.AlgD.Kan.isLeftAdjoint_tfae` | new-proved |
+| ALGD-C2-AFT-02 | `ProjectEpisteme.AlgD.Kan.colimit_of_terminal` | existing |
+| ALGD-C2-AFT-03 | `ProjectEpisteme.AlgD.Kan.pointwise_tfae` | new-proved |
+| ALGD-C2-AFT-D01 | `ProjectEpisteme.AlgD.AFT.IsFinalColim` | new-proved |
+| ALGD-C2-AFT-04 | `ProjectEpisteme.AlgD.AFT.isLeftKanExtension_comp_iff` | new-proved |
+| ALGD-C2-AFT-06 | `ProjectEpisteme.AlgD.AFT.isFinalColim_of_isRightAdjoint` | bridged |
+| ALGD-C2-AFT-07 | `ProjectEpisteme.AlgD.AFT.isFinalColim_of_isEquivalence` | bridged |
+| ALGD-C2-AFT-D02 | `CategoryTheory.Zigzag` | existing |
+| ALGD-C2-AFT-D03 | `ProjectEpisteme.AlgD.AFT.isConnected_iff_zigzag` | bridged |
+| ALGD-C2-AFT-08 | `ProjectEpisteme.AlgD.AFT.isFinalColim_tfae` | bridged |
+| ALGD-C2-AFT-09 | `ProjectEpisteme.AlgD.AFT.nonempty_isTerminal_iff_isFinalColim` | new-proved |
+| ALGD-C2-AFT-10 | `ProjectEpisteme.AlgD.AFT.isLeftAdjoint_of_leftSolutionSetCondition` | new-proved |
+| ALGD-C2-AFT-D04 | `ProjectEpisteme.AlgD.AFT.EpiUnder` | new-proved |
+| ALGD-C2-AFT-12 | `ProjectEpisteme.AlgD.AFT.epiUnder_hom_subsingleton` | new-proved |
+| ALGD-C2-AFT-D05 | `ProjectEpisteme.AlgD.AFT.Quotients` | new-proved |
+| ALGD-C2-AFT-D06 | `ProjectEpisteme.AlgD.AFT.isWellCopowered_iff` | bridged |
+| ALGD-C2-AFT-13 | `ProjectEpisteme.AlgD.AFT.isWellCopowered_of_smallCategory` | bridged |
+| ALGD-C2-AFT-14 | `ProjectEpisteme.AlgD.AFT.isWellCopowered_type` | new-proved |
+| ALGD-C2-AFT-D07 | `ProjectEpisteme.AlgD.AFT.isGeneratingSet_iff` | bridged |
+| ALGD-C2-AFT-D08 | `ProjectEpisteme.AlgD.AFT.isGeneratingSet_singleton_iff` | bridged |
+| ALGD-C2-AFT-16 | `CategoryTheory.Types.isSeparator_punit` | existing |
+| ALGD-C2-AFT-18 | `ProjectEpisteme.AlgD.AFT.preservesColimits_iff_isLeftAdjoint` | bridged |
+| ALGD-C2-AFT-D09 | `ProjectEpisteme.AlgD.AFT.isWellPowered_iff` | bridged |
+| ALGD-C2-AFT-D10 | `ProjectEpisteme.AlgD.AFT.isCogeneratingSet_iff` | bridged |
+| ALGD-C2-AFT-D11 | `ProjectEpisteme.AlgD.AFT.isGeneratingSet_singleton_op_iff` | bridged |
+| ALGD-C2-AFT-19 | `CategoryTheory.isRightAdjoint_of_preservesLimits_of_solutionSetCondition` | existing |
+| ALGD-C2-AFT-20 | `ProjectEpisteme.AlgD.AFT.preservesLimits_iff_isRightAdjoint` | bridged |
+| ALGD-C2-AFT-22 | `ProjectEpisteme.AlgD.AFT.isCorepresentable_of_solutionSetCondition` | bridged |
+| ALGD-C2-AFT-23 | `ProjectEpisteme.AlgD.AFT.preservesLimits_tfae` | bridged |
 | ALGD-C2-COYONEDA-R01 | `ProjectEpisteme.AlgD.Coyoneda.rightKanExtension_id` | existing |
 | ALGD-C2-COYONEDA-R02 | `ProjectEpisteme.AlgD.Coyoneda.yoneda_via_rightKanExtension` | bridged |
 | ALGD-C2-COYONEDA-R03 | `ProjectEpisteme.AlgD.Coyoneda.endWedge_isLimit` | new-proved |
@@ -320,6 +350,7 @@ These rows are expected to become `new-proved` or `blocked` rather than `existin
   - Skeletons as full subcategories and their uniqueness (EQUIV-D07, -19, -20).
   - Kan lifts and absolute Kan extensions for functors (KAN-D04, -D07, -D08). They are verified as new work; mathlib has them only for bicategories.
   - The characterization of presheaf categories by small projective, strongly generating subcategories (KAN-51), and the hom-set form of pointwise Kan extensions (KAN-24, -25). Both are verified as new work.
+  - Kan extensions along a composite (AFT-04), the left-adjoint form of the general adjoint functor theorem (AFT-10) and well-copowered categories through quotient objects (AFT-D06). They are verified as new work or bridges.
 - **Topology and algebra prerequisites**
   - π₁ as a functor on pointed spaces (INTRO-10, CONSTR-07).
   - Seifert–van Kampen for groupoids (FUNDGPD-10, -11).
@@ -332,3 +363,4 @@ These rows are expected to become `new-proved` or `blocked` rather than `existin
   - A missing nonemptiness hypothesis in SHEAF 例 6.
   - A missing injectivity hypothesis in ADJOINT 例 51.
   - A missing commutativity hypothesis in ADJOINT 例 50.
+  - A possibly missing hypothesis in AFT 補題 5 (H should commute with F†E), to be checked when the row is verified.

@@ -165,6 +165,17 @@ class LedgerCheckTests(unittest.TestCase):
         self.edit("ProjectEpisteme/Test.lean", "`ALGD-C1-TEST-01` ", "")
         self.assertProblem("whose docstring must start with `ALGD-C1-TEST-01`")
 
+    def test_shared_declaration(self):
+        self.edit("docs/ledger/algd/C1-TEST.md",
+                  "| `Foo` | — | unreviewed | — | candidate only |",
+                  "| `Foo` | `ProjectEpisteme.Test.thm` | existing | — | verified |")
+        self.assertProblem("ALGD-C1-TEST-D01 names ProjectEpisteme.Test.thm, whose docstring must start")
+        self.edit("ProjectEpisteme/Test.lean", "`ALGD-C1-TEST-01` ", "`ALGD-C1-TEST-01`, `ALGD-C1-TEST-D01` ")
+        self.assertEqual(ledger.run(self.root, write=True), [])
+        self.edit("ProjectEpisteme/Test.lean", "theorem thm : True := trivial",
+                  "theorem thm : True := trivial\n\n/-- `ALGD-C1-TEST-D01`. -/\ntheorem thm2 : True := trivial")
+        self.assertProblem("ALGD-C1-TEST-D01 is also used at ProjectEpisteme/Test.lean:3")
+
     def test_docstring_id_must_be_verified(self):
         self.edit("docs/ledger/algd/C1-TEST.md", "`ProjectEpisteme.Test.thm` | existing", "— | unreviewed")
         self.assertProblem("ALGD-C1-TEST-01 is 'unreviewed'")

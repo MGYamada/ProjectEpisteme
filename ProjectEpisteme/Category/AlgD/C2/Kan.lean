@@ -597,7 +597,7 @@ theorem adjunction_of_commutesWith (G : D ⥤ C) (η : 𝟭 C ⟶ F ⋙ G) (hG :
       left_triangle_components := left
       right_triangle_components := right }, rfl⟩
 
-/-- `ALGD-C2-KAN-17` (定理 17, p.19–20).
+/-- `ALGD-C2-KAN-17`, `ALGD-C2-AFT-01` (定理 17, p.19–20; restated as `aft.pdf` 定理 1, p.1–2).
 For `F : C → D` the following are equivalent: (1) `F` is a left adjoint; (2) an absolute left
 Kan extension `⟨F† id_C, η⟩` of `id_C` along `F` exists; (3) a left Kan extension
 `⟨F† id_C, η⟩` exists and `F` commutes with it. In that case `F ⊣ F† id_C` with unit `η`.
@@ -637,7 +637,7 @@ theorem hasTerminal_iff_hasColimit_id :
   rw [← Category.comp_id f, ← hid]
   exact colimit.w (𝟭 C) f
 
-/-- `ALGD-C2-KAN-19` (命題 19, p.21).
+/-- `ALGD-C2-KAN-19`, `ALGD-C2-AFT-02` (命題 19, p.21; restated as `aft.pdf` 命題 2, p.2).
 If `J` has a terminal object `1`, every `T : J → C` has a colimit and `colim T ≅ T(1)`. -/
 theorem colimit_of_terminal {J : Type u₄} [Category.{v₄} J] (T : J ⥤ C) {t : J}
     (ht : IsTerminal t) : HasColimit T ∧ ∀ [HasColimit T], Nonempty (colimit T ≅ T.obj t) :=
@@ -1204,7 +1204,7 @@ theorem isPointwise_of_commutesWith_yoneda {F : C ⥤ D} {E : C ⥤ U} {T : D �
     Nonempty (LeftExtension.mk T η).IsPointwiseLeftKanExtension :=
   (isPointwise_iff_bijective T η).2 fun d u ↦ bijective_of_commutesWith_yoneda η d u (hu u)
 
-/-- `ALGD-C2-KAN-25` (定理 25, p.28–31).
+/-- `ALGD-C2-KAN-25`, `ALGD-C2-AFT-03` (定理 25, p.28–31; restated as `aft.pdf` 定理 3, p.2).
 For `F : C → D`, `E : C → U` and `T : D → U` the following are equivalent:
 (1) some `η : E ⇒ TF` makes `⟨T, η⟩` a pointwise left Kan extension of `E` along `F`;
 (2) some `η` makes `⟨T, η⟩` a left Kan extension with which every `Hom_U(−, u) : U → Set^op`
