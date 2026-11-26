@@ -17,6 +17,7 @@ Verify the definitions, theorems, and representative examples in the main text o
 The first formalization milestone is to take one CWM theorem from source review through a Lean build and an axiom audit. The Yoneda lemma is the proposed example.
 
 - [Design and verification criteria](docs/Project_Episteme_Design.md)
+- [Category track strategy](docs/Project_Episteme_Category_Strategy.md), with the [alg-d source index](docs/algd-source-index.md) and [coverage](docs/algd-coverage.md)
 - [Notes on alg-d.com, Chapters 0–2, and the Kan extension plan](docs/Project_Episteme_Initial_Plan.md)
 - [Joyal–Street coherence roadmap](docs/Project_Episteme_Joyal_Street_Coherence_Roadmap.md)
 - [Contributor instructions](AGENTS.md)

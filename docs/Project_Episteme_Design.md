@@ -32,7 +32,7 @@ Track the number of cataloged items and the number verified. Verification requir
 
 ## 1. Category (Mac Lane 2.0)
 
-Develop the language and universal properties of CWM I–V. Use the special limits of Chapter IX to reach Kan extensions in Chapter X. The Yoneda lemma in CWM III §2 is the proposed first Lean example. Record the source, type, hypotheses, and verification results for one proposition so later tracks have a worked ledger entry.
+Develop the language and universal properties of CWM I–V. Use the special limits of Chapter IX to reach Kan extensions in Chapter X. The Yoneda lemma in CWM III §2 is the proposed first Lean example. Record the source, type, hypotheses, and verification results for one proposition so later tracks have a worked ledger entry. The [Category strategy](Project_Episteme_Category_Strategy.md) sets the working order (alg-d first while the CWM text is unavailable), the conventions, and the ledger rules.
 
 | Phase | Design | Acceptance criteria |
 | --- | --- | --- |
