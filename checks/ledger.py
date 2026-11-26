@@ -14,7 +14,9 @@ The checks follow `docs/Project_Episteme_Category_Strategy.md`, section 6:
 * every verified row (`existing`, `bridged`, `new-proved`) names a fully qualified Lean
   declaration, and every `unreviewed` row names none;
 * every source ID in a Lean docstring belongs to a verified row naming that declaration, and
-  every verified row naming a `ProjectEpisteme` declaration has its ID in that docstring;
+  every verified row naming a `ProjectEpisteme` declaration has its ID in that docstring. A
+  docstring starts with one ID, or with several IDs separated by commas when rows share the
+  declaration (for example a result that a later PDF restates);
 * relative links and their heading anchors in the Markdown files resolve.
 
 Only the Python standard library is used.
@@ -249,11 +251,14 @@ def check_ledger(ledger: Ledger, sources: dict[str, Source]) -> list[str]:
 
 
 def lean_ids(root: Path) -> tuple[dict[str, tuple[str, str]], list[str]]:
-    """Map each source ID in a Lean docstring to its declaration and location."""
+    """Map each source ID in a Lean docstring to its declaration and location.
+
+    A docstring starts with one ID in backticks, or with several separated by commas.
+    """
     found: dict[str, tuple[str, str]] = {}
     errors = []
     pattern = re.compile(
-        r"/--\s*`(ALGD-[A-Z0-9-]+)`.*?-/\s*(?:@\[[^\]]*\]\s*)*"
+        r"/--\s*(`ALGD-[A-Z0-9-]+`(?:,\s*`ALGD-[A-Z0-9-]+`)*).*?-/\s*(?:@\[[^\]]*\]\s*)*"
         r"(?:(?:private|protected|noncomputable|nonrec)\s+)*"
         r"(?:theorem|lemma|def|abbrev|instance|structure|class|inductive)\s+([^\s:({\[]+)",
         re.DOTALL)
@@ -274,9 +279,10 @@ def lean_ids(root: Path) -> tuple[dict[str, tuple[str, str]], list[str]]:
                 full = ".".join([*stack, match.group(2)])
                 line = text.count("\n", 0, match.start()) + 1
                 where = f"{path.relative_to(root)}:{line}"
-                if match.group(1) in found:
-                    errors.append(f"{where}: {match.group(1)} is also used at {found[match.group(1)][1]}")
-                found[match.group(1)] = (full, where)
+                for source_id in re.findall(r"`(ALGD-[A-Z0-9-]+)`", match.group(1)):
+                    if source_id in found:
+                        errors.append(f"{where}: {source_id} is also used at {found[source_id][1]}")
+                    found[source_id] = (full, where)
     return found, errors
 
 

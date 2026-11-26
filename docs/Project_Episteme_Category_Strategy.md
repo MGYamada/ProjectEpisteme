@@ -33,7 +33,7 @@ These facts about the source shape the ledger:
 - **One counter per PDF.** 定理, 命題, 補題, 系, 例 and displayed equation labels share one counter. For example, yoneda.pdf numbers 定理 1, 系 2, equation (3), 系 4, …. Every number gets a ledger row, so IDs equal source numbers.
 - **Unnumbered definitions.** `定義.` blocks have no number. Some definitions appear only in prose, such as the hom functor and the Yoneda embedding.
 - **Almost no exercises.** Chapters 0–1 contain only two exercises: unnumbered 練習問題 at the end of commutative_diagram.pdf. They are cataloged and, as AGENTS.md requires, proved in a later phase. Chapter 2 is checked when it is cataloged. Most of the AGENTS.md exercise phase therefore concerns CWM.
-- **Repeated results.** sheaf_kan_extension.pdf 定理 1–7 restate kan_extension.pdf results. Their rows point to the same Lean declarations.
+- **Repeated results.** sheaf_kan_extension.pdf 定理 1–7 and aft.pdf 定理 1, 命題 2 and 定理 3 restate kan_extension.pdf results. Their rows point to the same Lean declarations, whose docstrings start with all the IDs, separated by commas.
 - **Notation.** The notes use their own notation. §5 maps it to mathlib.
 
 ## 3. Two layers of Lean code
@@ -163,7 +163,7 @@ CWM chapter-level correspondence (provisional):
 | **S2 Pilot** | YONEDA end to end | Done: see §9 |
 | **S3 Chapters 0–1** | Verify the remaining 12 Chapter 0–1 ledgers, starting with NAT, COMMA, LIMIT, and ADJOINT, which Chapter 2 depends on. NAT and COMMA done on 2026-11-26. LIMIT is done; for R01, the limit half is proved under a stronger hypothesis than the source's. ADJOINT is done; 例 52, 53 and 55 are `blocked` (mathlib has no Henselization, free lattices or Ban_1), and 例 50 and 51 add hypotheses the source leaves implicit. Isomorphisms of categories are stated with mathlib's `IsoCat`/`Functor.IsIso`, and the general constructions they need go in `ProjectEpisteme/Category/Basic/`. | Each PDF reaches 100% mapped. Every propositional row is `existing`, `bridged`, or `new-proved`, or is `blocked` with a reason. |
 | **S4 Kan extensions** | KAN (55 numbers). The SHEAF2 定理 1–7 and COYONEDA rows follow from it. KAN is done: 65 rows verified in two batches (§1–§3 with the §4–§5 rows that mathlib covers, then 補題 24, 定理 25, 系 28 and the rows built on them, through 定理 51); 7 rows are non-propositional. | Universal-property direction, pointwise versus general, and density all verified as in Initial Plan §5 |
-| **S5 Chapter 2 applications** | In order of mathlib readiness: COYONEDA → FILTERED → AFT → END → SIMPLEX → SHEAF2 → LOG → ISBELL → PROF. COYONEDA is done (6 rows verified). FILTERED is done (24 rows verified; 例 12 is in its own module so that the main module does not import topology). | New constructions go in the library layer and are reviewed for upstreaming. |
+| **S5 Chapter 2 applications** | In order of mathlib readiness: COYONEDA → FILTERED → AFT → END → SIMPLEX → SHEAF2 → LOG → ISBELL → PROF. COYONEDA is done (6 rows verified). FILTERED is done (24 rows verified; 例 12 is in its own module so that the main module does not import topology). AFT: 29 rows verified; R01, 補題 5, 命題 15, 補題 17, 例 21 and 定理 24 come next. | New constructions go in the library layer and are reviewed for upstreaming. |
 | **S6 CWM** | Item-level CWM catalog when the text is available, linked to the existing declarations | Hypotheses reviewed per CWM item |
 
 The stages are ordered by dependency, not by date. S3 and S4 may overlap, because KAN needs only NAT, COMMA, LIMIT, and ADJOINT from Chapter 1.
