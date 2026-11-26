@@ -16,10 +16,10 @@ This report counts the rows of the [alg-d ledgers](ledger/algd/) against the [so
 | --- | --- | --- | --- | --- | --- |
 | Chapter 0 | 8 / 8 | 120 / 120 | 189 | 0 | 2 |
 | Chapter 1 | 5 / 5 | 121 / 121 | 175 | 154 | 0 |
-| Chapter 2 | 3 / 10 | 72 / 202 | 105 | 92 | 0 |
-| **Chapters 0–2** | **16 / 23** | **313 / 443** | **469** | **246** | **2** |
+| Chapter 2 | 3 / 10 | 72 / 202 | 105 | 95 | 0 |
+| **Chapters 0–2** | **16 / 23** | **313 / 443** | **469** | **249** | **2** |
 
-Verified main-text items: **246** (176 numbered items and 70 definitions or prose claims). Exercises cataloged: **2**.
+Verified main-text items: **249** (179 numbered items and 70 definitions or prose claims). Exercises cataloged: **2**.
 <!-- END GENERATED: summary -->
 
 The two Chapter 0 exercises are ALGD-C0-CDIAG-E01 and -E02. They will be proved in a later phase.
@@ -47,9 +47,9 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | [C1-YONEDA](ledger/algd/C1-YONEDA.md) | 19 | 11 (9 + 2) | 5 | 3 | 0 | 5 | 7 | 4 | 1 | 0 | 2 | 12 |
 | **Chapter 1** | **175** | **121 (115 + 6)** | **38** | **16** | **0** | **5** | **61** | **49** | **44** | **3** | **13** | **154** |
 | [C2-COYONEDA](ledger/algd/C2-COYONEDA.md) | 6 | 2 (2 + 0) | 0 | 4 | 0 | 0 | 1 | 2 | 3 | 0 | 0 | 6 |
-| [C2-FILTERED](ledger/algd/C2-FILTERED.md) | 27 | 15 (15 + 0) | 9 | 3 | 0 | 3 | 6 | 9 | 6 | 0 | 3 | 21 |
+| [C2-FILTERED](ledger/algd/C2-FILTERED.md) | 27 | 15 (15 + 0) | 9 | 3 | 0 | 0 | 6 | 9 | 9 | 0 | 3 | 24 |
 | [C2-KAN](ledger/algd/C2-KAN.md) | 72 | 55 (47 + 8) | 12 | 5 | 0 | 0 | 23 | 11 | 31 | 0 | 7 | 65 |
-| **Chapter 2** | **105** | **72 (64 + 8)** | **21** | **12** | **0** | **3** | **30** | **22** | **40** | **0** | **10** | **92** |
+| **Chapter 2** | **105** | **72 (64 + 8)** | **21** | **12** | **0** | **0** | **30** | **22** | **43** | **0** | **10** | **95** |
 <!-- END GENERATED: by-document -->
 
 ## Verified declarations
@@ -231,13 +231,16 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | ALGD-C2-FILTERED-09 | `ProjectEpisteme.AlgD.Filtered.isFlat_preservesFiniteLimits` | new-proved |
 | ALGD-C2-FILTERED-10 | `ProjectEpisteme.AlgD.Filtered.coyoneda_isFlat` | new-proved |
 | ALGD-C2-FILTERED-11 | `ProjectEpisteme.AlgD.Filtered.preservesFiniteLimits_iff_lan` | existing |
+| ALGD-C2-FILTERED-12 | `ProjectEpisteme.AlgD.Filtered.TopExample.isEmpty_colimLim_iso_limColim` | new-proved |
 | ALGD-C2-FILTERED-D05 | `ProjectEpisteme.AlgD.Filtered.isSiftedSet_iff` | bridged |
 | ALGD-C2-FILTERED-D07 | `ProjectEpisteme.AlgD.Filtered.IsSiftedFlat` | new-proved |
 | ALGD-C2-FILTERED-R01 | `ProjectEpisteme.AlgD.Filtered.isSiftedSet_of_isFiltered` | bridged |
 | ALGD-C2-FILTERED-D09 | `ProjectEpisteme.AlgD.Filtered.Span` | bridged |
+| ALGD-C2-FILTERED-13 | `ProjectEpisteme.AlgD.Filtered.span_isConnected_of_isSiftedFlat` | new-proved |
 | ALGD-C2-FILTERED-14 | `ProjectEpisteme.AlgD.Filtered.isSifted_tfae` | bridged |
 | ALGD-C2-FILTERED-R02 | `ProjectEpisteme.AlgD.Filtered.isSiftedSet_of_hasFiniteCoproducts` | bridged |
 | ALGD-C2-FILTERED-R03 | `ProjectEpisteme.AlgD.Filtered.isCosifted_iff` | new-proved |
+| ALGD-C2-FILTERED-15 | `ProjectEpisteme.AlgD.Filtered.isSiftedFlat_tfae` | new-proved |
 | ALGD-C2-KAN-D01 | `ProjectEpisteme.AlgD.Kan.isLeftKanExtension_iff` | bridged |
 | ALGD-C2-KAN-D03 | `ProjectEpisteme.AlgD.Kan.isRightKanExtension_iff` | bridged |
 | ALGD-C2-KAN-D04 | `ProjectEpisteme.AlgD.Kan.IsLeftKanLift` | new-proved |
