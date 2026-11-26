@@ -9,6 +9,7 @@ public import ProjectEpisteme.Category.AlgD.C1.Yoneda
 public import ProjectEpisteme.Category.AlgD.C2.AFT
 public import ProjectEpisteme.Category.AlgD.C2.AFTTop
 public import ProjectEpisteme.Category.AlgD.C2.Coyoneda
+public import ProjectEpisteme.Category.AlgD.C2.End
 public import ProjectEpisteme.Category.AlgD.C2.Filtered
 public import ProjectEpisteme.Category.AlgD.C2.FilteredTop
 public import ProjectEpisteme.Category.AlgD.C2.Kan
