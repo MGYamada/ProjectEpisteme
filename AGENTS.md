@@ -14,9 +14,32 @@
 - Reuse mathlib types, type classes, and theorems. When the source uses a different formulation, consider a bridging lemma. Add definitions and proofs for obligations the existing declarations do not cover. Use the narrowest imports needed and consider contributing generally useful results to mathlib.
 - Follow mathlib notation, including `X ⟶ Y`, `f ≫ g`, and `Cᵒᵖ`. Separate object and morphism universes when needed. Record relevant smallness assumptions, uses of choice or classical logic, and noncomputability. Distinguish natural isomorphism from definitional equality. Use Lean’s existing universe hierarchy and foundations.
 - Check morphism direction and composition order with examples when working with braidings, permutation actions, duality, or complexes. Use the hypotheses each theorem needs, such as `Abelian`, the Grothendieck condition, left exactness, or enough injectives.
+- Write every binder: `autoImplicit` and `relaxedAutoImplicit` are off in `lakefile.toml`. Do not use `set_option maxHeartbeats` or `set_option backward.*`; `checks/ForbiddenOptions.lean` enforces both.
+- After adding a module, run `lake exe mk_all --lib ProjectEpisteme` to regenerate the root module, which imports every module.
 
 ## Verification and reporting
 
-Check the changed modules with `lake env lean <file.lean>` while working. Run `lake build` before calling the work complete. Use `#print axioms` on key declarations and check their types and imports under the same pins. Verified results must be free of `sorry`, `admit`, and additional mathematical axioms, including a Grothendieck universe axiom.
+Check the changed modules with `lake env lean <file.lean>` while working. Run `lake build --wfail` before calling the work complete. Use `#print axioms` on key declarations and check their types and imports under the same pins. Verified results must be free of `sorry`, `admit`, and additional mathematical axioms, including a Grothendieck universe axiom.
 
 For each verified item, record the corresponding Lean declaration and the review of its hypotheses and conclusion against the source. Identify candidates, unresolved prerequisites, and any verification that could not run. Report progress against the scope and the actual state of verification.
+
+- A ledger row may be `existing`, `bridged`, or `new-proved` only when its Lean cell begins with the fully qualified declaration. A `ProjectEpisteme` declaration's docstring must start with the row's ID in backticks. After changing a ledger, run `python3 checks/ledger.py --write`. It regenerates the tables in `docs/algd-coverage.md` and the Lean check `checks/LedgerDeclarations.lean`.
+- The CI workflow runs on every pull request to `main` and on every push to `main`. Require these three jobs for merges into `main`:
+  - **Ledger checks** tests and runs `checks/ledger.py`. It checks the ledgers against the source index, the coverage report, the Lean docstrings, and the Markdown links.
+  - **Detect Lean changes** decides whether the Lean steps run.
+  - **Lean build** runs `lake build --wfail`, `lake exe mk_all --check`, and `checks/run.sh`. That script runs the transitive axiom audit (allowlist: `propext`, `Classical.choice`, `Quot.sound`), the forbidden-option scan, and the ledger-declaration check.
+- A pull request that changes no Lean source, check, Lake configuration, toolchain, manifest, or Lean workflow file skips the Lean steps. Pushes to `main` always run them.
+
+## Run the checks locally
+
+From the repository root, after fetching the Mathlib cache with `lake exe cache get`:
+
+```sh
+lake build --wfail ProjectEpisteme
+lake exe mk_all --check --lib ProjectEpisteme
+checks/run.sh
+python3 -m unittest discover -s checks/tests
+python3 checks/ledger.py
+```
+
+`checks/run.sh` compiles every `checks/*.lean` file with warnings as errors and with `autoImplicit` and `relaxedAutoImplicit` off, and prints one verdict per file. Pass specific files to run a subset, and set `JOBS` to change the parallelism. `checks/ledger.py` needs only Python 3.9 or newer and its standard library.

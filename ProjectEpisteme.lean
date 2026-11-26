@@ -1,5 +1,4 @@
-module
+module  -- shake: keep-all --deprecated_module: ignore
 
 public import ProjectEpisteme.Category
-
-/-! The root module of M⊗AI (Project Episteme). -/
+public import ProjectEpisteme.Category.AlgD.C1.Yoneda

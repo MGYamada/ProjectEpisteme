@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ledger:
+    name: Ledger checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+      - name: Test the ledger checker
+        run: python -m unittest discover -s checks/tests -v
+      - name: Check ledgers, source index, coverage report and links
+        run: python checks/ledger.py
+
+  lean-scope:
+    name: Detect Lean changes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      required: ${{ steps.scope.outputs.required }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          # A pull request is checked out as its merge commit. Keep the first
+          # parent as well, so the files the pull request changes can be listed.
+          fetch-depth: 2
+      - name: Detect whether the change can affect Lean
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        # Pushes to main always run the Lean steps: they verify main and warm
+        # the caches that pull requests restore. A pull request skips them only
+        # when it changes no Lean source, check, toolchain, manifest, Lake
+        # configuration or Lean workflow file. A ledger change that alters a
+        # verified declaration also changes checks/LedgerDeclarations.lean,
+        # which the Ledger checks job keeps in sync. If Git cannot compare the
+        # revisions, the steps run. Rename detection is off, so Git also checks
+        # the source path of a move.
+        run: |
+          lean=true
+          if [ "$EVENT_NAME" = pull_request ]; then
+            if git diff --quiet --no-renames HEAD^1 HEAD -- ':(glob)**/*.lean' \
+                lakefile.toml lake-manifest.json lean-toolchain checks/ \
+                .github/workflows/ci.yml .github/actions/lean-setup/; then
+              lean=false
+            fi
+          fi
+          echo "required=$lean" >> "$GITHUB_OUTPUT"
+          echo "Lean steps required: $lean"
+
+  lean:
+    name: Lean build
+    needs: lean-scope
+    # This job is meant to be a required status check, so it always runs and
+    # skips its steps when the change cannot affect Lean. When the build grows,
+    # split it into per-track jobs and keep this job, under this name, as the
+    # one that joins their results.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Report whether the Lean steps run
+        env:
+          LEAN_REQUIRED: ${{ needs.lean-scope.outputs.required }}
+        run: |
+          echo "Lean steps required: $LEAN_REQUIRED"
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        if: needs.lean-scope.outputs.required == 'true'
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/lean-setup
+        if: needs.lean-scope.outputs.required == 'true'
+        with:
+          save-dependencies: 'true'
+      - name: Restore the build cache
+        if: needs.lean-scope.outputs.required == 'true'
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: .lake/build
+          key: lean-build-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}-${{ github.sha }}
+          restore-keys: lean-build-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'lakefile.toml') }}-
+      - name: Build the library with warnings as errors
+        if: needs.lean-scope.outputs.required == 'true'
+        run: lake build --wfail ProjectEpisteme
+      - name: Check that the root module imports every module
+        if: needs.lean-scope.outputs.required == 'true'
+        run: lake exe mk_all --check --lib ProjectEpisteme
+      - name: Audit axioms, forbidden options and ledger declarations
+        if: needs.lean-scope.outputs.required == 'true'
+        run: checks/run.sh
