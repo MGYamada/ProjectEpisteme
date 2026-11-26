@@ -15,11 +15,11 @@ This report counts the rows of the [alg-d ledgers](ledger/algd/) against the [so
 | Scope | PDFs cataloged | Numbers 1..max with a row | Ledger rows | Verified | Exercises cataloged |
 | --- | --- | --- | --- | --- | --- |
 | Chapter 0 | 8 / 8 | 120 / 120 | 189 | 0 | 2 |
-| Chapter 1 | 5 / 5 | 121 / 121 | 175 | 82 | 0 |
+| Chapter 1 | 5 / 5 | 121 / 121 | 175 | 86 | 0 |
 | Chapter 2 | 0 / 10 | 0 / 201 | — | — | not yet cataloged |
-| **Chapters 0–2** | **13 / 23** | **241 / 442** | **364** | **82** | **2** |
+| **Chapters 0–2** | **13 / 23** | **241 / 442** | **364** | **86** | **2** |
 
-Verified main-text items: **82** (56 numbered items and 26 definitions or prose claims). Exercises cataloged: **2**.
+Verified main-text items: **86** (59 numbered items and 27 definitions or prose claims). Exercises cataloged: **2**.
 <!-- END GENERATED: summary -->
 
 The two Chapter 0 exercises are ALGD-C0-CDIAG-E01 and -E02. They will be proved in a later phase.
@@ -42,10 +42,10 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | **Chapter 0** | **189** | **120 (117 + 3)** | **50** | **17** | **2** | **189** | **0** | **0** | **0** | **0** | **0** | **0** |
 | [C1-ADJOINT](ledger/algd/C1-ADJOINT.md) | 72 | 56 (55 + 1) | 9 | 7 | 0 | 72 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [C1-COMMA](ledger/algd/C1-COMMA.md) | 10 | 8 (8 + 0) | 2 | 0 | 0 | 0 | 3 | 2 | 4 | 0 | 1 | 9 |
-| [C1-LIMIT](ledger/algd/C1-LIMIT.md) | 51 | 33 (30 + 3) | 14 | 4 | 0 | 4 | 13 | 17 | 9 | 0 | 8 | 39 |
+| [C1-LIMIT](ledger/algd/C1-LIMIT.md) | 51 | 33 (30 + 3) | 14 | 4 | 0 | 0 | 13 | 18 | 12 | 0 | 8 | 43 |
 | [C1-NAT](ledger/algd/C1-NAT.md) | 23 | 13 (13 + 0) | 8 | 2 | 0 | 0 | 12 | 6 | 4 | 0 | 1 | 22 |
 | [C1-YONEDA](ledger/algd/C1-YONEDA.md) | 19 | 11 (9 + 2) | 5 | 3 | 0 | 5 | 7 | 4 | 1 | 0 | 2 | 12 |
-| **Chapter 1** | **175** | **121 (115 + 6)** | **38** | **16** | **0** | **81** | **35** | **29** | **18** | **0** | **12** | **82** |
+| **Chapter 1** | **175** | **121 (115 + 6)** | **38** | **16** | **0** | **77** | **35** | **30** | **21** | **0** | **12** | **86** |
 <!-- END GENERATED: by-document -->
 
 ## Verified declarations
@@ -75,6 +75,7 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | ALGD-C1-LIMIT-D08 | `ProjectEpisteme.AlgD.Limit.limit_iff_terminal_colimit_iff_initial` | bridged |
 | ALGD-C1-LIMIT-09 | `ProjectEpisteme.AlgD.Limit.fan_isLimit_iff` | bridged |
 | ALGD-C1-LIMIT-10 | `ProjectEpisteme.AlgD.Limit.decreasing_sequence_limit` | bridged |
+| ALGD-C1-LIMIT-11 | `ProjectEpisteme.AlgD.Limit.padic_limit` | new-proved |
 | ALGD-C1-LIMIT-D10 | `ProjectEpisteme.AlgD.Limit.completeness_definitions` | existing |
 | ALGD-C1-LIMIT-12 | `ProjectEpisteme.AlgD.Limit.types_limit` | bridged |
 | ALGD-C1-LIMIT-13 | `ProjectEpisteme.AlgD.Limit.types_colimit` | bridged |
@@ -82,9 +83,12 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | ALGD-C1-LIMIT-16 | `ProjectEpisteme.AlgD.Limit.complete_of_products_equalizers` | existing |
 | ALGD-C1-LIMIT-17 | `ProjectEpisteme.AlgD.Limit.finitelyComplete_finitelyCocomplete` | existing |
 | ALGD-C1-LIMIT-18 | `ProjectEpisteme.AlgD.Limit.colimit_functor_unique` | new-proved |
+| ALGD-C1-LIMIT-19 | `ProjectEpisteme.AlgD.Limit.iterated_colimit_iff` | new-proved |
+| ALGD-C1-LIMIT-R01 | `ProjectEpisteme.AlgD.Limit.colimits_commute` | bridged |
 | ALGD-C1-LIMIT-20 | `ProjectEpisteme.AlgD.Limit.functorCategory_colimit_pointwise` | existing |
 | ALGD-C1-LIMIT-21 | `ProjectEpisteme.AlgD.Limit.functorCategory_cocomplete_complete` | existing |
 | ALGD-C1-LIMIT-22 | `ProjectEpisteme.AlgD.Limit.presheaf_complete_cocomplete` | existing |
+| ALGD-C1-LIMIT-23 | `ProjectEpisteme.AlgD.Limit.Ex23.counterexample` | new-proved |
 | ALGD-C1-LIMIT-D12 | `ProjectEpisteme.AlgD.Limit.representable_iff` | bridged |
 | ALGD-C1-LIMIT-24 | `ProjectEpisteme.AlgD.Limit.representing_object_unique` | bridged |
 | ALGD-C1-LIMIT-25 | `ProjectEpisteme.AlgD.Limit.isIso_iff_unique_factorization` | bridged |

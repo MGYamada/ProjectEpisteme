@@ -1,7 +1,10 @@
 module
 
 public import Mathlib.CategoryTheory.IsoCat
+public import Mathlib.CategoryTheory.Comma.Arrow
+public import Mathlib.Data.ZMod.Basic
 public import Mathlib.CategoryTheory.Limits.Elements
+public import Mathlib.CategoryTheory.Limits.Fubini
 public import Mathlib.CategoryTheory.Limits.FunctorCategory.Basic
 public import Mathlib.CategoryTheory.Limits.FunctorCategory.EpiMono
 public import Mathlib.CategoryTheory.Limits.Preserves.Limits
@@ -549,6 +552,39 @@ theorem decreasing_sequence_limit (x : ℕ → ℝ) (hx : Antitone x) (hb : BddB
       π := { app := fun n ↦ homOfLE (ciInf_le hb n.unop) } }
   exact ⟨c, rfl, ⟨Preorder.isLimitOfIsGLB F c (hrange ▸ isGLB_ciInf hb)⟩⟩
 
+/-- The reduction map `ℤ/p^(n+2) → ℤ/p^(n+1)`. -/
+def reduction (p n : ℕ) : ZMod (p ^ (n + 2)) →+* ZMod (p ^ (n + 1)) :=
+  ZMod.castHom (pow_dvd_pow p (Nat.le_succ (n + 1))) _
+
+/-- 例 11's diagram `n ↦ ℤ/p^(n+1)` with the reduction maps, a functor `ℕ^op → Set`. -/
+abbrev padicDiagram (p : ℕ) : ℕᵒᵖ ⥤ Type :=
+  Functor.ofOpSequence (X := fun n ↦ ZMod (p ^ (n + 1))) fun n ↦ ↾(reduction p n)
+
+/-- `ALGD-C1-LIMIT-11` (例 11, pp.9–10).
+For the diagram `T : J^op → Set` with `T n = ℤ/p^n ℤ` and the reduction maps (indexed here by
+`n ↦ ℤ/p^(n+1)`, so that `n = 0` is the source's `n = 1`), a cone `θ : ∆X ⇒ T` is exactly a
+family `θ_n : X → ℤ/p^(n+1)` with `T f_n ∘ θ_{n+1} = θ_n` for consecutive steps. The limit
+exists; 「普遍性」 例 14 defines `ℤ_p` to be this limit. -/
+theorem padic_limit (p : ℕ) (X : Type) :
+    HasLimit (padicDiagram p) ∧
+      (∀ (π : (Functor.const ℕᵒᵖ).obj X ⟶ padicDiagram p) (n : ℕ) (x : X),
+        reduction p n (π.app (Opposite.op (n + 1)) x) = π.app (Opposite.op n) x) ∧
+      ∀ θ : ∀ n, X → ZMod (p ^ (n + 1)), (∀ n x, reduction p n (θ (n + 1) x) = θ n x) →
+        ∃! π : (Functor.const ℕᵒᵖ).obj X ⟶ padicDiagram p,
+          ∀ n x, π.app (Opposite.op n) x = θ n x := by
+  refine ⟨inferInstance, fun π n x ↦ ?_, fun θ hθ ↦ ?_⟩
+  · have := ConcreteCategory.congr_hom (π.naturality (homOfLE (Nat.le_succ n)).op) x
+    simp only [Functor.const_obj_obj, Functor.const_obj_map] at this
+    rw [Functor.ofOpSequence_map_homOfLE_succ] at this
+    exact this.symm
+  · refine ⟨NatTrans.ofOpSequence (fun n ↦ ↾(θ n)) fun n ↦ ?_, fun n x ↦ rfl, fun π hπ ↦ ?_⟩
+    · ext x
+      simp only [Functor.const_obj_obj, Functor.const_obj_map,
+        Functor.ofOpSequence_map_homOfLE_succ]
+      exact (hθ n x).symm
+    · ext n x
+      exact hπ n.unop x
+
 /-- `ALGD-C1-LIMIT-D10` (定義 (有限・小・完備 等), pp.10–11).
 "Small" means small relative to the hom universe `v` of `C`, so `C` is complete when it has
 limits of all `J` with `SmallCategory J` and `J : Type v`, and cocomplete dually. Finitely
@@ -665,6 +701,144 @@ theorem colimit_functor_unique {I : Type*} [Category I] {J : Type*} [Category J]
           eqToHom (hF j').symm := aux _ _ _
       _ = _ := by rw [key f]; rfl
 
+section Iterated
+
+variable {I : Type*} [Category I] {J : Type*} [Category J] (T : I × J ⥤ C)
+  (c : ∀ j, ColimitCocone ((Functor.curry.obj T).flip.obj j))
+
+/-- The naturality of `(µ_j)_i` in `j` (condition (2) of 定理 18) for `colim_i T(i, −)`. -/
+lemma iterated_naturality (i : I) {j j' : J} (f : j ⟶ j') :
+    (c j).cocone.ι.app i ≫ (combineCocones (Functor.curry.obj T) c).pt.map f =
+      T.map (X := (i, j)) (Y := (i, j')) (𝟙 i, f) ≫ (c j').cocone.ι.app i :=
+  (((combineCocones (Functor.curry.obj T) c).ι.app i).naturality f).symm
+
+/-- Naturality of the colimit legs `µ_j` in `i`, written with `T`. -/
+lemma colimit_leg_naturality (j : J) {i i' : I} (f : i ⟶ i') :
+    T.map (X := (i, j)) (Y := (i', j)) (f, 𝟙 j) ≫ (c j).cocone.ι.app i' = (c j).cocone.ι.app i := by
+  simpa using (c j).cocone.ι.naturality f
+
+/-- A cocone over `colim_i T(i, −)` gives a cocone over `T` with legs `s_j ∘ (µ_j)_i`. -/
+def coconeOfIterated (s : Cocone (combineCocones (Functor.curry.obj T) c).pt) : Cocone T where
+  pt := s.pt
+  ι :=
+    { app := fun p ↦ (c p.2).cocone.ι.app p.1 ≫ s.ι.app p.2
+      naturality := by
+        rintro ⟨i, j⟩ ⟨i', j'⟩ ⟨f₁, f₂⟩
+        have hT : T.map (X := (i, j)) (Y := (i', j')) (f₁, f₂) =
+            T.map (X := (i, j)) (Y := (i, j')) (𝟙 i, f₂) ≫
+              T.map (X := (i, j')) (Y := (i', j')) (f₁, 𝟙 j') := by
+          rw [← T.map_comp]; simp
+        have hs : (combineCocones (Functor.curry.obj T) c).pt.map f₂ ≫ s.ι.app j' = s.ι.app j := by
+          simpa using s.ι.naturality f₂
+        dsimp only [Functor.const_obj_obj, Functor.const_obj_map]
+        rw [Category.comp_id, hT, Category.assoc]
+        erw [reassoc_of% colimit_leg_naturality T c j' f₁]
+        exact (Category.assoc _ _ _).symm.trans
+          ((congrArg (· ≫ s.ι.app j') (iterated_naturality T c i f₂).symm).trans
+            ((Category.assoc _ _ _).trans (congrArg ((c j).cocone.ι.app i ≫ ·) hs))) }
+
+/-- The cocone over `T(−, j)` given by the legs of a cocone over `T` at `(i, j)`. -/
+def legCocone (t : Cocone T) (j : J) : Cocone ((Functor.curry.obj T).flip.obj j) where
+  pt := t.pt
+  ι :=
+    { app := fun i ↦ t.ι.app (i, j)
+      naturality := fun i i' f ↦ by simp }
+
+/-- A cocone over `T` gives a cocone over `colim_i T(i, −)`, whose leg at `j` is induced by the
+legs at `(i, j)`. -/
+def iteratedCoconeOf (t : Cocone T) : Cocone (combineCocones (Functor.curry.obj T) c).pt where
+  pt := t.pt
+  ι :=
+    { app := fun j ↦ (c j).isColimit.desc (legCocone T t j)
+      naturality := fun j j' f ↦ by
+        apply (c j).isColimit.hom_ext
+        intro i
+        have ht : T.map (X := (i, j)) (Y := (i, j')) (𝟙 i, f) ≫ t.ι.app (i, j') = t.ι.app (i, j) := by
+          simp
+        exact (Category.assoc _ _ _).symm.trans
+          ((congrArg (· ≫ _) (iterated_naturality T c i f)).trans
+            ((Category.assoc _ _ _).trans
+              ((congrArg (T.map (X := (i, j)) (Y := (i, j')) (𝟙 i, f) ≫ ·)
+                ((c j').isColimit.fac (legCocone T t j') i)).trans
+                (ht.trans (((c j).isColimit.fac (legCocone T t j) i).symm.trans
+                  (congrArg ((c j).cocone.ι.app i ≫ ·) (Category.comp_id _).symm)))))) }
+
+/-- If `colim_j colim_i T(i, j)` is a colimit cocone, the induced cocone over `T` is a colimit. -/
+def isColimitCoconeOfIterated {s : Cocone (combineCocones (Functor.curry.obj T) c).pt}
+    (hs : IsColimit s) : IsColimit (coconeOfIterated T c s) where
+  desc t := hs.desc (iteratedCoconeOf T c t)
+  fac t p := by
+    obtain ⟨i, j⟩ := p
+    exact (Category.assoc _ _ _).trans
+      ((congrArg ((c j).cocone.ι.app i ≫ ·) (hs.fac (iteratedCoconeOf T c t) j)).trans
+        ((c j).isColimit.fac (legCocone T t j) i))
+  uniq t m hm := by
+    apply hs.hom_ext
+    intro j
+    refine ((c j).isColimit.hom_ext fun i ↦ ?_).trans (hs.fac (iteratedCoconeOf T c t) j).symm
+    exact (Category.assoc _ _ _).symm.trans ((hm (i, j)).trans ((c j).isColimit.fac (legCocone T t j) i).symm)
+
+/-- If `colim_{⟨i, j⟩} T(i, j)` is a colimit cocone, the induced cocone over `colim_i T(i, −)`
+is a colimit. -/
+def isColimitIteratedCoconeOf {t : Cocone T} (ht : IsColimit t) :
+    IsColimit (iteratedCoconeOf T c t) where
+  desc s := ht.desc (coconeOfIterated T c s)
+  fac s j := by
+    apply (c j).isColimit.hom_ext
+    intro i
+    exact (Category.assoc _ _ _).symm.trans
+      ((congrArg (· ≫ ht.desc (coconeOfIterated T c s)) ((c j).isColimit.fac (legCocone T t j) i)).trans
+        (ht.fac (coconeOfIterated T c s) (i, j)))
+  uniq s m hm := by
+    apply ht.hom_ext
+    rintro ⟨i, j⟩
+    refine Eq.trans ?_ (ht.fac (coconeOfIterated T c s) (i, j)).symm
+    exact (congrArg (· ≫ m) ((c j).isColimit.fac (legCocone T t j) i).symm).trans
+      ((Category.assoc _ _ _).trans (congrArg ((c j).cocone.ι.app i ≫ ·) (hm j)))
+
+/-- `ALGD-C1-LIMIT-19` (定理 19, pp.17–19).
+Let `T : I × J → C` with colimits `⟨colim_i T(i, j), µ_j⟩` for all `j`. Then
+`colim_j colim_i T(i, j)` exists iff `colim_{⟨i, j⟩} T(i, j)` exists, and in that case the two are
+isomorphic compatibly with the coprojections. -/
+theorem iterated_colimit_iff :
+    (HasColimit (combineCocones (Functor.curry.obj T) c).pt ↔ HasColimit T) ∧
+      ∀ [HasColimit (combineCocones (Functor.curry.obj T) c).pt] [HasColimit T],
+        ∃ e : colimit (combineCocones (Functor.curry.obj T) c).pt ≅ colimit T,
+          ∀ (i : I) (j : J),
+            (c j).cocone.ι.app i ≫ colimit.ι (combineCocones (Functor.curry.obj T) c).pt j ≫ e.hom =
+              colimit.ι T (i, j) := by
+  refine ⟨⟨fun _ ↦ ⟨⟨⟨_, isColimitCoconeOfIterated T c (colimit.isColimit _)⟩⟩⟩,
+    fun _ ↦ ⟨⟨⟨_, isColimitIteratedCoconeOf T c (colimit.isColimit T)⟩⟩⟩⟩, @fun _ _ ↦ ?_⟩
+  refine ⟨IsColimit.coconePointUniqueUpToIso
+    (isColimitCoconeOfIterated T c (colimit.isColimit _)) (colimit.isColimit T), fun i j ↦ ?_⟩
+  exact (Category.assoc _ _ _).symm.trans (IsColimit.comp_coconePointUniqueUpToIso_hom
+    (isColimitCoconeOfIterated T c (colimit.isColimit _)) (colimit.isColimit T) (i, j))
+
+/-- `ALGD-C1-LIMIT-R01` (prose after 定理 19, p.19).
+When all the colimits involved exist, `colim_j colim_i T(i, j) ≅ colim_i colim_j T(i, j)`: colimits
+commute with colimits. Here `colim_j T(i, j)` is a colimit of `T(i, −)`, given as a colimit of
+`(T ∘ swap)(−, i)`. Dually, limits commute with limits; that part is stated under the stronger
+hypothesis that `C` has all limits of shapes `I` and `J` (mathlib's
+`limitFlipCompLimIsoLimitCompLim`). -/
+theorem colimits_commute :
+    (∀ (d : ∀ i, ColimitCocone ((Functor.curry.obj (CategoryTheory.Prod.swap J I ⋙ T)).flip.obj i))
+      [HasColimit (combineCocones (Functor.curry.obj T) c).pt]
+      [HasColimit (combineCocones (Functor.curry.obj (CategoryTheory.Prod.swap J I ⋙ T)) d).pt],
+      Nonempty (colimit (combineCocones (Functor.curry.obj T) c).pt ≅
+        colimit (combineCocones (Functor.curry.obj (CategoryTheory.Prod.swap J I ⋙ T)) d).pt)) ∧
+    ∀ [HasLimitsOfShape I C] [HasLimitsOfShape J C],
+      Nonempty (limit ((Functor.curry.obj T).flip ⋙ lim) ≅ limit (Functor.curry.obj T ⋙ lim)) := by
+  refine ⟨fun d _ _ ↦ ?_, @fun _ _ ↦ ⟨limitFlipCompLimIsoLimitCompLim _⟩⟩
+  have h₁ := iterated_colimit_iff T c
+  have h₂ := iterated_colimit_iff (CategoryTheory.Prod.swap J I ⋙ T) d
+  have : HasColimit T := h₁.1.1 inferInstance
+  have : HasColimit (CategoryTheory.Prod.swap J I ⋙ T) := h₂.1.1 inferInstance
+  obtain ⟨e₁, -⟩ := h₁.2
+  obtain ⟨e₂, -⟩ := h₂.2
+  exact ⟨e₁ ≪≫ (HasColimit.isoOfEquivalence (Prod.braiding J I) (Iso.refl _)).symm ≪≫ e₂.symm⟩
+
+end Iterated
+
 /-- `ALGD-C1-LIMIT-20` (定理 20, pp.19–21).
 With `T : I × J → C` and colimits `⟨colim_i T(i, j), µ_j⟩` for all `j`, let `F` be the functor of
 定理 18 and `T̃ : I → C^J` the curried functor. Then `F`, with `ν : T̃ ⇒ ∆F` given by
@@ -688,6 +862,93 @@ For a small category `D`, the presheaf category `D̂ = Set^{D^op}` is complete a
 theorem presheaf_complete_cocomplete (D : Type v) [SmallCategory D] :
     HasLimits (Dᵒᵖ ⥤ Type v) ∧ HasColimits (Dᵒᵖ ⥤ Type v) :=
   ⟨inferInstance, inferInstance⟩
+
+/-! The category of 例 23, generated by `a →h b ⇉(f, g) c` with `f ∘ h = g ∘ h`. -/
+
+namespace Ex23
+
+/-- The objects `a`, `b`, `c`. -/
+inductive Obj | a | b | c
+  deriving DecidableEq
+
+/-- The morphisms: identities, `h : a → b`, `f g : b → c`, and `k = f ∘ h = g ∘ h : a → c`. -/
+inductive Hom : Obj → Obj → Type
+  | id (X : Obj) : Hom X X
+  | h : Hom .a .b
+  | f : Hom .b .c
+  | g : Hom .b .c
+  | k : Hom .a .c
+  deriving DecidableEq
+
+/-- Composition `m ≫ n`. -/
+def Hom.comp : ∀ {X Y Z : Obj}, Hom X Y → Hom Y Z → Hom X Z
+  | _, _, _, .id _, m => m
+  | _, _, _, .h, .id _ => .h
+  | _, _, _, .h, .f => .k
+  | _, _, _, .h, .g => .k
+  | _, _, _, .f, .id _ => .f
+  | _, _, _, .g, .id _ => .g
+  | _, _, _, .k, .id _ => .k
+
+instance : Category Obj where
+  Hom := Hom
+  id := Hom.id
+  comp := Hom.comp
+  id_comp _ := rfl
+  comp_id m := by cases m <;> rfl
+  assoc m n o := by cases m <;> cases n <;> cases o <;> rfl
+
+instance (X Y : Obj) : DecidableEq (X ⟶ Y) := inferInstanceAs (DecidableEq (Hom X Y))
+
+/-- `h : a → b` as a morphism of the category. -/
+abbrev hh : (Obj.a : Obj) ⟶ Obj.b := Hom.h
+/-- `f : b → c` as a morphism of the category. -/
+abbrev ff : (Obj.b : Obj) ⟶ Obj.c := Hom.f
+/-- `g : b → c` as a morphism of the category. -/
+abbrev gg : (Obj.b : Obj) ⟶ Obj.c := Hom.g
+
+/-- Every morphism of arrows out of `g : b → c` is unique. -/
+theorem hom_from_g_subsingleton (Y : Arrow Obj) (i j : Arrow.mk gg ⟶ Y) :
+    i = j := by
+  obtain ⟨Yl, Yr, Yh⟩ := Y
+  obtain ⟨il, ir, iw⟩ := i
+  obtain ⟨jl, jr, jw⟩ := j
+  change Hom _ _ at il ir jl jr Yh
+  cases Yh <;> cases il <;> cases ir <;> cases jl <;> cases jr <;> first | rfl | (exfalso; revert iw; decide) | (exfalso; revert jw; decide)
+
+/-- No object `u` with maps `i₁, i₂ : b → u` admits both a factorization of `(f, g)` and a
+retraction of `i₁`; so the span `b ← a → b` has no pushout. -/
+theorem no_pushout_aux (u : Obj) (i₁ i₂ : (Obj.b : Obj) ⟶ u) (l : u ⟶ Obj.c) (l' : u ⟶ Obj.b) :
+    i₁ ≫ l = ff → i₂ ≫ l = gg → i₁ ≫ l' = 𝟙 _ → False := by
+  change Hom _ _ at i₁ i₂ l l'
+  cases i₁ <;> cases i₂ <;> cases l <;> cases l' <;> decide
+
+/-- The commutative square `(h, f)` from the arrow `h` to the arrow `g`. -/
+def sq : Arrow.mk hh ⟶ Arrow.mk gg :=
+  Arrow.homMk hh ff rfl
+
+/-- `ALGD-C1-LIMIT-23` (例 23, p.21).
+A colimit of `T̃ : I → C^J` may exist although some `colim_i T(i, j)` does not. With `J = 2`
+(so `C^2` is the arrow category, `ALGD-C1-NAT-12`) and `C` generated by `a →h b ⇉(f, g) c` with
+`f ∘ h = g ∘ h`, the square `(h, f) : h → g` taken twice, with identities on `g`, is a pushout
+in the arrow category; its `0`-component is the span `b ←h a →h b`, which has no pushout in
+`C`. So the converse of 定理 20 fails. -/
+theorem counterexample :
+    (hh ≫ ff = hh ≫ gg) ∧
+      ff ≠ gg ∧
+      Nonempty (IsColimit (PushoutCocone.mk (𝟙 _) (𝟙 _) (rfl : sq ≫ 𝟙 _ = sq ≫ 𝟙 _))) ∧
+      Arrow.leftFunc.map sq = hh ∧
+      ¬ HasPushout hh hh := by
+  refine ⟨rfl, by decide, ⟨PushoutCocone.IsColimit.mk _ (fun s ↦ s.inl) (fun s ↦ Category.id_comp _)
+    (fun s ↦ (Category.id_comp _).trans (hom_from_g_subsingleton _ _ _))
+    (fun s m h₁ _ ↦ (Category.id_comp m).symm.trans h₁)⟩, rfl, ?_⟩
+  intro H
+  have hs := pushoutIsPushout hh hh
+  obtain ⟨l, hl₁, hl₂⟩ := PushoutCocone.IsColimit.desc' hs ff gg rfl
+  obtain ⟨l', hl₁', -⟩ := PushoutCocone.IsColimit.desc' hs (𝟙 (Obj.b : Obj)) (𝟙 _) rfl
+  exact no_pushout_aux _ (pushout.inl hh hh) (pushout.inr hh hh) l l' hl₁ hl₂ hl₁'
+
+end Ex23
 
 /-! ## §5 Representable functors and preservation of limits -/
 
@@ -1065,4 +1326,16 @@ expected output is pinned with `#guard_msgs`, so `lake build` fails if it change
 
 /-- info: 'ProjectEpisteme.AlgD.Limit.yoneda_preserves_limits' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Limit.yoneda_preserves_limits
+/-- info: 'ProjectEpisteme.AlgD.Limit.iterated_colimit_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Limit.iterated_colimit_iff
+
+/-- info: 'ProjectEpisteme.AlgD.Limit.colimits_commute' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Limit.colimits_commute
+
+/-- info: 'ProjectEpisteme.AlgD.Limit.padic_limit' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Limit.padic_limit
+
+/-- info: 'ProjectEpisteme.AlgD.Limit.Ex23.counterexample' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Limit.Ex23.counterexample
+
 end ProjectEpisteme.AlgD.Limit
