@@ -36,7 +36,7 @@ The ledger IDs have the form `ALGD-C<chapter>-<SLUG>-<nn>`. See the [Category st
 | Slug | File | Title | English working title | Printed date | Index-page date | Pages | Numbered | Definitions | SHA-256 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | KAN | [kan_extension.pdf](https://alg-d.com/math/kan_extension/kan_extension.pdf) | Kan拡張 | Kan extensions | 2026-09-11 | 2026-07-17 修正, 2026-09-11 微修正 | 52 | 55 | 6 | `72fb7c6c1ef47cf9f45a38e71bc2196bcebc7163594158be8ea9e3fcaf88ef66` |
-| SIMPLEX | [simplex.pdf](https://alg-d.com/math/kan_extension/simplex.pdf) | 例：単体的集合 | Example: simplicial sets | 2026-10-18 | 2026-10-18 更新 | 56 | 49 | 10 | `728b18894d57b7471bec403811b6cfa6f93cc79de302e08e2d67b2210989a894` |
+| SIMPLEX | [simplex.pdf](https://alg-d.com/math/kan_extension/simplex.pdf) | 例：単体的集合 | Example: simplicial sets | 2026-10-18 | 2026-10-18 更新 | 56 | 50 | 10 | `728b18894d57b7471bec403811b6cfa6f93cc79de302e08e2d67b2210989a894` |
 | AFT | [aft.pdf](https://alg-d.com/math/kan_extension/aft.pdf) | 随伴関手定理 | Adjoint functor theorems | 2026-07-16 | 2026-07-16 修正 | 21 | 24 | 9 | `05fbabffc4936126fc619d6090383175028c0491793f7a2e44ea84068608f635` |
 | SHEAF2 | [sheaf_kan_extension.pdf](https://alg-d.com/math/kan_extension/sheaf_kan_extension.pdf) | 例：位相空間上の層 その2 | Example: sheaves on a topological space, part 2 | 2026-07-22 | 2025-11-28 更新, 2026-07-22 修正 | 18 | 24 | 2 | `abb57620ed58bd0842f0f0bed9c031f3abe16114df46770bd0680b783e74075b` |
 | LOG | [log.pdf](https://alg-d.com/math/kan_extension/log.pdf) | 圏の「対数」 | The "logarithm" of a category | 2026-08-08 | 2021-04-02 更新, 2026-08-08 微修正 | 5 | 8 | 2 | `f5b97ba38438507d607cfda5022d253ae12c366d6c53bd38a8b0caa4d3073ae7` |
@@ -60,10 +60,10 @@ KANSHORT is linked from the announcement block of the index page, not from a cha
 | --- | --- | --- | --- | --- |
 | Chapter 0 | 8 | 78 | 120 | 38 |
 | Chapter 1 | 5 | 94 | 121 | 11 |
-| Chapter 2 | 10 | 212 | 202 | 47 |
-| Chapters 0–2 | 23 | 384 | 443 | 96 |
+| Chapter 2 | 10 | 212 | 203 | 47 |
+| Chapters 0–2 | 23 | 384 | 444 | 96 |
 | Supplementary | 1 | 30 | 29 | 9 |
 
-The numbered totals include displayed equation labels that share the counter. The ledgers record how many numbers are items and how many are equation labels. KAN was first counted as 54: its last number is the equation label (55) in the proof of 定理 54, which was found when the document was cataloged.
+The numbered totals include displayed equation labels that share the counter. The ledgers record how many numbers are items and how many are equation labels. KAN was first counted as 54: its last number is the equation label (55) in the proof of 定理 54, which was found when the document was cataloged. SIMPLEX was first counted as 49 for the same reason: its last number is the equation label (50) in the proof of 定理 49.
 
 Later chapters on the index page are outside the current scope: 第3章 2圏, 第4章 豊穣圏, 第5章 formal category theory, 第6章 各点Kan拡張, 第7章 ∞圏, 第8章 高次元圏, 第9章 トポス. The retrieved copy of the index page was cut off inside Chapter 9, so chapters after it were not seen.
