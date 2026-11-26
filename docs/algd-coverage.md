@@ -16,10 +16,10 @@ This report counts the rows of the [alg-d ledgers](ledger/algd/) against the [so
 | --- | --- | --- | --- | --- | --- |
 | Chapter 0 | 8 / 8 | 120 / 120 | 189 | 0 | 2 |
 | Chapter 1 | 5 / 5 | 121 / 121 | 175 | 154 | 0 |
-| Chapter 2 | 4 / 10 | 96 / 202 | 141 | 130 | 0 |
-| **Chapters 0–2** | **17 / 23** | **337 / 443** | **505** | **284** | **2** |
+| Chapter 2 | 5 / 10 | 105 / 202 | 162 | 147 | 0 |
+| **Chapters 0–2** | **18 / 23** | **346 / 443** | **526** | **301** | **2** |
 
-Verified main-text items: **284** (202 numbered items and 82 definitions or prose claims). Exercises cataloged: **2**.
+Verified main-text items: **301** (209 numbered items and 92 definitions or prose claims). Exercises cataloged: **2**.
 <!-- END GENERATED: summary -->
 
 The two Chapter 0 exercises are ALGD-C0-CDIAG-E01 and -E02. They will be proved in a later phase.
@@ -48,9 +48,10 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | **Chapter 1** | **175** | **121 (115 + 6)** | **38** | **16** | **0** | **5** | **61** | **49** | **44** | **3** | **13** | **154** |
 | [C2-AFT](ledger/algd/C2-AFT.md) | 36 | 24 (23 + 1) | 11 | 1 | 0 | 0 | 4 | 16 | 15 | 0 | 1 | 35 |
 | [C2-COYONEDA](ledger/algd/C2-COYONEDA.md) | 6 | 2 (2 + 0) | 0 | 4 | 0 | 0 | 1 | 2 | 3 | 0 | 0 | 6 |
+| [C2-END](ledger/algd/C2-END.md) | 21 | 9 (9 + 0) | 6 | 6 | 0 | 4 | 2 | 6 | 9 | 0 | 0 | 17 |
 | [C2-FILTERED](ledger/algd/C2-FILTERED.md) | 27 | 15 (15 + 0) | 9 | 3 | 0 | 0 | 6 | 9 | 9 | 0 | 3 | 24 |
 | [C2-KAN](ledger/algd/C2-KAN.md) | 72 | 55 (47 + 8) | 12 | 5 | 0 | 0 | 23 | 11 | 31 | 0 | 7 | 65 |
-| **Chapter 2** | **141** | **96 (87 + 9)** | **32** | **13** | **0** | **0** | **34** | **38** | **58** | **0** | **11** | **130** |
+| **Chapter 2** | **162** | **105 (96 + 9)** | **38** | **19** | **0** | **4** | **36** | **44** | **67** | **0** | **11** | **147** |
 <!-- END GENERATED: by-document -->
 
 ## Verified declarations
@@ -253,6 +254,23 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | ALGD-C2-COYONEDA-01 | `ProjectEpisteme.AlgD.Coyoneda.coyonedaCowedge_isColimit` | new-proved |
 | ALGD-C2-COYONEDA-R04 | `ProjectEpisteme.AlgD.Coyoneda.coendCowedge_isColimit` | new-proved |
 | ALGD-C2-COYONEDA-02 | `ProjectEpisteme.AlgD.Coyoneda.presheaf_cartesianClosed` | bridged |
+| ALGD-C2-END-D01 | `ProjectEpisteme.AlgD.Ends.isWedge_iff` | bridged |
+| ALGD-C2-END-01 | `ProjectEpisteme.AlgD.Ends.isWedge_hom_iff` | new-proved |
+| ALGD-C2-END-D02 | `ProjectEpisteme.AlgD.Ends.isEnd_iff` | bridged |
+| ALGD-C2-END-02 | `ProjectEpisteme.AlgD.Ends.isEnd_natTrans` | new-proved |
+| ALGD-C2-END-D03 | `ProjectEpisteme.AlgD.Ends.isCowedge_iff` | bridged |
+| ALGD-C2-END-D04 | `ProjectEpisteme.AlgD.Ends.isCoend_iff` | bridged |
+| ALGD-C2-END-03 | `ProjectEpisteme.AlgD.Ends.endFunctorOf_spec` | new-proved |
+| ALGD-C2-END-R02 | `ProjectEpisteme.AlgD.Ends.endIsoEqualizer` | existing |
+| ALGD-C2-END-05 | `ProjectEpisteme.AlgD.Ends.hasEnd_of_hasLimits` | existing |
+| ALGD-C2-END-06 | `ProjectEpisteme.AlgD.Ends.isLimitMapWedge` | new-proved |
+| ALGD-C2-END-07 | `ProjectEpisteme.AlgD.Ends.isLimitCoyonedaWedge` | new-proved |
+| ALGD-C2-END-R03 | `ProjectEpisteme.AlgD.Ends.isLimitHomCoendWedge` | new-proved |
+| ALGD-C2-END-R04 | `ProjectEpisteme.AlgD.Ends.nonempty_isLimit_iff_end` | new-proved |
+| ALGD-C2-END-D05 | `ProjectEpisteme.AlgD.Ends.isCopower_iff` | bridged |
+| ALGD-C2-END-D06 | `ProjectEpisteme.AlgD.Ends.isPower_iff` | bridged |
+| ALGD-C2-END-R05 | `ProjectEpisteme.AlgD.Ends.copower_power_adjunctions` | new-proved |
+| ALGD-C2-END-08 | `ProjectEpisteme.AlgD.Ends.isCopower_prod_isPower_fun` | new-proved |
 | ALGD-C2-FILTERED-D01 | `ProjectEpisteme.AlgD.Filtered.isFiltered_iff_cocone` | bridged |
 | ALGD-C2-FILTERED-D02 | `ProjectEpisteme.AlgD.Filtered.isCofiltered_iff_op` | existing |
 | ALGD-C2-FILTERED-01 | `ProjectEpisteme.AlgD.Filtered.isFiltered_iff` | bridged |
