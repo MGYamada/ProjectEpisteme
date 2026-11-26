@@ -5,8 +5,13 @@ public import Mathlib.CategoryTheory.Adjunction.Opposites
 public import Mathlib.CategoryTheory.Comma.Over.Basic
 public import Mathlib.CategoryTheory.EssentiallySmall
 public import Mathlib.CategoryTheory.Functor.KanExtension.Basic
+public import Mathlib.CategoryTheory.Functor.KanExtension.Dense
+public import Mathlib.CategoryTheory.Functor.KanExtension.Pointwise
 public import Mathlib.CategoryTheory.Generator.Type
 public import Mathlib.CategoryTheory.Limits.Final
+public import Mathlib.CategoryTheory.Limits.FunctorCategory.EpiMono
+public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.Mono
+public import Mathlib.CategoryTheory.Limits.Shapes.WidePullbacks
 public import Mathlib.CategoryTheory.Limits.Preserves.Opposites
 public import Mathlib.CategoryTheory.Limits.Types.Colimits
 public import Mathlib.CategoryTheory.Limits.Yoneda
@@ -40,6 +45,10 @@ retrieved 2026-11-26. Ledger: `docs/ledger/algd/C2-AFT.md`.
   定理 10 is proved by dualizing mathlib's general adjoint functor theorem, and 定理 18 and
   定理 20 are mathlib's special adjoint functor theorems, through bridges for well-copowered
   categories and generating sets.
+* 補題 5 needs the added hypothesis that `H` commutes with `F†E` (for its pointwise clause, that
+  `F†E` is pointwise); `commutesWith_comp_counterexample` shows that the statement as printed fails.
+* 例 21 (CptHaus and the Stone–Čech compactification) is in `AFTTop.lean`, so that this module
+  does not import topology.
 * 定理 1, 命題 2 and 定理 3 restate results of 「Kan拡張」. Their rows point to the declarations in
   `ProjectEpisteme/Category/AlgD/C2/Kan.lean`, whose docstrings carry both IDs.
 -/
@@ -50,7 +59,7 @@ namespace ProjectEpisteme.AlgD.AFT
 
 open CategoryTheory Limits Functor Opposite
 
-universe w w' v v₁ v₂ v₃ v₄ u u₁ u₂ u₃ u₄
+universe w w' v v₁ v₂ v₃ v₄ v₅ u u₁ u₂ u₃ u₄ u₅
 
 /-! ## Final functors -/
 
@@ -73,6 +82,27 @@ theorem isFinalColim_of_final (K : I ⥤ J) [K.Final] : IsFinalColim.{w, w'} K :
   fun _ _ F _ ↦
     have : HasColimit F := Final.hasColimit_of_comp K
     ⟨this, inferInstance⟩
+
+/-- `ALGD-C2-AFT-R01` (prose after 定義 (終関手), p.3).
+In terms of Kan extensions, `K` is final iff for every `F : J → C` such that `colim FK` exists,
+`colim F` exists and the restricted cocone `⟨colim F, νK⟩` is a left Kan extension of `FK`
+along `! : I → 1`, i.e. a colimit of `FK`. -/
+theorem isFinalColim_iff_isColimit_whisker (K : I ⥤ J) :
+    IsFinalColim.{w, w'} K ↔ ∀ (C : Type w) [Category.{w'} C] (F : J ⥤ C) [HasColimit (K ⋙ F)],
+      ∃ _ : HasColimit F, Nonempty (IsColimit ((colimit.cocone F).whisker K)) := by
+  refine forall_congr' fun C ↦ forall_congr' fun _ ↦ forall_congr' fun F ↦
+    forall_congr' fun _ ↦ exists_congr fun _ ↦ ?_
+  constructor
+  · intro h
+    exact ⟨@IsColimit.ofPointIso _ _ _ _ _ _ _ (colimit.isColimit (K ⋙ F)) h⟩
+  · rintro ⟨hs⟩
+    refine ⟨hs.desc (colimit.cocone (K ⋙ F)), ?_, ?_⟩
+    · refine colimit.hom_ext fun i ↦ ?_
+      rw [colimit.ι_pre_assoc, Category.comp_id]
+      exact hs.fac _ i
+    · refine hs.hom_ext fun i ↦ ?_
+      rw [← Category.assoc, hs.fac]
+      simp
 
 /-- `ALGD-C2-AFT-06` (命題 6, p.5–6).
 A right adjoint functor is final. -/
@@ -265,6 +295,181 @@ theorem hasLeftKanExtension_comp_iff {F : C ⥤ D} {E : C ⥤ U} (L : D ⥤ U) (
     exact HasLeftKanExtension.mk _ (η ≫ whiskerLeft F (G.leftKanExtensionUnit L) ≫
       (Functor.associator F G (G.leftKanExtension L)).inv)
 
+/-- `H : U → V` commutes with a left Kan extension `⟨T, η⟩` of `E` along `F` when `⟨HT, Hη⟩` is
+a left Kan extension of `HE` along `F`. -/
+def CommutesWith {V : Type u₅} [Category.{v₅} V] (H : U ⥤ V) {F : C ⥤ D} {E : C ⥤ U}
+    (T : D ⥤ U) (η : E ⟶ F ⋙ T) : Prop :=
+  (T ⋙ H).IsLeftKanExtension (whiskerRight η H ≫ (Functor.associator F T H).hom)
+
+/-- `ALGD-C2-AFT-05` (補題 5, p.5), with a hypothesis added.
+In the situation of 補題 4 (`⟨F†E, η⟩ = ⟨L, η⟩`, `σ = τF ∘ η`), let `H : U → V` commute with
+`F†E`. Then `H` commutes with `⟨T, σ⟩` as `(GF)†E` iff it commutes with `⟨T, τ⟩` as `G†(F†E)`.
+The source omits the hypothesis on `F†E`, without which the claim fails
+(`commutesWith_comp_counterexample`); its "in particular" clause on pointwise extensions is
+`isPointwiseLeftKanExtensionAt_comp_iff`, which assumes `F†E` pointwise. -/
+theorem commutesWith_comp_iff {V : Type u₅} [Category.{v₅} V] (H : U ⥤ V) {F : C ⥤ D}
+    {E : C ⥤ U} (L : D ⥤ U) (η : E ⟶ F ⋙ L) (hL : CommutesWith H L η) (G : D ⥤ B)
+    (T : B ⥤ U) (τ : L ⟶ G ⋙ T) :
+    CommutesWith H T (η ≫ whiskerLeft F τ ≫ (Functor.associator F G T).inv) ↔
+      CommutesWith H T τ := by
+  have : (L ⋙ H).IsLeftKanExtension (whiskerRight η H ≫ (Functor.associator F L H).hom) := hL
+  have key := isLeftKanExtension_comp_iff (L ⋙ H)
+    (whiskerRight η H ≫ (Functor.associator F L H).hom) G (T ⋙ H)
+    (whiskerRight τ H ≫ (Functor.associator G T H).hom)
+  have heq : whiskerRight (η ≫ whiskerLeft F τ ≫ (Functor.associator F G T).inv) H ≫
+      (Functor.associator (F ⋙ G) T H).hom =
+      (whiskerRight η H ≫ (Functor.associator F L H).hom) ≫
+        whiskerLeft F (whiskerRight τ H ≫ (Functor.associator G T H).hom) ≫
+        (Functor.associator F G (T ⋙ H)).inv := by
+    ext c
+    simp
+  unfold CommutesWith
+  rw [heq]
+  exact key
+
+/-- The "in particular" clause of 補題 5, with `F†E` pointwise: then `⟨T, τF ∘ η⟩` is a pointwise
+left Kan extension along `GF` at `b` iff `⟨T, τ⟩` is one along `G` at `b`. -/
+theorem isPointwiseLeftKanExtensionAt_comp_iff {F : C ⥤ D} {E : C ⥤ U} (L : D ⥤ U)
+    (η : E ⟶ F ⋙ L) (hL : (LeftExtension.mk L η).IsPointwiseLeftKanExtension) (G : D ⥤ B)
+    (T : B ⥤ U) (τ : L ⟶ G ⋙ T) (b : B) :
+    Nonempty ((LeftExtension.mk T (η ≫ whiskerLeft F τ ≫
+      (Functor.associator F G T).inv)).IsPointwiseLeftKanExtensionAt b) ↔
+      Nonempty ((LeftExtension.mk T τ).IsPointwiseLeftKanExtensionAt b) := by
+  let cσ := (LeftExtension.mk T (η ≫ whiskerLeft F τ ≫
+    (Functor.associator F G T).inv)).coconeAt b
+  let cτ := (LeftExtension.mk T τ).coconeAt b
+  let cL := fun d ↦ (LeftExtension.mk L η).coconeAt d
+  let toG : CostructuredArrow (F ⋙ G) b → CostructuredArrow G b :=
+    fun x ↦ CostructuredArrow.mk (Y := F.obj x.left) x.hom
+  let pair : ∀ j : CostructuredArrow G b, CostructuredArrow F j.left →
+      CostructuredArrow (F ⋙ G) b :=
+    fun j i ↦ CostructuredArrow.mk (Y := i.left) (G.map i.hom ≫ j.hom)
+  have hσ : ∀ x, cσ.ι.app x = η.app x.left ≫ cτ.ι.app (toG x) := fun x ↦ by
+    simp [cσ, cτ, toG, LeftExtension.coconeAt]
+  have hLτ : ∀ j i, (cL j.left).ι.app i ≫ cτ.ι.app j = cσ.ι.app (pair j i) := fun j i ↦ by
+    simp only [cL, cσ, cτ, pair, LeftExtension.coconeAt, LeftExtension.mk, Category.assoc]
+    simp only [StructuredArrow.mk_right, StructuredArrow.mk_hom_eq_self, Functor.comp_obj,
+      NatTrans.comp_app, whiskerLeft_app, Functor.associator_inv_app,
+      CostructuredArrow.mk_left, CostructuredArrow.mk_hom_eq_self, Category.id_comp,
+      Functor.map_comp, Category.assoc]
+    rw [τ.naturality_assoc]
+    rfl
+  -- the morphism `toG x ⟶ j` induced by `i : x ⟶ ...`
+  have hpair_toG : ∀ (s : Cocone (CostructuredArrow.proj G b ⋙ L)) (j : CostructuredArrow G b)
+      (i : CostructuredArrow F j.left),
+      L.map i.hom ≫ s.ι.app j = s.ι.app (toG (pair j i)) := fun s j i ↦
+    s.w (CostructuredArrow.homMk i.hom (by simp [toG, pair]) : toG (pair j i) ⟶ j)
+  constructor
+  · rintro ⟨hσc⟩
+    let α : Cocone (CostructuredArrow.proj G b ⋙ L) → Cocone (CostructuredArrow.proj (F ⋙ G) b ⋙ E) :=
+      fun s ↦
+      { pt := s.pt
+        ι :=
+          { app := fun x ↦ η.app x.left ≫ s.ι.app (toG x)
+            naturality := fun x x' t ↦ by
+              have := s.w (CostructuredArrow.homMk (F.map t.left) (CostructuredArrow.w t) :
+                toG x ⟶ toG x')
+              simp only [Functor.comp_obj, CostructuredArrow.proj_obj, Functor.comp_map,
+                CostructuredArrow.proj_map, Functor.const_obj_obj, Functor.const_obj_map,
+                Category.comp_id] at this ⊢
+              rw [← Category.assoc, η.naturality, Category.assoc]
+              exact congrArg (η.app x.left ≫ ·) this } }
+    refine ⟨{ desc := fun s ↦ hσc.desc (α s), fac := fun s j ↦ ?_, uniq := fun s m hm ↦ ?_ }⟩
+    · refine (hL j.left).hom_ext fun i ↦ ?_
+      rw [← Category.assoc, hLτ, hσc.fac]
+      change η.app i.left ≫ s.ι.app (toG (pair j i)) = (cL j.left).ι.app i ≫ s.ι.app j
+      rw [← hpair_toG]
+      simp [cL, LeftExtension.coconeAt]
+    · refine hσc.uniq (α s) m fun x ↦ ?_
+      rw [hσ, Category.assoc, hm]
+  · rintro ⟨hτc⟩
+    let β : Cocone (CostructuredArrow.proj (F ⋙ G) b ⋙ E) → Cocone (CostructuredArrow.proj G b ⋙ L) :=
+      fun s ↦
+      { pt := s.pt
+        ι :=
+          { app := fun j ↦ (hL j.left).desc
+              { pt := s.pt
+                ι :=
+                  { app := fun i ↦ s.ι.app (pair j i)
+                    naturality := fun i i' t ↦ by
+                      have := s.w (CostructuredArrow.homMk t.left (by
+                        simp only [pair, CostructuredArrow.mk_hom_eq_self, Functor.comp_map]
+                        rw [← G.map_comp_assoc, CostructuredArrow.w t]) : pair j i ⟶ pair j i')
+                      simpa using this } }
+            naturality := fun j j' t ↦ by
+              refine (hL j.left).hom_ext fun i ↦ ?_
+              simp only [Functor.comp_obj, CostructuredArrow.proj_obj, Functor.comp_map,
+                CostructuredArrow.proj_map, Functor.const_obj_obj, Functor.const_obj_map,
+                Category.comp_id]
+              rw [(hL j.left).fac]
+              have e1 : (cL j.left).ι.app i ≫ L.map t.left =
+                  (cL j'.left).ι.app (CostructuredArrow.mk (Y := i.left) (i.hom ≫ t.left)) := by
+                simp [cL, LeftExtension.coconeAt]
+              rw [← Category.assoc, e1, (hL j'.left).fac]
+              have := s.w (CostructuredArrow.homMk (𝟙 i.left) (by
+                simp only [pair, CostructuredArrow.mk_hom_eq_self, Functor.comp_map,
+                  Functor.map_comp, Category.assoc, CostructuredArrow.w t]
+                erw [F.map_id, G.map_id, Category.id_comp]) :
+                  pair j' (CostructuredArrow.mk (Y := i.left) (i.hom ≫ t.left)) ⟶ pair j i)
+              erw [E.map_id, Category.id_comp] at this
+              exact this.symm } }
+    have hβ : ∀ s j i, (cL j.left).ι.app i ≫ (β s).ι.app j = s.ι.app (pair j i) :=
+      fun s j i ↦ (hL j.left).fac _ i
+    refine ⟨{ desc := fun s ↦ hτc.desc (β s), fac := fun s x ↦ ?_, uniq := fun s m hm ↦ ?_ }⟩
+    · rw [hσ, Category.assoc, hτc.fac]
+      have h0 : η.app x.left = (cL (toG x).left).ι.app (CostructuredArrow.mk (𝟙 (F.obj x.left))) := by
+        simp [cL, toG, LeftExtension.coconeAt]
+      rw [h0, hβ]
+      have := s.w (CostructuredArrow.homMk (𝟙 x.left) (by simp [pair, toG]) :
+        pair (toG x) (CostructuredArrow.mk (𝟙 (F.obj x.left))) ⟶ x)
+      erw [E.map_id, Category.id_comp] at this
+      exact this.symm
+    · refine hτc.uniq (β s) m fun j ↦ (hL j.left).hom_ext fun i ↦ ?_
+      rw [← Category.assoc, hLτ, hm, hβ]
+
+/-- The source's 補題 5 fails without the added hypothesis: for `F : ∅ → 1`, `E : ∅ → Set`,
+`F†E = ∅` (the initial object), `G = id_1` and `H` the constant functor at `1`, the functor `H`
+commutes with `G†(F†E)` (an extension along the identity) but not with `(GF)†E = F†E`. -/
+theorem commutesWith_comp_counterexample :
+    ∃ (F : Discrete PEmpty.{1} ⥤ Discrete PUnit.{1}) (E : Discrete PEmpty.{1} ⥤ Type)
+      (L : Discrete PUnit.{1} ⥤ Type) (η : E ⟶ F ⋙ L) (_ : L.IsLeftKanExtension η)
+      (τ : L ⟶ 𝟭 _ ⋙ L) (_ : L.IsLeftKanExtension τ) (H : Type ⥤ Type),
+      CommutesWith H L τ ∧
+        ¬ CommutesWith H L (η ≫ whiskerLeft F τ ≫ (Functor.associator F (𝟭 _) L).inv) := by
+  let F : Discrete PEmpty.{1} ⥤ Discrete PUnit.{1} := Functor.empty _
+  let E : Discrete PEmpty.{1} ⥤ Type := Functor.empty _
+  let L : Discrete PUnit.{1} ⥤ Type := (Functor.const _).obj PEmpty
+  let η : E ⟶ F ⋙ L := { app := fun x ↦ x.as.elim }
+  have hL : L.IsLeftKanExtension η := by
+    rw [isLeftKanExtension_iff_existsUnique]
+    intro S θ
+    refine ⟨{ app := fun _ ↦ ↾fun x ↦ x.elim }, by ext x; exact x.as.elim, fun ρ _ ↦ ?_⟩
+    ext d x
+    exact x.elim
+  -- every functor commutes with an extension along the identity whose unit is the identity
+  have hid : ∀ X : Discrete PUnit.{1} ⥤ Type, X.IsLeftKanExtension (Functor.leftUnitor X).inv :=
+    fun X ↦ by
+      rw [isLeftKanExtension_iff_existsUnique]
+      intro S θ
+      refine ⟨θ ≫ (Functor.leftUnitor S).hom, by ext; simp, fun ρ hρ ↦ ?_⟩
+      rw [← hρ]
+      ext
+      simp
+  let H : Type ⥤ Type := (Functor.const _).obj PUnit
+  refine ⟨F, E, L, η, hL, (Functor.leftUnitor L).inv, hid L, H, ?_, ?_⟩
+  · unfold CommutesWith
+    have : whiskerRight (Functor.leftUnitor L).inv H ≫
+        (Functor.associator (𝟭 _) L H).hom = (Functor.leftUnitor (L ⋙ H)).inv := by
+      ext
+      simp
+    rw [this]
+    exact hid _
+  · intro h
+    unfold CommutesWith at h
+    rw [isLeftKanExtension_iff_existsUnique] at h
+    obtain ⟨ρ, -, -⟩ := h ((Functor.const _).obj PEmpty) { app := fun x ↦ x.as.elim }
+    exact (ρ.app ⟨PUnit.unit⟩ PUnit.unit).elim
+
 end KanComp
 
 /-! ## Well-copowered categories -/
@@ -355,6 +560,136 @@ theorem isWellCopowered_type : IsWellCopowered (Type v) := fun x ↦ by
   exact (epiProp x).fullyFaithfulι.preimageIso (Under.isoMk e.toIso (by ext a; rfl))
 
 end WellCopowered
+
+/-! ## Quotient objects have coproducts (命題 15) and 補題 17 -/
+
+section Coproducts
+
+variable {U : Type u} [Category.{v} U]
+
+/-- The construction in the proof of 命題 15: in a well-copowered cocomplete category, any family
+of epimorphisms `f i : X → K i` (indexed by a type in any universe) has a wide pushout
+`⟨P, head, π⟩`, whose leg `head : X → P` is an epimorphism. Only a set of representatives of the
+classes of the `⟨K i, f i⟩` in `Quot_X` is used. -/
+theorem exists_widePushout_of_epi [HasColimits U] (hU : IsWellCopowered U) {X : U}
+    {ι : Type w} (K : ι → U) (f : ∀ i, X ⟶ K i) [hf : ∀ i, Epi (f i)] :
+    ∃ (P : U) (head : X ⟶ P) (π : ∀ i, K i ⟶ P), (∀ i, f i ≫ π i = head) ∧ Epi head ∧
+      ∀ (W : U) (m : X ⟶ W) (h : ∀ i, K i ⟶ W), (∀ i, f i ≫ h i = m) →
+        ∃ u : P ⟶ W, head ≫ u = m ∧ ∀ i, π i ≫ u = h i := by
+  let E : ι → EpiUnder X := fun i ↦ ⟨Under.mk (f i), hf i⟩
+  let S : Set (Quotients X) := Set.range fun i ↦ toSkeleton (E i)
+  have : Small.{v} (Quotients X) := hU X
+  let J := Shrink.{v} S
+  let rep : J → EpiUnder X := fun k ↦ (fromSkeleton _).obj ((equivShrink S).symm k).1
+  let a : ∀ k, X ⟶ (rep k).obj.right := fun k ↦ (rep k).obj.hom
+  have ha : ∀ k, Epi (a k) := fun k ↦ (rep k).property
+  let idx : ι → J := fun i ↦ equivShrink S ⟨toSkeleton (E i), i, rfl⟩
+  have hidx : ∀ i, Nonempty (E i ≅ rep (idx i)) := fun i ↦ by
+    refine toSkeleton_eq_iff.1 ?_
+    simp [idx]
+  have hrep : ∀ k, ∃ i, Nonempty (rep k ≅ E i) := fun k ↦ by
+    obtain ⟨i, hi⟩ := ((equivShrink S).symm k).2
+    exact ⟨i, ⟨(toSkeleton_eq_iff.1 hi).some.symm⟩⟩
+  let π : ∀ i, K i ⟶ widePushout X (fun k ↦ (rep k).obj.right) a :=
+    fun i ↦ (hidx i).some.hom.hom.right ≫ WidePushout.ι a (idx i)
+  have hπ : ∀ i, f i ≫ π i = WidePushout.head a := fun i ↦ by
+    simp only [π, ← Category.assoc]
+    rw [show f i ≫ (hidx i).some.hom.hom.right = a (idx i) from Under.w (hidx i).some.hom.hom]
+    exact WidePushout.arrow_ι a (idx i)
+  have hhead : Epi (WidePushout.head a) := ⟨fun g₁ g₂ hg ↦ by
+    refine WidePushout.hom_ext a _ _ (fun k ↦ ?_) hg
+    rw [← cancel_epi (a k), ← Category.assoc, ← Category.assoc, WidePushout.arrow_ι, hg]⟩
+  refine ⟨_, WidePushout.head a, π, hπ, hhead, fun W m h hh ↦ ?_⟩
+  choose j hj using hrep
+  let h' : ∀ k, (rep k).obj.right ⟶ W := fun k ↦ (hj k).some.hom.hom.right ≫ h (j k)
+  have hh' : ∀ k, a k ≫ h' k = m := fun k ↦ by
+    simp only [h', ← Category.assoc]
+    rw [show a k ≫ (hj k).some.hom.hom.right = f (j k) from Under.w (hj k).some.hom.hom]
+    exact hh (j k)
+  refine ⟨WidePushout.desc m h' hh', WidePushout.head_desc a m h' hh', fun i ↦ ?_⟩
+  rw [← cancel_epi (f i), ← Category.assoc, hπ, WidePushout.head_desc, hh]
+
+/-- `ALGD-C2-AFT-15` (命題 15, p.13–14).
+If `C` is well-copowered and cocomplete, then for `c ∈ C` the category `Quot_c` has all coproducts:
+every functor `T : I → Quot_c` from a discrete category `I` has a colimit. -/
+theorem hasColimitsOfShape_discrete_quotients [HasColimits U] (hU : IsWellCopowered U) (c : U)
+    (I : Type w) : HasColimitsOfShape (Discrete I) (Quotients c) := by
+  have : HasColimitsOfShape (Discrete I) (EpiUnder c) := ⟨fun T ↦ by
+    have : ∀ i, Epi (T.obj ⟨i⟩).obj.hom := fun i ↦ (T.obj ⟨i⟩).property
+    obtain ⟨P, head, π, hπ, hhead, huniv⟩ :=
+      exists_widePushout_of_epi hU (fun i ↦ (T.obj ⟨i⟩).obj.right) (fun i ↦ (T.obj ⟨i⟩).obj.hom)
+    let s : EpiUnder c := ⟨Under.mk head, hhead⟩
+    let leg : ∀ i : Discrete I, T.obj i ⟶ s := fun i ↦
+      (epiProp c).fullyFaithfulι.preimage (Under.homMk (π i.as) (hπ i.as))
+    refine HasColimit.mk ⟨⟨s, Discrete.natTrans leg⟩, ?_⟩
+    exact
+      { desc := fun t ↦ (epiProp c).fullyFaithfulι.preimage (Under.homMk
+          (huniv t.pt.obj.right t.pt.obj.hom (fun i ↦ (t.ι.app ⟨i⟩).hom.right)
+            (fun i ↦ Under.w (t.ι.app ⟨i⟩).hom)).choose
+          (huniv t.pt.obj.right t.pt.obj.hom (fun i ↦ (t.ι.app ⟨i⟩).hom.right)
+            (fun i ↦ Under.w (t.ι.app ⟨i⟩).hom)).choose_spec.1)
+        fac := fun _ _ ↦ Subsingleton.elim _ _
+        uniq := fun _ _ _ ↦ Subsingleton.elim _ _ }⟩
+  exact Adjunction.hasColimitsOfShape_of_equivalence (fromSkeleton (EpiUnder c))
+
+/-- `ALGD-C2-AFT-17` (補題 17, p.15–17).
+Let `U` be well-copowered and cocomplete, `F : C → D`, `S, T : C → U` and `φ : S ⇒ T` an
+epimorphism. If the pointwise left Kan extension `F†S` exists, so does the pointwise `F†T`:
+`F†T(d)` is the wide pushout over `F†S(d)` of the pushouts of `φ_c` along the colimit legs. -/
+theorem hasPointwiseLeftKanExtension_of_epi {C : Type u₁} [Category.{v₁} C] {D : Type u₂}
+    [Category.{v₂} D] [HasColimits U] (hU : IsWellCopowered U) (F : C ⥤ D) {S T : C ⥤ U}
+    (φ : S ⟶ T) [Epi φ] [F.HasPointwiseLeftKanExtension S] :
+    F.HasPointwiseLeftKanExtension T := fun d ↦ by
+  let A := CostructuredArrow.proj F d ⋙ S
+  let B := CostructuredArrow.proj F d ⋙ T
+  have : HasColimit A := inferInstanceAs (F.HasPointwiseLeftKanExtensionAt S d)
+  let μ : ∀ j : CostructuredArrow F d, S.obj j.left ⟶ colimit A := fun j ↦ colimit.ι A j
+  have hμw : ∀ {j j' : CostructuredArrow F d} (t : j ⟶ j'), S.map t.left ≫ μ j' = μ j :=
+    fun t ↦ colimit.w A t
+  let K : CostructuredArrow F d → U := fun j ↦ pushout (μ j) (φ.app j.left)
+  let g : ∀ j, colimit A ⟶ K j := fun j ↦ pushout.inl _ _
+  let r : ∀ j, T.obj j.left ⟶ K j := fun j ↦ pushout.inr _ _
+  have hcond : ∀ j, μ j ≫ g j = φ.app j.left ≫ r j := fun j ↦ pushout.condition
+  have : ∀ j, Epi (g j) := fun j ↦ inferInstanceAs (Epi (pushout.inl (μ j) (φ.app j.left)))
+  obtain ⟨P, head, π, hπ, hhead, huniv⟩ := exists_widePushout_of_epi hU K g
+  have hnat : ∀ {j j' : CostructuredArrow F d} (t : j ⟶ j'),
+      T.map t.left ≫ r j' ≫ π j' = r j ≫ π j := fun {j j'} t ↦ by
+    have hw : μ j ≫ g j' = φ.app j.left ≫ T.map t.left ≫ r j' := by
+      rw [← hμw t, Category.assoc, hcond, ← Category.assoc, φ.naturality, Category.assoc]
+    let k : K j ⟶ K j' := pushout.desc (g j') (T.map t.left ≫ r j') hw
+    have hgk : g j ≫ k = g j' := pushout.inl_desc _ _ _
+    have hrk : r j ≫ k = T.map t.left ≫ r j' := pushout.inr_desc _ _ _
+    have hk : k ≫ π j' = π j := by
+      rw [← cancel_epi (g j), ← Category.assoc, hgk, hπ, hπ]
+    calc T.map t.left ≫ r j' ≫ π j' = (r j ≫ k) ≫ π j' := by rw [hrk, Category.assoc]
+      _ = r j ≫ π j := by rw [Category.assoc, hk]
+  let cB : Cocone B :=
+    { pt := P
+      ι :=
+        { app := fun j ↦ r j ≫ π j
+          naturality := fun j j' t ↦ (hnat t).trans (Category.comp_id _).symm } }
+  refine HasColimit.mk ⟨cB, ?_⟩
+  have key : ∀ s : Cocone B, ∃ u : P ⟶ s.pt, (∀ j, (r j ≫ π j) ≫ u = s.ι.app j) ∧
+      ∀ u' : P ⟶ s.pt, (∀ j, (r j ≫ π j) ≫ u' = s.ι.app j) → u' = u := fun s ↦ by
+    let m : colimit A ⟶ s.pt :=
+      colimit.desc A ((Cocone.precompose (whiskerLeft (CostructuredArrow.proj F d) φ)).obj s)
+    have hm : ∀ j, μ j ≫ m = φ.app j.left ≫ s.ι.app j := fun j ↦ colimit.ι_desc _ j
+    let h : ∀ j, K j ⟶ s.pt := fun j ↦ pushout.desc m (s.ι.app j) (hm j)
+    have hh : ∀ j, g j ≫ h j = m := fun j ↦ pushout.inl_desc _ _ _
+    have hr : ∀ j, r j ≫ h j = s.ι.app j := fun j ↦ pushout.inr_desc _ _ _
+    obtain ⟨u, hu₁, hu₂⟩ := huniv s.pt m h hh
+    refine ⟨u, fun j ↦ by rw [Category.assoc, hu₂, hr], fun u' hu' ↦ ?_⟩
+    rw [← cancel_epi head, hu₁]
+    refine colimit.hom_ext fun j ↦ ?_
+    change μ j ≫ head ≫ u' = μ j ≫ m
+    rw [← hπ j, Category.assoc, ← Category.assoc (μ j), hcond, hm, Category.assoc,
+      ← Category.assoc (r j), hu' j]
+  exact
+    { desc := fun s ↦ (key s).choose
+      fac := fun s j ↦ (key s).choose_spec.1 j
+      uniq := fun s u' hu' ↦ (key s).choose_spec.2 u' hu' }
+
+end Coproducts
 
 /-! ## Generating sets -/
 
@@ -475,6 +810,45 @@ theorem preservesLimits_tfae [HasLimits D] (hD : IsWellPowered D) {S : ObjectPro
     exact preservesLimits_of_natIso e.toIso
   tfae_finish
 
+/-- `ALGD-C2-AFT-24` (定理 24, p.20).
+Let `C` be cocomplete and `K : A → C` a dense functor from a small category, for example the
+inclusion of a small dense subcategory `A ⊂ C`. Then `F : C → D` is cocontinuous iff it is a left
+adjoint. -/
+theorem preservesColimits_iff_isLeftAdjoint_of_isDense [HasColimits C] {A : Type v}
+    [SmallCategory A] (K : A ⥤ C) [K.IsDense] (F : C ⥤ D) :
+    PreservesColimits F ↔ F.IsLeftAdjoint := by
+  constructor
+  · intro _
+    refine isLeftAdjoint_of_leftSolutionSetCondition F fun d ↦ ?_
+    let P := CostructuredArrow.proj (K ⋙ F) d ⋙ K
+    let cd : Cocone (P ⋙ F) :=
+      { pt := d
+        ι :=
+          { app := fun j ↦ j.hom
+            naturality := fun j j' t ↦ by simpa [P] using CostructuredArrow.w t } }
+    let hF := isColimitOfPreserves F (colimit.isColimit P)
+    let k : F.obj (colimit P) ⟶ d := hF.desc cd
+    have hk : ∀ j, F.map (colimit.ι P j) ≫ k = j.hom := fun j ↦ hF.fac cd j
+    refine ⟨PUnit, fun _ ↦ colimit P, fun _ ↦ k, fun c f ↦ ⟨PUnit.unit, ?_⟩⟩
+    let jc : CostructuredArrow K c → CostructuredArrow (K ⋙ F) d :=
+      fun u ↦ CostructuredArrow.mk (Y := u.left) (F.map u.hom ≫ f)
+    let cc : Cocone (CostructuredArrow.proj K c ⋙ K) :=
+      { pt := colimit P
+        ι :=
+          { app := fun u ↦ colimit.ι P (jc u)
+            naturality := fun u u' t ↦ by
+              have := colimit.w P (CostructuredArrow.homMk t.left (by
+                simp only [jc, CostructuredArrow.mk_hom_eq_self, Functor.comp_map]
+                rw [← F.map_comp_assoc, CostructuredArrow.w t]) : jc u ⟶ jc u')
+              simpa [P] using this } }
+    refine ⟨(K.denseAt c).desc cc, ?_⟩
+    refine (isColimitOfPreserves F (K.denseAt c)).hom_ext fun u ↦ ?_
+    have hu := (K.denseAt c).fac cc u
+    simp only [Functor.mapCocone_ι_app, ← F.map_comp_assoc, hu]
+    simpa [cc, jc, LeftExtension.coconeAt] using hk (jc u)
+  · intro _
+    exact (Adjunction.ofIsLeftAdjoint F).leftAdjoint_preservesColimits
+
 end SAFT
 
 /-! ## Axiom audit
@@ -573,5 +947,33 @@ output is pinned with `#guard_msgs`, so `lake build` fails if it changes. -/
 /-- info: 'ProjectEpisteme.AlgD.AFT.preservesLimits_tfae' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms ProjectEpisteme.AlgD.AFT.preservesLimits_tfae
+
+/-- info: 'ProjectEpisteme.AlgD.AFT.isFinalColim_iff_isColimit_whisker' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.AFT.isFinalColim_iff_isColimit_whisker
+
+/-- info: 'ProjectEpisteme.AlgD.AFT.commutesWith_comp_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.AFT.commutesWith_comp_iff
+
+/-- info: 'ProjectEpisteme.AlgD.AFT.isPointwiseLeftKanExtensionAt_comp_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.AFT.isPointwiseLeftKanExtensionAt_comp_iff
+
+/-- info: 'ProjectEpisteme.AlgD.AFT.commutesWith_comp_counterexample' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.AFT.commutesWith_comp_counterexample
+
+/-- info: 'ProjectEpisteme.AlgD.AFT.hasColimitsOfShape_discrete_quotients' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.AFT.hasColimitsOfShape_discrete_quotients
+
+/-- info: 'ProjectEpisteme.AlgD.AFT.hasPointwiseLeftKanExtension_of_epi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.AFT.hasPointwiseLeftKanExtension_of_epi
+
+/-- info: 'ProjectEpisteme.AlgD.AFT.preservesColimits_iff_isLeftAdjoint_of_isDense' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.AFT.preservesColimits_iff_isLeftAdjoint_of_isDense
 
 end ProjectEpisteme.AlgD.AFT
