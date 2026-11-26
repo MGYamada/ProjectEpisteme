@@ -1,51 +1,60 @@
 # alg-d coverage report
 
-**As of:** 2026-11-26 · Lean v4.35.0 · mathlib `56a005855ea17e0b0958f73ec801ae140b0a1679`
+**Environment:** Lean v4.35.0 · mathlib `56a005855ea17e0b0958f73ec801ae140b0a1679`
 
-This report counts the rows of the [alg-d ledgers](ledger/algd/) against the [source index](algd-source-index.md). Update it by hand whenever a ledger changes. The definitions follow the [Category strategy](Project_Episteme_Category_Strategy.md#6-ledger-and-verification-rules):
+This report counts the rows of the [alg-d ledgers](ledger/algd/) against the [source index](algd-source-index.md). The tables between the `GENERATED` markers are written by `python3 checks/ledger.py --write`. The **Ledger checks** CI job fails when they do not match the ledgers, so do not edit them by hand. The definitions follow the [Category strategy](Project_Episteme_Category_Strategy.md#6-ledger-and-verification-rules):
 
 - **Mapped** means an item has a ledger row.
-- **Verified** means the row's status is `existing`, `bridged`, or `new-proved`, it names a Lean declaration, `lake build` succeeds, the axiom audit is pinned, and the statement has been reviewed against the source.
+- **Verified** means all of the following: the row's status is `existing`, `bridged`, or `new-proved`; it names a Lean declaration; `lake build` succeeds; the axiom audit passes; and the statement has been reviewed against the source.
 
-`unreviewed` rows are mapped but not verified. Mathlib candidates in those rows have been checked to exist (`#check` on every cited name under the pin), but they have not been matched against the source statement.
+`unreviewed` rows are mapped but not verified. The mathlib candidates in those rows were checked to exist (`#check` on every cited name under the pin), but they have not been matched against the source statement.
 
 ## Summary
 
+<!-- BEGIN GENERATED: summary -->
 | Scope | PDFs cataloged | Numbers 1..max with a row | Ledger rows | Verified | Exercises cataloged |
 | --- | --- | --- | --- | --- | --- |
 | Chapter 0 | 8 / 8 | 120 / 120 | 189 | 0 | 2 |
 | Chapter 1 | 5 / 5 | 121 / 121 | 175 | 12 | 0 |
-| Chapter 2 | 0 / 10 | 0 / 201 | — | — | not yet checked |
+| Chapter 2 | 0 / 10 | 0 / 201 | — | — | not yet cataloged |
 | **Chapters 0–2** | **13 / 23** | **241 / 442** | **364** | **12** | **2** |
 
-First progress report (AGENTS.md): **12 verified main-text items**, all in YONEDA: 10 numbered items and 2 definitions. **2 exercises cataloged**, ALGD-C0-CDIAG-E01 and -E02, to be proved in a later phase.
+Verified main-text items: **12** (10 numbered items and 2 definitions or prose claims). Exercises cataloged: **2**.
+<!-- END GENERATED: summary -->
+
+The two Chapter 0 exercises are ALGD-C0-CDIAG-E01 and -E02. They will be proved in a later phase.
 
 ## By document
 
-Numbered = numbers 1..max, split into statements and labelled displays (equations). D, R, and E are the unnumbered definitions, prose claims, and exercises. The status columns count rows.
+Numbered counts the numbers 1..max, split into statements and labelled displays (equations). D, R, and E count the unnumbered definitions, prose claims, and exercises. The status columns count rows.
 
+<!-- BEGIN GENERATED: by-document -->
 | Ledger | Rows | Numbered (items + equations) | D | R | E | unreviewed | existing | bridged | new-proved | blocked | non-propositional | Verified |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [C0-INTRO](ledger/algd/C0-INTRO.md) | 44 | 32 (32 + 0) | 8 | 4 | 0 | 44 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [C0-CDIAG](ledger/algd/C0-CDIAG.md) | 9 | 3 (1 + 2) | 3 | 1 | 2 | 9 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [C0-CONSTR](ledger/algd/C0-CONSTR.md) | 19 | 12 (12 + 0) | 7 | 0 | 0 | 19 | 0 | 0 | 0 | 0 | 0 | 0 |
-| [C0-UNIV](ledger/algd/C0-UNIV.md) | 23 | 14 (14 + 0) | 7 | 2 | 0 | 23 | 0 | 0 | 0 | 0 | 0 | 0 |
-| [C0-SHEAF](ledger/algd/C0-SHEAF.md) | 13 | 8 (7 + 1) | 4 | 1 | 0 | 13 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [C0-DUAL](ledger/algd/C0-DUAL.md) | 29 | 20 (20 + 0) | 7 | 2 | 0 | 29 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [C0-EQUIV](ledger/algd/C0-EQUIV.md) | 30 | 20 (20 + 0) | 7 | 3 | 0 | 30 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [C0-FUNDGPD](ledger/algd/C0-FUNDGPD.md) | 22 | 11 (11 + 0) | 7 | 4 | 0 | 22 | 0 | 0 | 0 | 0 | 0 | 0 |
+| [C0-INTRO](ledger/algd/C0-INTRO.md) | 44 | 32 (32 + 0) | 8 | 4 | 0 | 44 | 0 | 0 | 0 | 0 | 0 | 0 |
+| [C0-SHEAF](ledger/algd/C0-SHEAF.md) | 13 | 8 (7 + 1) | 4 | 1 | 0 | 13 | 0 | 0 | 0 | 0 | 0 | 0 |
+| [C0-UNIV](ledger/algd/C0-UNIV.md) | 23 | 14 (14 + 0) | 7 | 2 | 0 | 23 | 0 | 0 | 0 | 0 | 0 | 0 |
 | **Chapter 0** | **189** | **120 (117 + 3)** | **50** | **17** | **2** | **189** | **0** | **0** | **0** | **0** | **0** | **0** |
-| [C1-NAT](ledger/algd/C1-NAT.md) | 23 | 13 (13 + 0) | 8 | 2 | 0 | 23 | 0 | 0 | 0 | 0 | 0 | 0 |
-| [C1-YONEDA](ledger/algd/C1-YONEDA.md) | 19 | 11 (9 + 2) | 5 | 3 | 0 | 5 | 7 | 4 | 1 | 0 | 2 | 12 |
+| [C1-ADJOINT](ledger/algd/C1-ADJOINT.md) | 72 | 56 (55 + 1) | 9 | 7 | 0 | 72 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [C1-COMMA](ledger/algd/C1-COMMA.md) | 10 | 8 (8 + 0) | 2 | 0 | 0 | 10 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [C1-LIMIT](ledger/algd/C1-LIMIT.md) | 51 | 33 (30 + 3) | 14 | 4 | 0 | 51 | 0 | 0 | 0 | 0 | 0 | 0 |
-| [C1-ADJOINT](ledger/algd/C1-ADJOINT.md) | 72 | 56 (55 + 1) | 9 | 7 | 0 | 72 | 0 | 0 | 0 | 0 | 0 | 0 |
+| [C1-NAT](ledger/algd/C1-NAT.md) | 23 | 13 (13 + 0) | 8 | 2 | 0 | 23 | 0 | 0 | 0 | 0 | 0 | 0 |
+| [C1-YONEDA](ledger/algd/C1-YONEDA.md) | 19 | 11 (9 + 2) | 5 | 3 | 0 | 5 | 7 | 4 | 1 | 0 | 2 | 12 |
 | **Chapter 1** | **175** | **121 (115 + 6)** | **38** | **16** | **0** | **161** | **7** | **4** | **1** | **0** | **2** | **12** |
+<!-- END GENERATED: by-document -->
 
 ## Verified declarations
 
-| Ledger IDs | Lean declaration | Status |
+<!-- BEGIN GENERATED: verified -->
+| Ledger ID | Lean declaration | Status |
 | --- | --- | --- |
+| ALGD-C1-YONEDA-D02 | `CategoryTheory.yoneda` | existing |
+| ALGD-C1-YONEDA-D04 | `CategoryTheory.yoneda` | existing |
 | ALGD-C1-YONEDA-01 | `ProjectEpisteme.AlgD.Yoneda.yoneda_bijective` | existing |
 | ALGD-C1-YONEDA-02 | `ProjectEpisteme.AlgD.Yoneda.yoneda_map_bijective` | existing |
 | ALGD-C1-YONEDA-03 | `ProjectEpisteme.AlgD.Yoneda.isIso_iff_isIso_yonedaEquiv` | bridged |
@@ -56,9 +65,9 @@ Numbered = numbers 1..max, split into statements and labelled displays (equation
 | ALGD-C1-YONEDA-09 | `ProjectEpisteme.AlgD.Yoneda.nonempty_iso_of_yoneda_comp_iso` | bridged |
 | ALGD-C1-YONEDA-10 | `ProjectEpisteme.AlgD.Yoneda.yonedaEquiv_natural_in_object` | existing |
 | ALGD-C1-YONEDA-11 | `ProjectEpisteme.AlgD.Yoneda.yonedaEquiv_natural_in_presheaf` | existing |
-| ALGD-C1-YONEDA-D02, -D04 | `CategoryTheory.yoneda` (mathlib definition, read against the source) | existing |
+<!-- END GENERATED: verified -->
 
-Every declaration above depends only on `[propext, Classical.choice, Quot.sound]`, pinned with `#guard_msgs` in [`Yoneda.lean`](../ProjectEpisteme/Category/AlgD/C1/Yoneda.lean).
+Every project declaration depends only on `[propext, Classical.choice, Quot.sound]`. Two mechanisms check this: `checks/AxiomAudit.lean` covers the whole library, and the `#guard_msgs` blocks in each source module cover the individual source items. `checks/LedgerDeclarations.lean` checks that each declaration named above exists.
 
 ## Known gaps flagged during cataloging
 

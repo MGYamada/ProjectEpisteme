@@ -4,3 +4,6 @@
 # macOS Finder metadata and AppleDouble files
 .DS_Store
 ._*
+
+# Python bytecode from the ledger checker and its tests
+__pycache__/
