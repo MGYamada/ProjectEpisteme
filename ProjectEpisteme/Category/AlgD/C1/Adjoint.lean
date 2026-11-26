@@ -22,6 +22,19 @@ public import Mathlib.LinearAlgebra.Basis.VectorSpace
 public import Mathlib.Topology.Category.TopCat.Adjunctions
 public import Mathlib.Topology.Category.CompHaus.Basic
 public import Mathlib.Algebra.Category.ModuleCat.ChangeOfRings
+public import Mathlib.CategoryTheory.Adjunction.Mates
+public import Mathlib.CategoryTheory.Monoidal.Cartesian.Basic
+public import Mathlib.CategoryTheory.Monoidal.Closed.Basic
+public import Mathlib.CategoryTheory.Monoidal.Types.Basic
+public import Mathlib.CategoryTheory.Monoidal.Braided.Basic
+public import Mathlib.CategoryTheory.Limits.Preserves.Shapes.BinaryProducts
+public import Mathlib.Algebra.Category.Grp.CartesianMonoidal
+public import Mathlib.Algebra.Category.ModuleCat.Monoidal.Closed
+public import Mathlib.Algebra.Category.Ring.Basic
+public import Mathlib.Algebra.Category.MonCat.Basic
+public import Mathlib.Algebra.MonoidAlgebra.Basic
+public import Mathlib.RingTheory.Localization.FractionRing
+public import Mathlib.Algebra.Polynomial.AlgebraMap
 
 /-!
 # alg-d, Chapter 1: 随伴関手 (Adjoint functors)
@@ -44,8 +57,11 @@ retrieved 2026-11-26. Ledger: `docs/ledger/algd/C1-ADJOINT.md`.
 * In §3, `C0` and `D0` are `unitFixed adj` and `counitFixed adj`, and `C1` and `D1` are the
   essential images of `G` and `F`. The conditions of 定理 31 on whiskered transformations are
   stated componentwise.
-* Not formalized yet (see the ledger): §4 (cartesian closed categories), 定理 32, 系 34, 定理 41,
-  系 42 and 例 49–53, 55.
+* In §4, finite products are a chosen `CartesianMonoidalCategory` and `− × a` is `tensorRight a`.
+  定理 41 is stated for the curried functor `X ⥤ C ⥤ D` with the parameter first.
+* 例 50 is stated for commutative rings and 例 51 with injective morphisms in `Dom`; the source
+  leaves both hypotheses implicit.
+* Not formalized (mathlib lacks the prerequisites; see the ledger): 例 52, 53 and 55.
 -/
 
 @[expose] public section
@@ -259,6 +275,39 @@ noncomputable def universalArrowFromEquiv (F : C ⥤ D) (c : D → C) (ε : ∀ 
   (Equiv.ofBijective (fun g : c' ⟶ c d ↦ F.map g ≫ ε d)
     ((Function.bijective_iff_existsUnique _).2 (univ d c'))).symm
 
+theorem universalArrowFromEquiv_naturality (F : C ⥤ D) (c : D → C) (ε : ∀ d, F.obj (c d) ⟶ d)
+    (univ : ∀ d (c' : C) (f : F.obj c' ⟶ d), ∃! g : c' ⟶ c d, F.map g ≫ ε d = f)
+    (X' X : C) (Y : D) (f : X' ⟶ X) (g : F.obj X ⟶ Y) :
+    universalArrowFromEquiv F c ε univ X' Y (F.map f ≫ g) =
+      f ≫ universalArrowFromEquiv F c ε univ X Y g := by
+  rw [universalArrowFromEquiv, Equiv.symm_apply_eq]
+  simp only [Equiv.ofBijective_apply, F.map_comp, Category.assoc]
+  congr 1
+  exact ((Equiv.ofBijective (fun g : X ⟶ c Y ↦ F.map g ≫ ε Y)
+    ((Function.bijective_iff_existsUnique _).2 (univ Y X))).apply_symm_apply g).symm
+
+/-- The right adjoint built from a family of universal arrows `ε_d : F c_d → d` from `F`. -/
+noncomputable def rightAdjointOfUniversalArrows (F : C ⥤ D) (c : D → C)
+    (ε : ∀ d, F.obj (c d) ⟶ d)
+    (univ : ∀ d (c' : C) (f : F.obj c' ⟶ d), ∃! g : c' ⟶ c d, F.map g ≫ ε d = f) : D ⥤ C :=
+  Adjunction.rightAdjointOfEquiv (universalArrowFromEquiv F c ε univ)
+    (universalArrowFromEquiv_naturality F c ε univ)
+
+/-- The adjunction `F ⊣ rightAdjointOfUniversalArrows F c ε univ`. -/
+noncomputable def adjunctionOfUniversalArrowsFrom (F : C ⥤ D) (c : D → C)
+    (ε : ∀ d, F.obj (c d) ⟶ d)
+    (univ : ∀ d (c' : C) (f : F.obj c' ⟶ d), ∃! g : c' ⟶ c d, F.map g ≫ ε d = f) :
+    F ⊣ rightAdjointOfUniversalArrows F c ε univ :=
+  Adjunction.adjunctionOfEquivRight _ _
+
+theorem adjunctionOfUniversalArrowsFrom_counit_app (F : C ⥤ D) (c : D → C)
+    (ε : ∀ d, F.obj (c d) ⟶ d)
+    (univ : ∀ d (c' : C) (f : F.obj c' ⟶ d), ∃! g : c' ⟶ c d, F.map g ≫ ε d = f) (d : D) :
+    (adjunctionOfUniversalArrowsFrom F c ε univ).counit.app d = ε d := by
+  simp only [adjunctionOfUniversalArrowsFrom, Adjunction.adjunctionOfEquivRight_counit_app,
+    universalArrowFromEquiv, Equiv.symm_symm, Equiv.ofBijective_apply]
+  exact (congrArg (· ≫ ε d) (F.map_id (c d))).trans (Category.id_comp (ε d))
+
 /-- `ALGD-C1-ADJOINT-10` (定理 10, pp.8–9).
 The dual results. For `F ⊣ G`: (a) `⟨Gd, ε_d⟩` with `ε_d = (id_{Gd})~` is a universal arrow from
 `F` to `d`, and the inverse bijection is `g ↦ ε_d ∘ Fg`; (b) the counit `ε` is natural;
@@ -283,15 +332,7 @@ theorem counit_dual (adj : F ⊣ G) :
       exact ((adj.homEquiv c d).apply_symm_apply g).symm.trans
         (congrArg _ (adj.homEquiv_counit c d g))
   · choose c ε hε using hF'
-    have he : ∀ (X' X : C) (Y : D) (f : X' ⟶ X) (g : F'.obj X ⟶ Y),
-        universalArrowFromEquiv F' c ε hε X' Y (F'.map f ≫ g) =
-          f ≫ universalArrowFromEquiv F' c ε hε X Y g := fun X' X Y f g ↦ by
-      rw [universalArrowFromEquiv, Equiv.symm_apply_eq]
-      simp only [Equiv.ofBijective_apply, F'.map_comp, Category.assoc]
-      congr 1
-      exact ((Equiv.ofBijective (fun g : X ⟶ c Y ↦ F'.map g ≫ ε Y)
-        ((Function.bijective_iff_existsUnique _).2 (hε Y X))).apply_symm_apply g).symm
-    exact (Adjunction.adjunctionOfEquivRight _ he).isLeftAdjoint
+    exact (adjunctionOfUniversalArrowsFrom F' c ε hε).isLeftAdjoint
   · have := adj.rightAdjoint_preservesLimits.{w', w}
     exact ⟨isLimitOfPreserves G hs⟩
 
@@ -531,7 +572,8 @@ theorem unit_counit_iso_consequences (adj : F ⊣ G) :
     rw [Equivalence.toAdjunction_counit]
     infer_instance
   exact ⟨((unit_counit_iso_aux e.toAdjunction).1 hη).1,
-    ((unit_counit_iso_aux e.toAdjunction).1 hη).2.1, ((unit_counit_iso_aux e.toAdjunction).2 hε).2.2⟩
+    ((unit_counit_iso_aux e.toAdjunction).1 hη).2.1,
+    ((unit_counit_iso_aux e.toAdjunction).2 hε).2.2⟩
 
 /-- `ALGD-C1-ADJOINT-R05` (※ box, p.23).
 If `F ⊣ G` and both `F` and `G` are fully faithful, then `F` is an equivalence. -/
@@ -752,6 +794,126 @@ theorem idempotent_tfae (adj : F ⊣ G) :
     exact IsIso.of_isIso_comp_left (F.map (G.map i.hom)) _
   tfae_finish
 
+/-- The unit at `c` is an isomorphism iff `F` is bijective on `Hom_C(c', c)` for every `c'`. The
+right side depends only on `F`, not on the adjunction. -/
+theorem unit_isIso_iff_map_bijective (adj : F ⊣ G) (c : C) :
+    IsIso (adj.unit.app c) ↔ ∀ c' : C, Function.Bijective (fun p : c' ⟶ c ↦ F.map p) := by
+  rw [isIso_iff_yoneda_map_bijective]
+  refine forall_congr' fun c' ↦ ?_
+  have : (fun p : c' ⟶ c ↦ p ≫ adj.unit.app c) =
+      (adj.homEquiv c' (F.obj c)) ∘ (fun p : c' ⟶ c ↦ F.map p) := by
+    funext p
+    simp [Adjunction.homEquiv_unit]
+  exact (Iff.of_eq (congrArg Function.Bijective this)).trans
+    ((adj.homEquiv c' (F.obj c)).bijective.of_comp_iff' _)
+
+theorem map_bijective_iff_of_iso {F' : C ⥤ D} (e : F ≅ F') (a b : C) :
+    Function.Bijective (fun p : a ⟶ b ↦ F.map p) ↔
+      Function.Bijective (fun p : a ⟶ b ↦ F'.map p) := by
+  have : (fun p : a ⟶ b ↦ F'.map p) = ((e.app a).homCongr (e.app b)) ∘ fun p ↦ F.map p := by
+    funext p
+    simp [Iso.homCongr_apply]
+  rw [this, ((e.app a).homCongr (e.app b)).bijective.of_comp_iff']
+
+theorem comp_map_bijective_iff {E : Type u₃} [Category.{v₃} E] (L : C ⥤ E) (K : E ⥤ D)
+    [K.Full] [K.Faithful] (a b : C) :
+    Function.Bijective (fun p : a ⟶ b ↦ (L ⋙ K).map p) ↔
+      Function.Bijective (fun p : a ⟶ b ↦ L.map p) :=
+  ((Functor.FullyFaithful.ofFullyFaithful K).map_bijective (L.obj a) (L.obj b)).of_comp_iff' _
+
+theorem unit_isIso_of_iso (adj : F ⊣ G) {c c' : C} (i : c ≅ c') (h : IsIso (adj.unit.app c)) :
+    IsIso (adj.unit.app c') := by
+  have : IsIso (i.hom ≫ adj.unit.app c') := by
+    rw [← adj.unit_naturality]
+    infer_instance
+  exact IsIso.of_isIso_comp_left i.hom _
+
+/-- The converse half of 定理 32, for a category `X` in any universe. -/
+theorem idempotent_of_factorization (adj : F ⊣ G) {X : Type u₃} [Category.{v₃} X]
+    {K₀ : X ⥤ C} {K₁ : X ⥤ D} {L : C ⥤ X} {R : D ⥤ X} [K₀.Full] [K₀.Faithful] [K₁.Full]
+    [K₁.Faithful] (adj₁ : L ⊣ K₀) (eF : F ≅ L ⋙ K₁) (eG : G ≅ R ⋙ K₀) :
+    IsIdempotent adj := by
+  refine (idempotent_tfae adj).out 1 2 |>.2 fun d ↦ ?_
+  rw [unit_isIso_iff_map_bijective adj,
+    forall_congr' fun c' ↦ (map_bijective_iff_of_iso eF c' (G.obj d)).trans
+      (comp_map_bijective_iff L K₁ c' (G.obj d)),
+    ← unit_isIso_iff_map_bijective adj₁]
+  refine unit_isIso_of_iso adj₁ (eG.app d).symm ?_
+  have := (faithful_full_criteria adj₁).2.2.2.2.2.1 ⟨inferInstance, inferInstance⟩
+  exact isIso_left_of_comp_eq_id (adj₁.right_triangle_components (R.obj d))
+
+/-- `ALGD-C1-ADJOINT-32` (定理 32, pp.28–29).
+`F ⊣ G` is idempotent iff there are a category `X`, fully faithful `K₀ : X → C` and
+`K₁ : X → D`, and adjunctions `L ⊣ K₀`, `K₁ ⊣ R` with `F ≅ K₁L` and `G ≅ K₀R`. For `⇒`, `X` is
+`D0`, `K₁` is the inclusion, `K₀` is `G` restricted to `D0`, `L` is `F` and `R d = FGd`. -/
+theorem idempotent_iff_factorization (adj : F ⊣ G) :
+    IsIdempotent adj ↔ ∃ (X : Type u₂) (_ : Category.{v₂} X) (K₀ : X ⥤ C) (K₁ : X ⥤ D)
+      (L : C ⥤ X) (R : D ⥤ X), (K₀.Full ∧ K₀.Faithful) ∧ (K₁.Full ∧ K₁.Faithful) ∧
+      Nonempty (L ⊣ K₀) ∧ Nonempty (K₁ ⊣ R) ∧ Nonempty (F ≅ L ⋙ K₁) ∧ Nonempty (G ≅ R ⋙ K₀) := by
+  constructor
+  · intro h
+    have h8 : ∀ c, IsIso (adj.counit.app (F.obj c)) := (idempotent_tfae adj).out 1 8 |>.1 h
+    have h10 : ∀ d, F.map (G.map (adj.counit.app d)) = adj.counit.app (F.obj (G.obj d)) :=
+      (idempotent_tfae adj).out 1 10 |>.1 h
+    let P := counitFixed adj
+    let L : C ⥤ P.FullSubcategory := P.lift F h8
+    let K₀ : P.FullSubcategory ⥤ C := P.ι ⋙ G
+    let adj₁ : L ⊣ K₀ := Adjunction.mkOfHomEquiv
+      { homEquiv := fun c x ↦
+          { toFun := fun g ↦ adj.homEquiv c x.obj g.hom
+            invFun := fun g ↦ ObjectProperty.homMk ((adj.homEquiv c x.obj).symm g)
+            left_inv := fun g ↦ by ext; simp
+            right_inv := fun g ↦ by simp }
+        homEquiv_naturality_left_symm := fun f g ↦ by
+          ext
+          simp [L, Adjunction.homEquiv_naturality_left_symm]
+          rfl
+        homEquiv_naturality_right := fun f g ↦ by
+          simp [K₀, Adjunction.homEquiv_naturality_right] }
+    have hK₀ : K₀.Full ∧ K₀.Faithful := by
+      refine (faithful_full_criteria adj₁).2.2.2.2.2.2 fun x ↦ ?_
+      have : IsIso (P.ι.map (adj₁.counit.app x)) := by
+        have e : P.ι.map (adj₁.counit.app x) = adj.counit.app x.obj := by
+          rw [← Adjunction.homEquiv_symm_id, ← Adjunction.homEquiv_symm_id]
+          simp [adj₁]
+          rfl
+        rw [e]
+        exact x.property
+      exact isIso_of_fully_faithful P.ι _
+    let c : D → P.FullSubcategory := fun d ↦ ⟨F.obj (G.obj d), h8 (G.obj d)⟩
+    have univ : ∀ d (x : P.FullSubcategory) (f : P.ι.obj x ⟶ d),
+        ∃! g : x ⟶ c d, P.ι.map g ≫ adj.counit.app d = f := by
+      intro d x f
+      have : IsIso (adj.counit.app x.obj) := x.property
+      refine ⟨ObjectProperty.homMk (inv (adj.counit.app x.obj) ≫ F.map (G.map f)), ?_,
+        fun g hg ↦ ?_⟩
+      · simp
+      · ext
+        simp only [ObjectProperty.ι_map] at hg
+        rw [ObjectProperty.homMk_hom, IsIso.eq_inv_comp, ← hg, G.map_comp, F.map_comp, h10]
+        exact (adj.counit_naturality g.hom).symm
+    let R := rightAdjointOfUniversalArrows P.ι c (fun d ↦ adj.counit.app d) univ
+    let adj₂ : P.ι ⊣ R := adjunctionOfUniversalArrowsFrom P.ι c (fun d ↦ adj.counit.app d) univ
+    have hR : ∀ {d d' : D} (q : d ⟶ d'), (R.map q).hom ≫ adj.counit.app d' =
+        adj.counit.app d ≫ q := fun {d d'} q ↦ by
+      have := adj₂.counit_naturality q
+      rw [adjunctionOfUniversalArrowsFrom_counit_app,
+        adjunctionOfUniversalArrowsFrom_counit_app] at this
+      exact this
+    have h7 : ∀ d, IsIso (G.map (adj.counit.app d)) := (idempotent_tfae adj).out 1 7 |>.1 h
+    let eG : G ≅ R ⋙ K₀ := NatIso.ofComponents
+      (fun d ↦ (asIso (G.map (adj.counit.app d))).symm) fun {d d'} q ↦ by
+        have h := congrArg G.map (hR q)
+        erw [G.map_comp, G.map_comp] at h
+        simp only [Iso.symm_hom, asIso_inv, Functor.comp_map]
+        rw [← cancel_epi (G.map (adj.counit.app d))]
+        erw [IsIso.hom_inv_id_assoc, ← reassoc_of% h, IsIso.hom_inv_id, Category.comp_id]
+        rfl
+    exact ⟨P.FullSubcategory, inferInstance, K₀, P.ι, L, R, hK₀, ⟨inferInstance, inferInstance⟩,
+      ⟨adj₁⟩, ⟨adj₂⟩, ⟨(P.liftCompιIso F h8).symm⟩, ⟨eG⟩⟩
+  · rintro ⟨X, _, K₀, K₁, L, R, ⟨_, _⟩, ⟨_, _⟩, ⟨adj₁⟩, -, ⟨eF⟩, ⟨eG⟩⟩
+    exact idempotent_of_factorization adj adj₁ eF eG
+
 /-- `ALGD-C1-ADJOINT-33` (系 33, p.29).
 If `F ⊣ G` is idempotent, the inclusion `C0 → C` has a left adjoint, sending `c` to `GFc`. -/
 theorem unitFixed_reflective (adj : F ⊣ G) (h : IsIdempotent adj) :
@@ -773,6 +935,317 @@ theorem unitFixed_reflective (adj : F ⊣ G) (h : IsIdempotent adj) :
       erw [← adj.unit_naturality k.hom, ← h4 c, ← G.map_comp, ← F.map_comp, hk]
   exact (adjunctionOfUniversalArrows (unitFixed adj).ι d (fun c ↦ adj.unit.app c)
     univ).isRightAdjoint
+
+/-- `ALGD-C1-ADJOINT-34` (系 34, p.29).
+If `F ⊣ G` is idempotent, then in the notation of 定理 32, `X ≃ C0`: `K₁ ⊣ R` with `K₁` fully
+faithful makes `R` essentially surjective, so `K₀` corestricts to a fully faithful, essentially
+surjective functor `X → C0`. Only `K₀`, `K₁`, `K₁ ⊣ R` and `G ≅ K₀R` are needed. -/
+theorem factorization_equivalence (adj : F ⊣ G) (h : IsIdempotent adj) {X : Type u₃}
+    [Category.{v₃} X] {K₀ : X ⥤ C} {K₁ : X ⥤ D} {R : D ⥤ X} [K₀.Full] [K₀.Faithful]
+    [K₁.Full] [K₁.Faithful] (adj₂ : K₁ ⊣ R) (eG : G ≅ R ⋙ K₀) :
+    Nonempty (X ≌ (unitFixed adj).FullSubcategory) := by
+  have h2 : ∀ d, IsIso (adj.unit.app (G.obj d)) := (idempotent_tfae adj).out 1 2 |>.1 h
+  have : R.EssSurj := ((unit_counit_iso_aux adj₂).1
+    ((faithful_full_criteria adj₂).2.2.1.1 ⟨inferInstance, inferInstance⟩)).2.2
+  have hK : ∀ x, unitFixed adj (K₀.obj x) := fun x ↦
+    unit_isIso_of_iso adj ((eG.app (R.objPreimage x)).trans
+      (K₀.mapIso (R.objObjPreimageIso x))) (h2 _)
+  let K := (unitFixed adj).lift K₀ hK
+  have : K.EssSurj := ⟨fun c ↦ ⟨R.obj (F.obj c.obj), ⟨(unitFixed adj).fullyFaithfulι.preimageIso
+    ((eG.app (F.obj c.obj)).symm ≪≫ (unitFixedIso adj c).symm)⟩⟩⟩
+  have : K.IsEquivalence := { }
+  exact ⟨K.asEquivalence⟩
+
+/-! ## §4 Cartesian closed categories
+
+Finite products are a chosen `CartesianMonoidalCategory` structure, and the source's `− × a` is
+`tensorRight a` (`b ↦ b ⊗ a`). mathlib's `MonoidalClosed` asks for right adjoints of
+`tensorLeft a` instead; `isCartesianClosed_iff_monoidalClosed` bridges the two through the
+braiding. -/
+
+section CCC
+
+open MonoidalCategory CartesianMonoidalCategory
+
+variable [CartesianMonoidalCategory C]
+
+/-- `ALGD-C1-ADJOINT-D08` (定義, §4, p.30).
+`⟨e, ev⟩` is an exponential object `b^a`: a universal arrow from `− × a` to `b`, i.e. every
+`f : x × a → b` is `ev ∘ (g × id_a)` for a unique `g : x → e`. -/
+def IsExponential (a b e : C) (ev : e ⊗ a ⟶ b) : Prop :=
+  ∀ (x : C) (f : x ⊗ a ⟶ b), ∃! g : x ⟶ e, g ▷ a ≫ ev = f
+
+/-- `ALGD-C1-ADJOINT-35` (例 35, p.30).
+In `Set`, `b^a = Hom_Set(a, b)` with `ev(f, x) = f(x)`. -/
+theorem types_exponential (a b : Type u) :
+    IsExponential a b (a → b) (TypeCat.ofHom fun p : (a → b) × a ↦ p.1 p.2) := by
+  intro x f
+  refine ⟨TypeCat.ofHom fun y z ↦ f (y, z), ?_, fun g hg ↦ ?_⟩
+  · ext ⟨y, z⟩
+    rfl
+  · beta_reduce at hg
+    ext y z
+    exact ConcreteCategory.congr_hom hg ((y, z) : x × a)
+
+/-- `ALGD-C1-ADJOINT-36` (命題 36, p.30).
+If every `b^a` exists, then `b ↦ b^a` is a functor `(−)^a` with `− × a ⊣ (−)^a`, whose counit is
+`ev` and whose inverse bijection `Hom(b, c^a) → Hom(b × a, c)` is `g ↦ ev ∘ (g × id_a)`. -/
+theorem exponential_adjunction (a : C) (e : C → C) (ev : ∀ b, e b ⊗ a ⟶ b)
+    (h : ∀ b, IsExponential a b (e b) (ev b)) :
+    (∀ b, (rightAdjointOfUniversalArrows (tensorRight a) e ev h).obj b = e b) ∧
+    (∀ b, (adjunctionOfUniversalArrowsFrom (tensorRight a) e ev h).counit.app b = ev b) ∧
+    (∀ (b c : C) (g : b ⟶ e c),
+      ((adjunctionOfUniversalArrowsFrom (tensorRight a) e ev h).homEquiv b c).symm g =
+        g ▷ a ≫ ev c) :=
+  ⟨fun _ ↦ rfl, adjunctionOfUniversalArrowsFrom_counit_app _ _ _ h, fun b c g ↦ by
+    erw [Adjunction.homEquiv_counit, adjunctionOfUniversalArrowsFrom_counit_app]
+    rfl⟩
+
+variable (C) in
+/-- `ALGD-C1-ADJOINT-D09` (定義, §4, p.30).
+A cartesian closed category: `C` has finite products (here a chosen `CartesianMonoidalCategory`)
+and every `− × a` has a right adjoint. -/
+def IsCartesianClosed : Prop := ∀ a : C, (tensorRight a).IsLeftAdjoint
+
+theorem tensorLeft_isLeftAdjoint (hC : IsCartesianClosed C) (x : C) :
+    (tensorLeft x).IsLeftAdjoint := by
+  let := BraidedCategory.ofCartesianMonoidalCategory (C := C)
+  have := hC x
+  exact Functor.isLeftAdjoint_of_iso (BraidedCategory.tensorLeftIsoTensorRight x).symm
+
+/-- The source's cartesian closed categories are mathlib's: `MonoidalClosed` uses `tensorLeft`,
+which is isomorphic to `tensorRight` through the braiding. -/
+theorem isCartesianClosed_iff_monoidalClosed :
+    IsCartesianClosed C ↔ Nonempty (MonoidalClosed C) := by
+  let := BraidedCategory.ofCartesianMonoidalCategory (C := C)
+  constructor
+  · intro hC
+    have := tensorLeft_isLeftAdjoint hC
+    exact ⟨{ closed := fun x ↦ ⟨_, Adjunction.ofIsLeftAdjoint (tensorLeft x)⟩ }⟩
+  · rintro ⟨_⟩ a
+    have : (tensorLeft a).IsLeftAdjoint := (ihom.adjunction a).isLeftAdjoint
+    exact Functor.isLeftAdjoint_of_iso (BraidedCategory.tensorLeftIsoTensorRight a)
+
+theorem isExponential_counit {a : C} {Ga : C ⥤ C} (adj : tensorRight a ⊣ Ga) (b : C) :
+    IsExponential a b (Ga.obj b) (adj.counit.app b) :=
+  (counit_dual.{0, 0} adj).1.1 b
+
+/-- `ALGD-C1-ADJOINT-R07` (※ box, p.30).
+If `G_a` is right adjoint to `− × a`, then `⟨G_a b, ε_b⟩` are exponential objects (定理 10), and
+`G_a ≅ (−)^a`, the functor built from them in 命題 36. -/
+theorem exponential_of_rightAdjoint {a : C} {Ga : C ⥤ C} (adj : tensorRight a ⊣ Ga) :
+    (∀ b, IsExponential a b (Ga.obj b) (adj.counit.app b)) ∧
+    Nonempty (Ga ≅ rightAdjointOfUniversalArrows (tensorRight a) Ga.obj
+      (fun b ↦ adj.counit.app b) (isExponential_counit adj)) :=
+  ⟨isExponential_counit adj,
+    ⟨adj.rightAdjointUniq (adjunctionOfUniversalArrowsFrom _ _ _ (isExponential_counit adj))⟩⟩
+
+/-- `ALGD-C1-ADJOINT-37` (命題 37, p.31).
+For `− × a ⊣ (−)^a`: `− × a` preserves colimits and `(−)^a` preserves limits. In particular
+`(b ⊔ c) × a` is a coproduct of `b × a` and `c × a`, `(b × c)^a ≅ b^a × c^a`, `0 × a` is initial
+and `1^a` is terminal. -/
+theorem exponential_preserves {a : C} {E : C ⥤ C} (adj : tensorRight a ⊣ E) :
+    PreservesColimitsOfSize.{w', w} (tensorRight a) ∧ PreservesLimitsOfSize.{w', w} E ∧
+    (∀ (b c : C) [HasBinaryCoproduct b c],
+      Nonempty (IsColimit (BinaryCofan.mk (coprod.inl ▷ a : b ⊗ a ⟶ (b ⨿ c) ⊗ a)
+        (coprod.inr ▷ a)))) ∧
+    (∀ b c : C, Nonempty (E.obj (b ⊗ c) ≅ E.obj b ⊗ E.obj c)) ∧
+    (∀ z : C, IsInitial z → Nonempty (IsInitial (z ⊗ a))) ∧
+    Nonempty (IsTerminal (E.obj (𝟙_ C))) := by
+  have := adj.leftAdjoint_preservesColimits.{0, 0}
+  have := adj.rightAdjoint_preservesLimits.{0, 0}
+  refine ⟨adj.leftAdjoint_preservesColimits, adj.rightAdjoint_preservesLimits,
+    fun b c _ ↦ ⟨(isColimitMapCoconeBinaryCofanEquiv (tensorRight a) _ _)
+      (isColimitOfPreserves (tensorRight a) (coprodIsCoprod b c))⟩, fun b c ↦ ?_,
+    fun z hz ↦ ⟨hz.isInitialObj (tensorRight a)⟩, ⟨isTerminalTensorUnit.isTerminalObj E⟩⟩
+  have h := (isLimitMapConeBinaryFanEquiv E (fst b c) (snd b c))
+    (isLimitOfPreserves E (tensorProductIsBinaryProduct b c))
+  exact ⟨h.conePointUniqueUpToIso (tensorProductIsBinaryProduct (E.obj b) (E.obj c))⟩
+
+/-- `ALGD-C1-ADJOINT-38` (命題 38, p.31).
+`(a^b)^c ≅ a^{b×c}`: `(x × c) × b ≅ x × (b × c)` naturally in `x`, so the composite adjunction
+`(− × c) × b ⊣ ((−)^b)^c` and `− × (b × c) ⊣ (−)^{b×c}` have isomorphic right adjoints. -/
+theorem exponential_exponential {b c : C} {Eb Ec Ebc : C ⥤ C} (adjb : tensorRight b ⊣ Eb)
+    (adjc : tensorRight c ⊣ Ec) (adjbc : tensorRight (b ⊗ c) ⊣ Ebc) (a : C) :
+    Nonempty (Ec.obj (Eb.obj a) ≅ Ebc.obj a) := by
+  let := BraidedCategory.ofCartesianMonoidalCategory (C := C)
+  let i : tensorRight c ⋙ tensorRight b ≅ tensorRight (b ⊗ c) :=
+    NatIso.ofComponents (fun x ↦ α_ x c b ≪≫ whiskerLeftIso x (β_ c b)) fun f ↦ by
+      change (f ▷ c) ▷ b ≫ (α_ _ c b).hom ≫ _ ◁ (β_ c b).hom =
+        ((α_ _ c b).hom ≫ _ ◁ (β_ c b).hom) ≫ f ▷ (b ⊗ c)
+      rw [associator_naturality_left_assoc, Category.assoc, ← whisker_exchange]
+  exact ⟨((adjbc.rightAdjointUniq ((adjc.comp adjb).ofNatIsoLeft i)).app a).symm⟩
+
+/-- `ALGD-C1-ADJOINT-39` (命題 39, p.31).
+In a cartesian closed category, `a^b × a^c ≅ a^{b⊔c}`: both represent
+`Hom_C(− × (b ⊔ c), a) ≅ Hom_C(− × b, a) × Hom_C(− × c, a)`. -/
+theorem exponential_coprod (hC : IsCartesianClosed C) {b c : C} [HasBinaryCoproduct b c]
+    {Eb Ec Ebc : C ⥤ C} (adjb : tensorRight b ⊣ Eb) (adjc : tensorRight c ⊣ Ec)
+    (adjbc : tensorRight (b ⨿ c) ⊣ Ebc) (a : C) :
+    Nonempty (Eb.obj a ⊗ Ec.obj a ≅ Ebc.obj a) := by
+  have := tensorLeft_isLeftAdjoint hC
+  have hx : ∀ x : C, IsColimit (BinaryCofan.mk (x ◁ coprod.inl : x ⊗ b ⟶ x ⊗ (b ⨿ c))
+      (x ◁ coprod.inr)) := fun x ↦ by
+    have := (Adjunction.ofIsLeftAdjoint (tensorLeft x)).leftAdjoint_preservesColimits.{0, 0}
+    exact (isColimitMapCoconeBinaryCofanEquiv (tensorLeft x) _ _)
+      (isColimitOfPreserves (tensorLeft x) (coprodIsCoprod b c))
+  let d : ∀ x : C, (x ⟶ Eb.obj a ⊗ Ec.obj a) → (x ⊗ (b ⨿ c) ⟶ a) := fun x g ↦
+    (BinaryCofan.IsColimit.desc' (hx x) ((adjb.homEquiv x a).symm (g ≫ fst _ _))
+      ((adjc.homEquiv x a).symm (g ≫ snd _ _))).1
+  have d_inl : ∀ x g, x ◁ coprod.inl ≫ d x g = (adjb.homEquiv x a).symm (g ≫ fst _ _) :=
+    fun x g ↦ (BinaryCofan.IsColimit.desc' (hx x) _ _).2.1
+  have d_inr : ∀ x g, x ◁ coprod.inr ≫ d x g = (adjc.homEquiv x a).symm (g ≫ snd _ _) :=
+    fun x g ↦ (BinaryCofan.IsColimit.desc' (hx x) _ _).2.2
+  let r : ((tensorRight (b ⨿ c)).op ⋙ yoneda.obj a).RepresentableBy (Eb.obj a ⊗ Ec.obj a) :=
+    { homEquiv := fun {x} ↦
+        { toFun := d x
+          invFun := fun h ↦ lift (adjb.homEquiv x a (x ◁ coprod.inl ≫ h))
+            (adjc.homEquiv x a (x ◁ coprod.inr ≫ h))
+          left_inv := fun g ↦ by
+            refine CartesianMonoidalCategory.hom_ext _ _ ?_ ?_
+            · rw [lift_fst, d_inl, Equiv.apply_symm_apply]
+            · rw [lift_snd, d_inr, Equiv.apply_symm_apply]
+          right_inv := fun h ↦ by
+            refine BinaryCofan.IsColimit.hom_ext (hx x) ?_ ?_
+            · change x ◁ coprod.inl ≫ d x _ = x ◁ coprod.inl ≫ h
+              rw [d_inl, lift_fst, Equiv.symm_apply_apply]
+            · change x ◁ coprod.inr ≫ d x _ = x ◁ coprod.inr ≫ h
+              rw [d_inr, lift_snd, Equiv.symm_apply_apply] }
+      homEquiv_comp := fun {x' x} f g ↦ by
+        change d x' (f ≫ g) = f ▷ (b ⨿ c) ≫ d x g
+        refine BinaryCofan.IsColimit.hom_ext (hx x') ?_ ?_
+        · change x' ◁ coprod.inl ≫ d x' (f ≫ g) = x' ◁ coprod.inl ≫ f ▷ (b ⨿ c) ≫ d x g
+          rw [d_inl, whisker_exchange_assoc, d_inl, Category.assoc]
+          exact adjb.homEquiv_naturality_left_symm f (g ≫ fst _ _)
+        · change x' ◁ coprod.inr ≫ d x' (f ≫ g) = x' ◁ coprod.inr ≫ f ▷ (b ⨿ c) ≫ d x g
+          rw [d_inr, whisker_exchange_assoc, d_inr, Category.assoc]
+          exact adjc.homEquiv_naturality_left_symm f (g ≫ snd _ _) }
+  exact ⟨r.uniqueUpToIso (adjbc.representableBy a)⟩
+
+/-- `ALGD-C1-ADJOINT-40` (命題 40, p.31).
+In a cartesian closed category, `a^0` is terminal (`a^0 ≅ 1`) for an initial object `0`, and
+`a^1 ≅ a` for the terminal object `1 = 𝟙_ C`. -/
+theorem exponential_initial_unit (hC : IsCartesianClosed C) {z : C} (hz : IsInitial z)
+    {E₀ E₁ : C ⥤ C} (adj₀ : tensorRight z ⊣ E₀) (adj₁ : tensorRight (𝟙_ C) ⊣ E₁) (a : C) :
+    Nonempty (IsTerminal (E₀.obj a)) ∧ Nonempty (E₁.obj a ≅ a) := by
+  refine ⟨⟨?_⟩, ?_⟩
+  · have := tensorLeft_isLeftAdjoint hC
+    have hinit : ∀ x : C, IsInitial (x ⊗ z) := fun x ↦ by
+      have := (Adjunction.ofIsLeftAdjoint (tensorLeft x)).leftAdjoint_preservesColimits.{0, 0}
+      exact hz.isInitialObj (tensorLeft x)
+    exact IsTerminal.ofUniqueHom (fun x ↦ adj₀.homEquiv x a ((hinit x).to a)) fun x m ↦ by
+      rw [← Equiv.symm_apply_eq]
+      exact (hinit x).hom_ext _ _
+  · let i : tensorRight (𝟙_ C) ≅ 𝟭 C := NatIso.ofComponents (fun x ↦ ρ_ x) fun f ↦ by simp
+    exact ⟨(adj₁.ofNatIsoLeft i).rightAdjointUniq Adjunction.id |>.app a⟩
+
+end CCC
+
+section Parametrized
+
+variable {X : Type u₃} [Category.{v₃} X]
+
+/-- The functor `G : X^op × D → C` of 定理 41, curried with the parameter first:
+`G(x, −) = G_x`, and `G_k : G_{x'} ⇒ G_x` is the mate (`conjugateEquiv`) of `F(−, k)`. -/
+noncomputable def parametrizedRightAdjoint (F : X ⥤ C ⥤ D) (G : X → D ⥤ C)
+    (adj : ∀ x, F.obj x ⊣ G x) : Xᵒᵖ ⥤ D ⥤ C where
+  obj x := G x.unop
+  map {x x'} k := conjugateEquiv (adj x.unop) (adj x'.unop) (F.map k.unop)
+  map_id x := by
+    rw [unop_id, F.map_id, conjugateEquiv_id]
+  map_comp {x y z} k l := by
+    rw [unop_comp, F.map_comp, ← conjugateEquiv_comp]
+
+/-- `ALGD-C1-ADJOINT-41` (定理 41, pp.32–36).
+Let `F : C × X → D` (curried as `X ⥤ C ⥤ D`) with right adjoints `G_x` of `F(−, x)`. Then
+`G := parametrizedRightAdjoint F G adj` satisfies (1) `G(x, −) = G_x` and (2) the bijections
+`φ_cxd` of `F(−, x) ⊣ G_x` are natural in `x`; and any family `β_k : G_{x'} ⇒ G_x` with (2) is
+the action of `G` on morphisms, so `G` is unique. -/
+theorem parametrized_adjunction (F : X ⥤ C ⥤ D) (G : X → D ⥤ C) (adj : ∀ x, F.obj x ⊣ G x) :
+    (∀ x, (parametrizedRightAdjoint F G adj).obj (op x) = G x) ∧
+    (∀ {x x' : X} (k : x ⟶ x') (c : C) (d : D) (f : (F.obj x').obj c ⟶ d),
+      (adj x).homEquiv c d ((F.map k).app c ≫ f) =
+        (adj x').homEquiv c d f ≫ ((parametrizedRightAdjoint F G adj).map k.op).app d) ∧
+    (∀ β : ∀ {x x' : X}, (x ⟶ x') → (G x' ⟶ G x),
+      (∀ {x x' : X} (k : x ⟶ x') (c : C) (d : D) (f : (F.obj x').obj c ⟶ d),
+        (adj x).homEquiv c d ((F.map k).app c ≫ f) = (adj x').homEquiv c d f ≫ (β k).app d) →
+      ∀ {x x' : X} (k : x ⟶ x'), β k = (parametrizedRightAdjoint F G adj).map k.op) := by
+  have nat : ∀ {x x' : X} (k : x ⟶ x') (c : C) (d : D) (f : (F.obj x').obj c ⟶ d),
+      (adj x).homEquiv c d ((F.map k).app c ≫ f) =
+        (adj x').homEquiv c d f ≫ ((parametrizedRightAdjoint F G adj).map k.op).app d := by
+    intro x x' k c d f
+    change _ = _ ≫ (conjugateEquiv (adj x') (adj x) (F.map k)).app d
+    rw [Adjunction.homEquiv_unit, Adjunction.homEquiv_unit, Category.assoc,
+      ((conjugateEquiv (adj x') (adj x)) (F.map k)).naturality, ← Category.assoc,
+      unit_conjugateEquiv, Category.assoc, ← Functor.map_comp]
+  refine ⟨fun _ ↦ rfl, nat, fun β hβ x x' k ↦ ?_⟩
+  ext d
+  have h1 := hβ k ((G x').obj d) d ((adj x').counit.app d)
+  have h2 := nat k ((G x').obj d) d ((adj x').counit.app d)
+  have e : (adj x').homEquiv _ d ((adj x').counit.app d) = 𝟙 _ := by
+    rw [← Adjunction.homEquiv_symm_id, Equiv.apply_symm_apply]
+  rw [e, Category.id_comp] at h1
+  rw [e] at h2
+  exact h1.symm.trans (h2.trans (Category.id_comp _))
+
+/-- `ALGD-C1-ADJOINT-42` (系 42, p.36).
+For `p : c → c'`, `q : d' → d`, `f : F(c, x) → d`, `g : F(c', x') → d'` and `k : x → x'`:
+`f = q ∘ g ∘ F(p, k)` iff `f̃ = G(k, q) ∘ g̃ ∘ p`, where `G(k, q) = G_k(d) ∘ G_{x'}(q)`. -/
+theorem parametrized_square_iff (F : X ⥤ C ⥤ D) (G : X → D ⥤ C) (adj : ∀ x, F.obj x ⊣ G x)
+    {c c' : C} {d d' : D} {x x' : X} (p : c ⟶ c') (q : d' ⟶ d) (k : x ⟶ x')
+    (f : (F.obj x).obj c ⟶ d) (g : (F.obj x').obj c' ⟶ d') :
+    f = (F.map k).app c ≫ (F.obj x').map p ≫ g ≫ q ↔
+      (adj x).homEquiv c d f = p ≫ (adj x').homEquiv c' d' g ≫
+        (G x').map q ≫ ((parametrizedRightAdjoint F G adj).map k.op).app d := by
+  have key : (adj x).homEquiv c d ((F.map k).app c ≫ (F.obj x').map p ≫ g ≫ q) =
+      p ≫ (adj x').homEquiv c' d' g ≫ (G x').map q ≫
+        ((parametrizedRightAdjoint F G adj).map k.op).app d := by
+    rw [(parametrized_adjunction F G adj).2.1, (adj x').homEquiv_naturality_left,
+      (adj x').homEquiv_naturality_right]
+    exact (Category.assoc _ _ _).trans (congrArg (p ≫ ·) (Category.assoc _ _ _))
+  rw [← key, Equiv.apply_eq_iff_eq]
+
+end Parametrized
+
+section CCC2
+
+open MonoidalCategory
+
+variable [CartesianMonoidalCategory C]
+
+/-- `ALGD-C1-ADJOINT-43` (例 43, p.36).
+In a cartesian closed category with chosen right adjoints `− × a ⊣ (−)^a`, `⟨a, b⟩ ↦ b^a` is a
+functor `C^op × C → C` (定理 41 for `F(b, a) = b × a`), and `Hom(b × a, c) ≅ Hom(b, c^a)` is
+natural in `a` as well as in `b` and `c`. -/
+theorem exponential_bifunctor (E : C → C ⥤ C) (adj : ∀ a, tensorRight a ⊣ E a) :
+    (∀ a, (parametrizedRightAdjoint (tensoringRight C) E adj).obj (op a) = E a) ∧
+    ∀ {a a' : C} (k : a ⟶ a') (b c : C) (f : b ⊗ a' ⟶ c),
+      (adj a).homEquiv b c (b ◁ k ≫ f) =
+        (adj a').homEquiv b c f ≫
+          ((parametrizedRightAdjoint (tensoringRight C) E adj).map k.op).app c :=
+  ⟨fun _ ↦ rfl, fun k b c f ↦ (parametrized_adjunction _ _ adj).2.1 k b c f⟩
+
+end CCC2
+
+open MonoidalCategory in
+/-- `ALGD-C1-ADJOINT-44` (例 44, p.36).
+`Ab` (with products `A × B`) is not cartesian closed: `− × ℤ` would preserve the initial object,
+but `0 × ℤ ≅ ℤ`. Instead `Ab`, as `ℤ-Mod`, is monoidal closed for the tensor product, with
+`Hom(A ⊗ B, C) ≅ Hom(B, Hom(A, C))`. -/
+theorem ab_not_cartesianClosed :
+    ¬ @IsCartesianClosed AddCommGrpCat.{u} _ AddCommGrpCat.cartesianMonoidalCategory ∧
+    ∀ A : ModuleCat.{0} ℤ, Nonempty (tensorLeft A ⊣ ihom A) := by
+  refine ⟨fun hC ↦ ?_, fun A ↦ ⟨ihom.adjunction A⟩⟩
+  let := AddCommGrpCat.cartesianMonoidalCategory.{u}
+  let A := AddCommGrpCat.of (ULift.{u} ℤ)
+  have := hC A
+  have := (Adjunction.ofIsLeftAdjoint (tensorRight A)).leftAdjoint_preservesColimits.{0, 0}
+  have hZ : IsInitial (AddCommGrpCat.of.{u} PUnit) :=
+    (AddCommGrpCat.isZero_of_subsingleton (AddCommGrpCat.of PUnit)).isInitial
+  have h := hZ.isInitialObj (tensorRight A)
+  have h1 := ConcreteCategory.congr_hom (h.hom_ext (𝟙 _) 0) ((PUnit.unit, ⟨1⟩) : PUnit × ULift ℤ)
+  have h2 : ((PUnit.unit, ⟨1⟩) : PUnit × ULift.{u} ℤ) = 0 := h1
+  exact one_ne_zero (congrArg (fun p : PUnit × ULift ℤ ↦ p.2.down) h2)
 
 /-! ## §5 Examples -/
 
@@ -807,6 +1280,171 @@ theorem top_adjoint_triple :
     Nonempty (TopCat.discrete.{u} ⊣ forget TopCat.{u}) ∧
     Nonempty (forget TopCat.{u} ⊣ TopCat.trivial.{u}) :=
   ⟨⟨TopCat.adj₁⟩, ⟨TopCat.adj₂⟩⟩
+
+/-- The forgetful functor `U : Ring → Monoid` to the multiplicative monoid. -/
+def ringToMon : RingCat.{u} ⥤ MonCat.{u} :=
+  forget₂ RingCat SemiRingCat ⋙ forget₂ SemiRingCat MonCat
+
+/-- The inclusion `M → ℤ[M]` is a universal arrow from `M` to `U : Ring → Monoid`. -/
+theorem monoidAlgebra_universal (M : MonCat.{u}) (A : RingCat.{u}) (g : M ⟶ ringToMon.obj A) :
+    ∃! h : RingCat.of (MonoidAlgebra ℤ M) ⟶ A,
+      MonCat.ofHom (MonoidAlgebra.of ℤ M) ≫ ringToMon.map h = g := by
+  refine ⟨RingCat.ofHom (MonoidAlgebra.lift ℤ A M g.hom).toRingHom, ?_, fun h hh ↦ ?_⟩
+  · ext m
+    exact MonoidAlgebra.lift_of (A := A) g.hom m
+  · apply RingCat.hom_ext
+    have : h.hom.toIntAlgHom = MonoidAlgebra.lift ℤ A M g.hom := by
+      apply MonoidAlgebra.algHom_ext
+      · intro m
+        have e1 : h.hom (MonoidAlgebra.single m 1) = g m := ConcreteCategory.congr_hom hh m
+        have e2 := MonoidAlgebra.lift_of (R := ℤ) (A := A) g.hom m
+        rw [MonoidAlgebra.of_apply] at e2
+        exact e1.trans e2.symm
+      · ext
+    exact congrArg AlgHom.toRingHom this
+
+/-- `ALGD-C1-ADJOINT-49` (例 49, p.37).
+The monoid ring functor `M ↦ ℤ[M]` is left adjoint to `U : Ring → Monoid` (rings need not be
+commutative). -/
+theorem monoid_ring :
+    ∃ (L : MonCat.{u} ⥤ RingCat.{u}) (_ : L ⊣ ringToMon),
+      ∀ M, L.obj M = RingCat.of (MonoidAlgebra ℤ M) :=
+  ⟨leftAdjointOfUniversalArrows ringToMon (fun M ↦ RingCat.of (MonoidAlgebra ℤ M))
+    (fun M ↦ MonCat.ofHom (MonoidAlgebra.of ℤ M)) monoidAlgebra_universal,
+    adjunctionOfUniversalArrows _ _ _ _, fun _ ↦ rfl⟩
+
+namespace Ex50
+
+/-- A pointed commutative ring `⟨A, a⟩`. -/
+structure PointedRing : Type (u + 1) where
+  /-- The ring. -/
+  ring : CommRingCat.{u}
+  /-- The base point. -/
+  point : ring
+
+/-- A ring homomorphism preserving the base points. -/
+@[ext]
+structure Hom (A B : PointedRing.{u}) where
+  /-- The underlying ring homomorphism. -/
+  hom : A.ring ⟶ B.ring
+  map_point : hom A.point = B.point
+
+instance : Category PointedRing.{u} where
+  Hom := Hom
+  id A := ⟨𝟙 _, rfl⟩
+  comp p q := ⟨p.hom ≫ q.hom, by simp [p.map_point, q.map_point]⟩
+
+@[ext]
+theorem hom_ext {A B : PointedRing.{u}} {p q : A ⟶ B} (h : p.hom = q.hom) : p = q :=
+  Hom.ext h
+
+/-- The forgetful functor `U : Ring_∗ → Ring`. -/
+def forget : PointedRing.{u} ⥤ CommRingCat.{u} where
+  obj A := A.ring
+  map p := p.hom
+
+/-- `F(R) = ⟨R[x], x⟩`. -/
+noncomputable def polynomial (R : CommRingCat.{u}) : PointedRing.{u} :=
+  ⟨CommRingCat.of (Polynomial R), Polynomial.X⟩
+
+theorem polynomial_universal (R : CommRingCat.{u}) (B : PointedRing.{u})
+    (g : R ⟶ forget.obj B) :
+    ∃! h : polynomial R ⟶ B, CommRingCat.ofHom Polynomial.C ≫ forget.map h = g := by
+  refine ⟨⟨CommRingCat.ofHom (Polynomial.eval₂RingHom g.hom B.point),
+    Polynomial.eval₂_X _ _⟩, ?_, fun h hh ↦ ?_⟩
+  · ext r
+    exact Polynomial.eval₂_C _ _
+  · ext : 2
+    apply Polynomial.ringHom_ext
+    · intro r
+      have := ConcreteCategory.congr_hom hh r
+      exact this.trans (Polynomial.eval₂_C _ _).symm
+    · exact h.map_point.trans (Polynomial.eval₂_X _ _).symm
+
+/-- `ALGD-C1-ADJOINT-50` (例 50, p.37), for commutative rings.
+For the category `Ring_∗` of pointed commutative rings and the forgetful `U : Ring_∗ → Ring`,
+`F(R) = ⟨R[x], x⟩` is left adjoint to `U`. -/
+theorem polynomial_adjunction :
+    ∃ (L : CommRingCat.{u} ⥤ PointedRing.{u}) (_ : L ⊣ forget), ∀ R, L.obj R = polynomial R :=
+  ⟨leftAdjointOfUniversalArrows forget polynomial (fun _ ↦ CommRingCat.ofHom Polynomial.C)
+    polynomial_universal, adjunctionOfUniversalArrows _ _ _ _, fun _ ↦ rfl⟩
+
+end Ex50
+
+namespace Ex51
+
+/-- An integral domain. -/
+structure Dom : Type (u + 1) where
+  /-- The ring. -/
+  ring : CommRingCat.{u}
+  [isDomain : IsDomain ring]
+
+attribute [instance] Dom.isDomain
+
+/-- A morphism of `Dom`: an injective ring homomorphism. -/
+@[ext]
+structure DomHom (A B : Dom.{u}) where
+  /-- The underlying ring homomorphism. -/
+  hom : A.ring ⟶ B.ring
+  injective : Function.Injective hom
+
+instance : Category Dom.{u} where
+  Hom := DomHom
+  id A := ⟨𝟙 _, fun _ _ h ↦ h⟩
+  comp p q := ⟨p.hom ≫ q.hom, fun _ _ h ↦ p.injective (q.injective h)⟩
+
+@[ext]
+theorem domHom_ext {A B : Dom.{u}} {p q : A ⟶ B} (h : p.hom = q.hom) : p = q :=
+  DomHom.ext h
+
+/-- A field. -/
+structure Fld : Type (u + 1) where
+  /-- The underlying type. -/
+  carrier : Type u
+  [field : Field carrier]
+
+attribute [instance] Fld.field
+
+instance : Category Fld.{u} where
+  Hom K L := K.carrier →+* L.carrier
+  id K := RingHom.id K.carrier
+  comp f g := g.comp f
+
+/-- The forgetful functor `U : Field → Dom`. -/
+def forget : Fld.{u} ⥤ Dom.{u} where
+  obj K := ⟨CommRingCat.of K.carrier⟩
+  map f := ⟨CommRingCat.ofHom f, f.injective⟩
+
+/-- The fraction field `Quot(R)`. -/
+noncomputable def fractionField (R : Dom.{u}) : Fld.{u} := ⟨FractionRing R.ring⟩
+
+/-- The inclusion `R → Quot(R)`. -/
+noncomputable def toFractionField (R : Dom.{u}) : R ⟶ forget.obj (fractionField R) :=
+  ⟨CommRingCat.ofHom (algebraMap R.ring (FractionRing R.ring)),
+    IsFractionRing.injective R.ring (FractionRing R.ring)⟩
+
+theorem fractionField_universal (R : Dom.{u}) (K : Fld.{u}) (g : R ⟶ forget.obj K) :
+    ∃! h : fractionField R ⟶ K, toFractionField R ≫ forget.map h = g := by
+  refine ⟨IsFractionRing.lift (K := FractionRing R.ring) (g := g.hom.hom) g.injective, ?_,
+    fun h hh ↦ ?_⟩
+  · ext x
+    exact IsFractionRing.lift_algebraMap (K := FractionRing R.ring) (L := K.carrier) g.injective x
+  · refine IsLocalization.ringHom_ext (S := FractionRing R.ring) (nonZeroDivisors R.ring)
+      (j := h) ?_
+    ext x
+    have := ConcreteCategory.congr_hom (congrArg DomHom.hom hh) x
+    exact this.trans (IsFractionRing.lift_algebraMap (K := FractionRing R.ring) (L := K.carrier)
+      g.injective x).symm
+
+/-- `ALGD-C1-ADJOINT-51` (例 51, p.37), with injective morphisms in `Dom`.
+For the category `Dom` of integral domains and injective ring homomorphisms and the forgetful
+`U : Field → Dom`, the fraction field functor `Quot` is left adjoint to `U`. -/
+theorem fractionField_adjunction :
+    ∃ (L : Dom.{u} ⥤ Fld.{u}) (_ : L ⊣ forget), ∀ R, L.obj R = fractionField R :=
+  ⟨leftAdjointOfUniversalArrows forget fractionField toFractionField fractionField_universal,
+    adjunctionOfUniversalArrows _ _ _ _, fun _ ↦ rfl⟩
+
+end Ex51
 
 /-- `ALGD-C1-ADJOINT-54` (例 54, p.38).
 The Stone–Čech compactification is left adjoint to the forgetful functor `CptHaus → Top`. -/
@@ -1046,5 +1684,59 @@ output is pinned with `#guard_msgs`, so `lake build` fails if it changes. -/
 
 /-- info: 'ProjectEpisteme.AlgD.Adjoint.Ex56.idem_adjunctions' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Adjoint.Ex56.idem_adjunctions
+
+/-- info: 'ProjectEpisteme.AlgD.Adjoint.idempotent_iff_factorization' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Adjoint.idempotent_iff_factorization
+
+/-- info: 'ProjectEpisteme.AlgD.Adjoint.factorization_equivalence' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Adjoint.factorization_equivalence
+
+/-- info: 'ProjectEpisteme.AlgD.Adjoint.IsExponential' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Adjoint.IsExponential
+
+/-- info: 'ProjectEpisteme.AlgD.Adjoint.types_exponential' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Adjoint.types_exponential
+
+/-- info: 'ProjectEpisteme.AlgD.Adjoint.exponential_adjunction' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Adjoint.exponential_adjunction
+
+/-- info: 'ProjectEpisteme.AlgD.Adjoint.IsCartesianClosed' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Adjoint.IsCartesianClosed
+
+/-- info: 'ProjectEpisteme.AlgD.Adjoint.exponential_of_rightAdjoint' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Adjoint.exponential_of_rightAdjoint
+
+/-- info: 'ProjectEpisteme.AlgD.Adjoint.exponential_preserves' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Adjoint.exponential_preserves
+
+/-- info: 'ProjectEpisteme.AlgD.Adjoint.exponential_exponential' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Adjoint.exponential_exponential
+
+/-- info: 'ProjectEpisteme.AlgD.Adjoint.exponential_coprod' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Adjoint.exponential_coprod
+
+/-- info: 'ProjectEpisteme.AlgD.Adjoint.exponential_initial_unit' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Adjoint.exponential_initial_unit
+
+/-- info: 'ProjectEpisteme.AlgD.Adjoint.parametrized_adjunction' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Adjoint.parametrized_adjunction
+
+/-- info: 'ProjectEpisteme.AlgD.Adjoint.parametrized_square_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Adjoint.parametrized_square_iff
+
+/-- info: 'ProjectEpisteme.AlgD.Adjoint.exponential_bifunctor' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Adjoint.exponential_bifunctor
+
+/-- info: 'ProjectEpisteme.AlgD.Adjoint.ab_not_cartesianClosed' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Adjoint.ab_not_cartesianClosed
+
+/-- info: 'ProjectEpisteme.AlgD.Adjoint.monoid_ring' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Adjoint.monoid_ring
+
+/-- info: 'ProjectEpisteme.AlgD.Adjoint.Ex50.polynomial_adjunction' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Adjoint.Ex50.polynomial_adjunction
+
+/-- info: 'ProjectEpisteme.AlgD.Adjoint.Ex51.fractionField_adjunction' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ProjectEpisteme.AlgD.Adjoint.Ex51.fractionField_adjunction
 
 end ProjectEpisteme.AlgD.Adjoint
