@@ -10,7 +10,7 @@ This document turns the Category track parts of the [design](Project_Episteme_De
 
 The Category track uses **alg-d, 「全ての概念はKan拡張である」, Chapters 0–2** as its primary source. CWM I–V and IX–X follow behind it.
 
-[AGENTS.md](../AGENTS.md) and the [design](Project_Episteme_Design.md) ask for CWM's main text to be verified first. This track reverses that order for a practical reason: the CWM text is not available to the project at item level right now, while all 23 alg-d PDFs are public, dated, and machine-readable. The alg-d notes cover the same ground as CWM I–V and X. The basics, Yoneda, comma categories, limits, adjunctions, and Kan extensions all appear in both. Most CWM items will therefore point to declarations that the alg-d work has already verified. The other tracks keep the CWM-first order.
+[AGENTS.md](../AGENTS.md), the [README](../README.md), and the [design](Project_Episteme_Design.md) ask for CWM's main text to be verified first. Each of them now makes an explicit exception for this track, adopted by the project owner on 2026-11-26. The reason is practical: the CWM text is not available to the project at item level right now, while all 23 alg-d PDFs are public, dated, and machine-readable. The alg-d notes cover the same ground as CWM I–V and X. The basics, Yoneda, comma categories, limits, adjunctions, and Kan extensions all appear in both. Most CWM items will therefore point to declarations that the alg-d work has already verified. The other tracks keep the CWM-first order.
 
 CWM enters in two steps:
 
@@ -188,4 +188,4 @@ The pilot gave four lessons that apply to the other ledgers:
 | Large `Ĉ` and other size issues in KAN and ISBELL (for example `y†y` for small `C`) | Record `SmallCategory` versus `Category.{v}` per row. Use `ULift`/`shrinkYoneda` only with a recorded reason. |
 | Profunctor variance and composition order | Check them with explicit examples before reusing `CategoryTheory.Profunctor`. |
 | Catalog quality: paraphrases were drafted with help from automated extraction | A row's statement is re-read against the PDF when it is verified. `unreviewed` rows are not counted as verified. |
-| Deviation from the "CWM first" rule | Recorded in §1. Revisit when the CWM text is available. |
+| Exception to the "CWM first" rule | Written into AGENTS.md, the README, and the design (§1). Revisit when the CWM text is available. |

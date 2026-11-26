@@ -10,11 +10,11 @@ Project Episteme will formalize the second edition of CWM in Lean 4 with mathlib
 | CWM VII, XI | **2. Monoidal category (Mac Lane 2.0)**. Cover monoidal categories, coherence, monoid objects, and applications. Use the Joyal–Street construction for braided and symmetric coherence. |
 | CWM VIII and the Tôhoku paper | **3. Abelian category (Grothendieck’s Tôhoku 2.0)**. Build on CWM’s abelian categories and diagram lemmas to cover the Tôhoku exactness axioms, injectives, and derived functors. |
 | CWM VI, XII | Later Category work. Chapter VI covers monads and Beck’s theorem. Chapter XII covers internal categories, 2-categories, and bicategories. Bring forward individual prerequisites when another track needs them. |
-| alg-d.com, Chapters 0–2 | Supplementary Category material. Share proofs for results also found in CWM. Give the applications their own source IDs and completion criteria. |
+| alg-d.com, Chapters 0–2 | Primary Category source while the CWM text is not available at item level (see the [Category strategy](Project_Episteme_Category_Strategy.md)). Share proofs for results also found in CWM. Give the applications their own source IDs and completion criteria. |
 
 Chapter references follow the second edition. The CWM reference for braided coherence at the end of the Joyal–Street roadmap is **XI §5**, p. 263. [CWM table of contents](https://link.springer.com/content/pdf/bfm%3A978-1-4757-4721-8/1) [Joyal–Street roadmap](Project_Episteme_Joyal_Street_Coherence_Roadmap.md)
 
-**Verify the main text of CWM first.** Each chapter’s first verification pass covers definitions, theorems, and representative examples. Record each exercise’s source and statement during that pass, then prove the exercises in a later phase. This scope applies to CWM across all three tracks.
+**Verify the main text of CWM first.** Each chapter’s first verification pass covers definitions, theorems, and representative examples. Record each exercise’s source and statement during that pass, then prove the exercises in a later phase. This scope applies to CWM across all three tracks. The Category track is the exception: alg-d.com Chapters 0–2 take CWM’s place until CWM can be cataloged item by item. CWM items are then mapped to the same Lean declarations, and their hypotheses are reviewed separately.
 
 ## Mapping sources to Lean
 
@@ -79,7 +79,7 @@ Use mathlib’s `Preadditive`, `Abelian`, and `ShortComplex` for the material sh
 ## Implementation order and acceptance criteria
 
 1. **Use the pinned environment.** Project Episteme uses the Lean toolchain and dependency revisions from Project Ainos. Use `lake build` for a reproducible build. Check proposed declarations in the pinned source and confirm their minimal imports. [Lean toolchain](../lean-toolchain) [Lake manifest](../lake-manifest.json)
-2. **Verify one CWM theorem.** Start with the Yoneda lemma as the proposed first result. Put the source paraphrase, declaration and type, size assumptions, build result, and axiom audit in one ledger record.
+2. **Verify one CWM theorem.** Start with the Yoneda lemma as the proposed first result. Put the source paraphrase, declaration and type, size assumptions, build result, and axiom audit in one ledger record. The Category track did this with alg-d’s 米田の補題 (`ALGD-C1-YONEDA`), the counterpart of CWM III §2. The CWM record follows once CWM is cataloged.
 3. **Build the common foundations.** Start with the basic language and universal properties of the Category track. The Monoidal category track uses functors and natural transformations. The Abelian category track uses zero objects, limits, and colimits. Both tracks can start before the Kan extension work is complete. Share sheaf prerequisites for the later abelian applications.
 4. **Verify each phase.** Compile the theorems and representative examples with minimal imports. Check key declarations with `#print axioms`. Verified proofs must be free of `sorry`, `admit`, and additional mathematical axioms. For the first CWM pass, report the number of verified main-text items and the number of cataloged exercises.
 
