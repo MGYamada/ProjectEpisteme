@@ -16,10 +16,10 @@ This report counts the rows of the [alg-d ledgers](ledger/algd/) against the [so
 | --- | --- | --- | --- | --- | --- |
 | Chapter 0 | 8 / 8 | 120 / 120 | 189 | 0 | 2 |
 | Chapter 1 | 5 / 5 | 121 / 121 | 175 | 154 | 0 |
-| Chapter 2 | 1 / 10 | 55 / 202 | 72 | 65 | 0 |
-| **Chapters 0–2** | **14 / 23** | **296 / 443** | **436** | **219** | **2** |
+| Chapter 2 | 2 / 10 | 57 / 202 | 78 | 71 | 0 |
+| **Chapters 0–2** | **15 / 23** | **298 / 443** | **442** | **225** | **2** |
 
-Verified main-text items: **219** (162 numbered items and 57 definitions or prose claims). Exercises cataloged: **2**.
+Verified main-text items: **225** (164 numbered items and 61 definitions or prose claims). Exercises cataloged: **2**.
 <!-- END GENERATED: summary -->
 
 The two Chapter 0 exercises are ALGD-C0-CDIAG-E01 and -E02. They will be proved in a later phase.
@@ -46,8 +46,9 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | [C1-NAT](ledger/algd/C1-NAT.md) | 23 | 13 (13 + 0) | 8 | 2 | 0 | 0 | 12 | 6 | 4 | 0 | 1 | 22 |
 | [C1-YONEDA](ledger/algd/C1-YONEDA.md) | 19 | 11 (9 + 2) | 5 | 3 | 0 | 5 | 7 | 4 | 1 | 0 | 2 | 12 |
 | **Chapter 1** | **175** | **121 (115 + 6)** | **38** | **16** | **0** | **5** | **61** | **49** | **44** | **3** | **13** | **154** |
+| [C2-COYONEDA](ledger/algd/C2-COYONEDA.md) | 6 | 2 (2 + 0) | 0 | 4 | 0 | 0 | 1 | 2 | 3 | 0 | 0 | 6 |
 | [C2-KAN](ledger/algd/C2-KAN.md) | 72 | 55 (47 + 8) | 12 | 5 | 0 | 0 | 23 | 11 | 31 | 0 | 7 | 65 |
-| **Chapter 2** | **72** | **55 (47 + 8)** | **12** | **5** | **0** | **0** | **23** | **11** | **31** | **0** | **7** | **65** |
+| **Chapter 2** | **78** | **57 (49 + 8)** | **12** | **9** | **0** | **0** | **24** | **13** | **34** | **0** | **7** | **71** |
 <!-- END GENERATED: by-document -->
 
 ## Verified declarations
@@ -209,6 +210,12 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | ALGD-C1-YONEDA-09 | `ProjectEpisteme.AlgD.Yoneda.nonempty_iso_of_yoneda_comp_iso` | bridged |
 | ALGD-C1-YONEDA-10 | `ProjectEpisteme.AlgD.Yoneda.yonedaEquiv_natural_in_object` | existing |
 | ALGD-C1-YONEDA-11 | `ProjectEpisteme.AlgD.Yoneda.yonedaEquiv_natural_in_presheaf` | existing |
+| ALGD-C2-COYONEDA-R01 | `ProjectEpisteme.AlgD.Coyoneda.rightKanExtension_id` | existing |
+| ALGD-C2-COYONEDA-R02 | `ProjectEpisteme.AlgD.Coyoneda.yoneda_via_rightKanExtension` | bridged |
+| ALGD-C2-COYONEDA-R03 | `ProjectEpisteme.AlgD.Coyoneda.endWedge_isLimit` | new-proved |
+| ALGD-C2-COYONEDA-01 | `ProjectEpisteme.AlgD.Coyoneda.coyonedaCowedge_isColimit` | new-proved |
+| ALGD-C2-COYONEDA-R04 | `ProjectEpisteme.AlgD.Coyoneda.coendCowedge_isColimit` | new-proved |
+| ALGD-C2-COYONEDA-02 | `ProjectEpisteme.AlgD.Coyoneda.presheaf_cartesianClosed` | bridged |
 | ALGD-C2-KAN-D01 | `ProjectEpisteme.AlgD.Kan.isLeftKanExtension_iff` | bridged |
 | ALGD-C2-KAN-D03 | `ProjectEpisteme.AlgD.Kan.isRightKanExtension_iff` | bridged |
 | ALGD-C2-KAN-D04 | `ProjectEpisteme.AlgD.Kan.IsLeftKanLift` | new-proved |
