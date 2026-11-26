@@ -16,10 +16,10 @@ This report counts the rows of the [alg-d ledgers](ledger/algd/) against the [so
 | --- | --- | --- | --- | --- | --- |
 | Chapter 0 | 8 / 8 | 120 / 120 | 189 | 0 | 2 |
 | Chapter 1 | 5 / 5 | 121 / 121 | 175 | 154 | 0 |
-| Chapter 2 | 1 / 10 | 55 / 202 | 72 | 39 | 0 |
-| **Chapters 0–2** | **14 / 23** | **296 / 443** | **436** | **193** | **2** |
+| Chapter 2 | 1 / 10 | 55 / 202 | 72 | 65 | 0 |
+| **Chapters 0–2** | **14 / 23** | **296 / 443** | **436** | **219** | **2** |
 
-Verified main-text items: **193** (140 numbered items and 53 definitions or prose claims). Exercises cataloged: **2**.
+Verified main-text items: **219** (162 numbered items and 57 definitions or prose claims). Exercises cataloged: **2**.
 <!-- END GENERATED: summary -->
 
 The two Chapter 0 exercises are ALGD-C0-CDIAG-E01 and -E02. They will be proved in a later phase.
@@ -46,8 +46,8 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | [C1-NAT](ledger/algd/C1-NAT.md) | 23 | 13 (13 + 0) | 8 | 2 | 0 | 0 | 12 | 6 | 4 | 0 | 1 | 22 |
 | [C1-YONEDA](ledger/algd/C1-YONEDA.md) | 19 | 11 (9 + 2) | 5 | 3 | 0 | 5 | 7 | 4 | 1 | 0 | 2 | 12 |
 | **Chapter 1** | **175** | **121 (115 + 6)** | **38** | **16** | **0** | **5** | **61** | **49** | **44** | **3** | **13** | **154** |
-| [C2-KAN](ledger/algd/C2-KAN.md) | 72 | 55 (47 + 8) | 12 | 5 | 0 | 26 | 21 | 9 | 9 | 0 | 7 | 39 |
-| **Chapter 2** | **72** | **55 (47 + 8)** | **12** | **5** | **0** | **26** | **21** | **9** | **9** | **0** | **7** | **39** |
+| [C2-KAN](ledger/algd/C2-KAN.md) | 72 | 55 (47 + 8) | 12 | 5 | 0 | 0 | 23 | 11 | 31 | 0 | 7 | 65 |
+| **Chapter 2** | **72** | **55 (47 + 8)** | **12** | **5** | **0** | **0** | **23** | **11** | **31** | **0** | **7** | **65** |
 <!-- END GENERATED: by-document -->
 
 ## Verified declarations
@@ -222,6 +222,8 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | ALGD-C2-KAN-07 | `ProjectEpisteme.AlgD.Kan.pointwise_rightKanExtension` | existing |
 | ALGD-C2-KAN-R02 | `ProjectEpisteme.AlgD.Kan.hasRightKanExtension_of_complete` | existing |
 | ALGD-C2-KAN-08 | `ProjectEpisteme.AlgD.Kan.preimage_adjoints` | bridged |
+| ALGD-C2-KAN-09 | `ProjectEpisteme.AlgD.Kan.pullback_pushforward` | existing |
+| ALGD-C2-KAN-10 | `ProjectEpisteme.AlgD.Kan.pullback_obj_iso_colimit` | bridged |
 | ALGD-C2-KAN-11 | `ProjectEpisteme.AlgD.Kan.leftKanExtension_not_pointwise` | new-proved |
 | ALGD-C2-KAN-D05 | `ProjectEpisteme.AlgD.Kan.coconeAt_eq` | existing |
 | ALGD-C2-KAN-13 | `ProjectEpisteme.AlgD.Kan.pointwiseLeftKanExtension_isPointwise` | existing |
@@ -238,15 +240,39 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | ALGD-C2-KAN-21 | `ProjectEpisteme.AlgD.Kan.isLeftAdjoint_tfae_kanLift` | new-proved |
 | ALGD-C2-KAN-22 | `ProjectEpisteme.AlgD.Kan.isRightAdjoint_tfae_kanLift` | new-proved |
 | ALGD-C2-KAN-23 | `ProjectEpisteme.AlgD.Kan.leftAdjoint_commutesWith` | existing |
+| ALGD-C2-KAN-24 | `ProjectEpisteme.AlgD.Kan.coconeHomEquiv_natural` | new-proved |
+| ALGD-C2-KAN-25 | `ProjectEpisteme.AlgD.Kan.pointwise_tfae` | new-proved |
+| ALGD-C2-KAN-26 | `ProjectEpisteme.AlgD.Kan.isPointwise_iff_bijective` | new-proved |
+| ALGD-C2-KAN-R03 | `ProjectEpisteme.AlgD.Kan.pointwiseRight_tfae` | new-proved |
+| ALGD-C2-KAN-27 | `ProjectEpisteme.AlgD.Kan.isPointwise_of_isAbsolute` | new-proved |
+| ALGD-C2-KAN-28 | `ProjectEpisteme.AlgD.Kan.restrictYoneda_isPointwise` | new-proved |
+| ALGD-C2-KAN-R04 | `ProjectEpisteme.AlgD.Kan.restrictYonedaUnit_yonedaEquiv` | new-proved |
 | ALGD-C2-KAN-29 | `ProjectEpisteme.AlgD.Kan.yoneda_lan_yoneda` | existing |
 | ALGD-C2-KAN-R05 | `ProjectEpisteme.AlgD.Kan.yoneda_isLeftKanExtension_id` | existing |
 | ALGD-C2-KAN-30 | `ProjectEpisteme.AlgD.Kan.presheaf_colimit_of_representables` | existing |
 | ALGD-C2-KAN-31 | `ProjectEpisteme.AlgD.Kan.costructuredArrow_mk_isTerminal` | bridged |
 | ALGD-C2-KAN-32 | `ProjectEpisteme.AlgD.Kan.isRepresentable_iff_hasTerminal` | bridged |
+| ALGD-C2-KAN-33 | `ProjectEpisteme.AlgD.Kan.lan_comp_restrictYoneda` | new-proved |
 | ALGD-C2-KAN-34 | `ProjectEpisteme.AlgD.Kan.lan_yoneda` | existing |
+| ALGD-C2-KAN-35 | `ProjectEpisteme.AlgD.Kan.lan_yoneda_coyoneda` | new-proved |
 | ALGD-C2-KAN-36 | `ProjectEpisteme.AlgD.Kan.unit_isIso_of_fullyFaithful` | existing |
+| ALGD-C2-KAN-38 | `ProjectEpisteme.AlgD.Kan.fullyFaithful_of_isIso_unit` | new-proved |
+| ALGD-C2-KAN-39 | `ProjectEpisteme.AlgD.Kan.restrictYonedaUnit_app_app` | new-proved |
+| ALGD-C2-KAN-40 | `ProjectEpisteme.AlgD.Kan.fullyFaithful_iff_isIso_unit` | new-proved |
+| ALGD-C2-KAN-41 | `ProjectEpisteme.AlgD.Kan.lan_fullyFaithful_tfae` | bridged |
+| ALGD-C2-KAN-D09 | `ProjectEpisteme.AlgD.Kan.IsStronglyGenerating` | new-proved |
 | ALGD-C2-KAN-D10 | `ProjectEpisteme.AlgD.Kan.isDense_iff` | existing |
 | ALGD-C2-KAN-42 | `ProjectEpisteme.AlgD.Kan.yoneda_isDense` | existing |
+| ALGD-C2-KAN-43 | `ProjectEpisteme.AlgD.Kan.isDense_tfae` | new-proved |
+| ALGD-C2-KAN-44 | `ProjectEpisteme.AlgD.Kan.isStronglyGenerating_of_isDense` | new-proved |
+| ALGD-C2-KAN-45 | `ProjectEpisteme.AlgD.Kan.universal_adjunction` | new-proved |
+| ALGD-C2-KAN-46 | `ProjectEpisteme.AlgD.Kan.adjunction_eq_universal` | new-proved |
+| ALGD-C2-KAN-47 | `ProjectEpisteme.AlgD.Kan.types_adjunction` | new-proved |
+| ALGD-C2-KAN-48 | `ProjectEpisteme.AlgD.Kan.types_op_adjunction` | new-proved |
+| ALGD-C2-KAN-49 | `ProjectEpisteme.AlgD.Kan.limit_iso_hom_const` | existing |
+| ALGD-C2-KAN-50 | `ProjectEpisteme.AlgD.Kan.presheaf_functors_as_kanExtensions` | new-proved |
+| ALGD-C2-KAN-D12 | `ProjectEpisteme.AlgD.Kan.IsSmallProjective` | new-proved |
+| ALGD-C2-KAN-51 | `ProjectEpisteme.AlgD.Kan.presheafCategory_iff` | new-proved |
 | ALGD-C2-KAN-54 | `ProjectEpisteme.AlgD.Kan.over_presheaf_equivalence` | existing |
 <!-- END GENERATED: verified -->
 
@@ -261,7 +287,7 @@ These rows are expected to become `new-proved` or `blocked` rather than `existin
   - General subcategories. Used by CONSTR-D06 and -08, -10, -11.
   - Skeletons as full subcategories and their uniqueness (EQUIV-D07, -19, -20).
   - Kan lifts and absolute Kan extensions for functors (KAN-D04, -D07, -D08). They are verified as new work; mathlib has them only for bicategories.
-  - The characterization of presheaf categories by small projective, strongly generating subcategories (KAN-51).
+  - The characterization of presheaf categories by small projective, strongly generating subcategories (KAN-51), and the hom-set form of pointwise Kan extensions (KAN-24, -25). Both are verified as new work.
 - **Topology and algebra prerequisites**
   - π₁ as a functor on pointed spaces (INTRO-10, CONSTR-07).
   - Seifert–van Kampen for groupoids (FUNDGPD-10, -11).
