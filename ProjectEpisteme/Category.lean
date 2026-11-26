@@ -1,6 +1,7 @@
 module
 
 public import ProjectEpisteme.Category.AlgD.C1.Comma
+public import ProjectEpisteme.Category.AlgD.C1.Limit
 public import ProjectEpisteme.Category.AlgD.C1.Nat
 public import ProjectEpisteme.Category.AlgD.C1.Yoneda
 public import ProjectEpisteme.Category.Basic.Comma
