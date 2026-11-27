@@ -12,8 +12,10 @@ public import Mathlib.AlgebraicTopology.SimplicialSet.FiniteProd
 public import Mathlib.AlgebraicTopology.SimplicialSet.HornColimits
 public import Mathlib.AlgebraicTopology.SimplicialSet.KanComplex
 public import Mathlib.AlgebraicTopology.SimplicialSet.NerveAdjunction
+public import Mathlib.AlgebraicTopology.SimplicialSet.ProdStdSimplexOne
 public import Mathlib.AlgebraicTopology.SimplicialSet.StrictSegal
 public import Mathlib.CategoryTheory.Limits.Presheaf
+public import Mathlib.CategoryTheory.SingleObj
 
 /-!
 # alg-d, Chapter 2: 例：単体的集合 (Example: simplicial sets)
@@ -362,6 +364,198 @@ theorem nerve_three_simplex {C : Type u} [Category.{v} C] :
   rw [hγ, op_comp, Functor.map_comp]
   rfl
 
+section Horns
+
+variable {X Y : SSet.{u}}
+
+lemma face_app (n : ℕ) (i j : Fin (n + 2)) (hj : j ≠ i) (f : (Λ[n + 1, i] : SSet.{u}) ⟶ X) :
+    f.app (op ⦋n⦌) (horn.face i j hj) = yonedaEquiv (horn.ι i j hj ≫ f) := by
+  rw [yonedaEquiv_comp, horn.yonedaEquiv_ι]
+
+/-- Maps out of a pushout of two copies of `Δ^1` are pairs of edges with the matching condition. -/
+lemma existsUnique_of_isPushout {A P : SSet.{u}} {f g : A ⟶ Δ[1]} {h k : Δ[1] ⟶ P}
+    (sq : IsPushout f g h k) (x y : X _⦋1⦌)
+    (hxy : f ≫ yonedaEquiv.symm x = g ≫ yonedaEquiv.symm y) :
+    ∃! φ : P ⟶ X, yonedaEquiv (h ≫ φ) = x ∧ yonedaEquiv (k ≫ φ) = y := by
+  refine ⟨sq.desc _ _ hxy, ⟨by rw [sq.inl_desc, Equiv.apply_symm_apply],
+    by rw [sq.inr_desc, Equiv.apply_symm_apply]⟩, fun φ ⟨h₁, h₂⟩ ↦ sq.hom_ext ?_ ?_⟩
+  · rw [sq.inl_desc, ← h₁, Equiv.symm_apply_apply]
+  · rw [sq.inr_desc, ← h₂, Equiv.symm_apply_apply]
+
+/-- `ALGD-C2-SIMPLEX-R05` (prose, p.15–18).
+The pictures of simplices: for `x ∈ X_2` the edges `x_i = d_i x` form a triangle
+(`d_0 x_0 = d_0 x_1`, `d_1 x_0 = d_0 x_2`, `d_1 x_1 = d_1 x_2`); the faces of `s^1_0(u)` and
+`s^1_1(u)`; a morphism `Λ^{2,0} → X` is a pair `x_1, x_2 ∈ X_1` with `d_1 x_1 = d_1 x_2` (and
+similarly for `Λ^{2,1}`, `Λ^{2,2}`); a morphism from a horn is a compatible family of faces
+(for `Λ^{3,k}`, a tetrahedron without its interior and one face); and morphisms of simplicial
+sets preserve faces. -/
+theorem simplex_pictures :
+    (∀ x : X _⦋2⦌, X.δ 0 (X.δ 0 x) = X.δ 0 (X.δ 1 x) ∧ X.δ 1 (X.δ 0 x) = X.δ 0 (X.δ 2 x) ∧
+      X.δ 1 (X.δ 1 x) = X.δ 1 (X.δ 2 x)) ∧
+    (∀ u : X _⦋1⦌, X.δ 0 (X.σ 0 u) = u ∧ X.δ 1 (X.σ 0 u) = u ∧
+      X.δ 2 (X.σ 0 u) = X.σ 0 (X.δ 1 u) ∧ X.δ 0 (X.σ 1 u) = X.σ 0 (X.δ 0 u) ∧
+      X.δ 1 (X.σ 1 u) = u ∧ X.δ 2 (X.σ 1 u) = u) ∧
+    (∀ x₁ x₂ : X _⦋1⦌, X.δ 1 x₁ = X.δ 1 x₂ → ∃! f : (Λ[2, 0] : SSet.{u}) ⟶ X,
+      f.app _ (horn.face 0 1 (by decide)) = x₁ ∧ f.app _ (horn.face 0 2 (by decide)) = x₂) ∧
+    (∀ x₀ x₂ : X _⦋1⦌, X.δ 0 x₂ = X.δ 1 x₀ → ∃! f : (Λ[2, 1] : SSet.{u}) ⟶ X,
+      f.app _ (horn.face 1 2 (by decide)) = x₂ ∧ f.app _ (horn.face 1 0 (by decide)) = x₀) ∧
+    (∀ x₀ x₁ : X _⦋1⦌, X.δ 0 x₁ = X.δ 0 x₀ → ∃! f : (Λ[2, 2] : SSet.{u}) ⟶ X,
+      f.app _ (horn.face 2 1 (by decide)) = x₁ ∧ f.app _ (horn.face 2 0 (by decide)) = x₀) ∧
+    (∀ {n : ℕ} {i : Fin (n + 2)} (f : ∀ j : Fin (n + 2), j ≠ i → (Δ[n] ⟶ X)),
+      horn.IsCompatible f → ∃! φ : (Λ[n + 1, i] : SSet.{u}) ⟶ X, ∀ j hj, horn.ι i j hj ≫ φ = f j hj) ∧
+    (∀ {n : ℕ} {i : Fin (n + 2)} (φ : (Λ[n + 1, i] : SSet.{u}) ⟶ X),
+      horn.IsCompatible (fun j hj ↦ horn.ι i j hj ≫ φ)) ∧
+    (∀ (g : X ⟶ Y) {n : ℕ} (i : Fin (n + 2)) (x : X _⦋n + 1⦌),
+      g.app _ (X.δ i x) = Y.δ i (g.app _ x)) := by
+  refine ⟨fun x ↦ ⟨?_, ?_, ?_⟩, fun u ↦ ⟨?_, ?_, ?_, ?_, ?_, ?_⟩, fun x₁ x₂ h ↦ ?_,
+    fun x₀ x₂ h ↦ ?_, fun x₀ x₁ h ↦ ?_, fun f hf ↦ ?_, fun φ ↦ horn.IsCompatible.of_hom φ,
+    fun g n i x ↦ δ_naturality_apply g i x⟩
+  · exact (δ_comp_δ_apply (i := 0) (j := 0) le_rfl x).symm
+  · exact (δ_comp_δ_apply (i := 0) (j := 1) (by decide) x).symm
+  · exact (δ_comp_δ_apply (i := 1) (j := 1) le_rfl x).symm
+  · exact δ_comp_σ_self_apply (i := 0) u
+  · exact δ_comp_σ_succ_apply (i := 0) u
+  · exact δ_comp_σ_of_gt_apply (i := 1) (j := 0) (by decide) u
+  · exact δ_comp_σ_of_le_apply (i := 0) (j := 0) (by decide) u
+  · exact δ_comp_σ_self_apply (i := 1) u
+  · exact δ_comp_σ_succ_apply (i := 1) u
+  · simp only [face_app]
+    exact existsUnique_of_isPushout horn₂₀.isPushout.flip x₁ x₂
+      (by rw [stdSimplex.δ_comp_yonedaEquiv_symm, stdSimplex.δ_comp_yonedaEquiv_symm, h])
+  · simp only [face_app]
+    exact existsUnique_of_isPushout horn₂₁.isPushout x₂ x₀
+      (by rw [stdSimplex.δ_comp_yonedaEquiv_symm, stdSimplex.δ_comp_yonedaEquiv_symm, h])
+  · simp only [face_app]
+    exact existsUnique_of_isPushout horn₂₂.isPushout x₁ x₀
+      (by rw [stdSimplex.δ_comp_yonedaEquiv_symm, stdSimplex.δ_comp_yonedaEquiv_symm, h])
+  · obtain ⟨φ, hφ⟩ := hf.exists_desc
+    exact ⟨φ, hφ, fun ψ hψ ↦ horn.hom_ext' fun j hj ↦ (hψ j hj).trans (hφ j hj).symm⟩
+
+/-- `ALGD-C2-SIMPLEX-R06` (prose, p.19–20).
+`γ^n_i = δ^n_n ∘ ⋯ ∘ δ^{i+2}_{i+2} ∘ δ^{i+1}_0 ∘ ⋯ ∘ δ^2_0`, given by the two recursions
+`γ^{m+1}_{i+1} = δ_0 ∘ γ^m_i` and `γ^{m+1}_i = δ_{m+1} ∘ γ^m_i`; and `NC(γ^n_{ij})` sends
+`a_0 → ⋯ → a_n` to the composite `a_i → a_j` (for `j = i + 1`, the `i`-th arrow). -/
+theorem gamma_composite :
+    (∀ {m : ℕ} (i : Fin m), mkOfSucc i.succ = mkOfSucc i ≫ SimplexCategory.δ 0) ∧
+    (∀ {m : ℕ} (i : Fin m),
+      mkOfSucc i.castSucc = mkOfSucc i ≫ SimplexCategory.δ (Fin.last (m + 1))) ∧
+    (∀ (C : Type u) [Category.{v} C] {n : ℕ} (i j : Fin (n + 1)) (h : i ≤ j)
+      (x : nerve C _⦋n⦌), (nerve C).map (mkOfLe i j h).op x =
+        ComposableArrows.mk₁ (x.map (homOfLE h))) := by
+  refine ⟨fun {m} i ↦ ?_, fun {m} i ↦ ?_, fun C _ n i j h x ↦ ComposableArrows.ext₁ rfl rfl ?_⟩
+  · ext x
+    fin_cases x
+    · change (i.succ.castSucc : ℕ) = ((0 : Fin (m + 2)).succAbove i.castSucc : ℕ)
+      simp
+    · change (i.succ.succ : ℕ) = ((0 : Fin (m + 2)).succAbove i.succ : ℕ)
+      simp
+  · ext x
+    fin_cases x
+    · change (i.castSucc.castSucc : ℕ) = ((Fin.last (m + 1)).succAbove i.castSucc : ℕ)
+      simp
+    · change (i.castSucc.succ : ℕ) = ((Fin.last (m + 1)).succAbove i.succ : ℕ)
+      simp
+  · erw [eqToHom_refl, eqToHom_refl, Category.id_comp, Category.comp_id]
+    rfl
+
+/-- The edges `γ_i` of `Δ^{n+2}` lie in an inner horn, as `horn.spineId`. -/
+lemma spineId_arrow_ι {n : ℕ} (k : Fin (n + 3)) (h0 : 0 < k) (hl : k < Fin.last (n + 2))
+    (i : Fin (n + 2)) :
+    Λ[n + 2, k].ι.app (op ⦋1⦌) ((horn.spineId.{u} k h0 hl).arrow i) =
+      stdSimplex.objEquiv.symm (mkOfSucc i) := by
+  rw [← Path.map_arrow, horn.spineId_map_hornInclusion]
+  apply stdSimplex.ext
+  intro t
+  fin_cases t
+  · exact stdSimplex.spineId_arrow_apply_zero _ _
+  · exact stdSimplex.spineId_arrow_apply_one _ _
+
+/-- A morphism from an inner horn to a strict Segal quasi-category is determined by its edges
+`γ_i`, which lie in the horn. -/
+lemma horn_hom_ext_of_isStrictSegal {X : SSet.{u}} [X.IsStrictSegal] [X.Quasicategory] {n : ℕ}
+    {k : Fin (n + 3)} (h0 : 0 < k) (hl : k < Fin.last (n + 2))
+    {f g : (Λ[n + 2, k] : SSet.{u}) ⟶ X}
+    (h : ∀ i : Fin (n + 2), f.app (op ⦋1⦌) ((horn.spineId k h0 hl).arrow i) =
+      g.app (op ⦋1⦌) ((horn.spineId k h0 hl).arrow i)) : f = g := by
+  obtain ⟨F, rfl⟩ := Quasicategory.hornFilling' f h0 hl
+  obtain ⟨G, rfl⟩ := Quasicategory.hornFilling' g h0 hl
+  congr 1
+  refine hom_ext_of_isStrictSegal fun i ↦ ?_
+  have := h i
+  rw [NatTrans.comp_app, NatTrans.comp_app] at this
+  simp only [ConcreteCategory.comp_apply, spineId_arrow_ι] at this
+  exact this
+
+/-- `ALGD-C2-SIMPLEX-17` (補題 17, p.22–25).
+For `0 < k < n`, a morphism `f : Λ^{n,k} → NC` is determined by `f_1(γ^n_0), …, f_1(γ^n_{n−1})`,
+the edges `γ^n_i`, which lie in the inner horn. -/
+theorem nerve_horn_hom_ext {C : Type u} [Category.{v} C] {n : ℕ} {k : Fin (n + 3)} (h0 : 0 < k)
+    (hl : k < Fin.last (n + 2)) {f g : (Λ[n + 2, k] : SSet.{max u v}) ⟶ nerve C}
+    (h : ∀ i : Fin (n + 2), f.app (op ⦋1⦌) ((horn.spineId k h0 hl).arrow i) =
+      g.app (op ⦋1⦌) ((horn.spineId k h0 hl).arrow i)) : f = g :=
+  horn_hom_ext_of_isStrictSegal h0 hl h
+
+end Horns
+
+/-- `a ∈ ℕ` as an endomorphism of the object of `SingleObj ℕ`. -/
+abbrev natArr (a : ℕ) : SingleObj.star ℕ ⟶ SingleObj.star ℕ := a
+
+/-- The faces of the horns `Λ^{3,0} → N(ℕ)` of 例 15: with `p₀₁ = 0`, `p₁₂ = p₂₃ = 1` and
+`p₁₃ = p`, the faces opposite to the vertices `1, 2, 3`. -/
+def ex15Face (p : ℕ) : Fin 4 → nerve (SingleObj ℕ) _⦋2⦌ :=
+  ![ComposableArrows.mk₂ (natArr 0) (natArr 1), ComposableArrows.mk₂ (natArr 0) (natArr 1),
+    ComposableArrows.mk₂ (natArr 0) (natArr p), ComposableArrows.mk₂ (natArr 0) (natArr 1)]
+
+lemma ex15_compatible (p : ℕ) :
+    horn.IsCompatible (fun (j : Fin 4) (_ : j ≠ 0) ↦ yonedaEquiv.symm (ex15Face p j)) := by
+  rw [horn.isCompatible_iff]
+  intro j k hj hk hjk
+  simp only [stdSimplex.δ_comp_yonedaEquiv_symm]
+  congr 1
+  fin_cases j <;> fin_cases k
+  all_goals try exact absurd hjk (by decide)
+  all_goals try exact absurd rfl hj
+  · change (nerve _).δ 1 (ComposableArrows.mk₂ (natArr 0) (natArr 1)) =
+      (nerve _).δ 1 (ComposableArrows.mk₂ (natArr 0) (natArr p))
+    rw [nerve.δ₁_mk₂_eq, nerve.δ₁_mk₂_eq, SingleObj.comp_as_mul, SingleObj.comp_as_mul]
+    change ComposableArrows.mk₁ (natArr (1 * 0)) = ComposableArrows.mk₁ (natArr (p * 0))
+    simp only [mul_zero]
+  · change (nerve _).δ 2 (ComposableArrows.mk₂ (natArr 0) (natArr 1)) =
+      (nerve _).δ 1 (ComposableArrows.mk₂ (natArr 0) (natArr 1))
+    rw [nerve.δ₂_mk₂_eq, nerve.δ₁_mk₂_eq, SingleObj.comp_as_mul]
+    change ComposableArrows.mk₁ (natArr 0) = ComposableArrows.mk₁ (natArr (1 * 0))
+    simp only [mul_zero]
+  · change (nerve _).δ 2 (ComposableArrows.mk₂ (natArr 0) (natArr p)) =
+      (nerve _).δ 2 (ComposableArrows.mk₂ (natArr 0) (natArr 1))
+    rw [nerve.δ₂_mk₂_eq, nerve.δ₂_mk₂_eq]
+
+/-- `ALGD-C2-SIMPLEX-15` (例 15, p.21–22).
+A morphism `Λ^{3,1} → NC` is determined by the three edges `γ^3_0, γ^3_1, γ^3_2`; for the outer
+horn `Λ^{3,0}` it is not: in the nerve of the monoid `(ℕ, ·)`, two different morphisms
+`Λ^{3,0} → NC` agree on the faces `d_1` and `d_3`, which contain all three edges. -/
+theorem horn_three_examples :
+    (∀ (C : Type u) [Category.{v} C] (f g : (Λ[3, 1] : SSet.{max u v}) ⟶ nerve C),
+      (∀ i : Fin 3, f.app (op ⦋1⦌) ((horn.spineId (n := 1) 1 (by decide) (by decide)).arrow i) =
+        g.app (op ⦋1⦌) ((horn.spineId (n := 1) 1 (by decide) (by decide)).arrow i)) → f = g) ∧
+    ∃ f g : (Λ[3, 0] : SSet.{0}) ⟶ nerve (SingleObj ℕ),
+      horn.ι 0 1 (by decide) ≫ f = horn.ι 0 1 (by decide) ≫ g ∧
+      horn.ι 0 3 (by decide) ≫ f = horn.ι 0 3 (by decide) ≫ g ∧ f ≠ g := by
+  refine ⟨fun C _ f g h ↦ horn_hom_ext_of_isStrictSegal _ _ h,
+    (ex15_compatible 1).desc, (ex15_compatible 0).desc, ?_, ?_, fun h ↦ ?_⟩
+  · rw [horn.IsCompatible.ι_desc, horn.IsCompatible.ι_desc]
+    rfl
+  · rw [horn.IsCompatible.ι_desc, horn.IsCompatible.ι_desc]
+    rfl
+  · have h₂ := congr_arg (horn.ι 0 2 (by decide) ≫ ·) h
+    simp only [horn.IsCompatible.ι_desc] at h₂
+    have h₃ := congr_arg (fun F ↦ (nerve (SingleObj ℕ)).δ 0 F) (yonedaEquiv.symm.injective h₂)
+    change (nerve _).δ 0 (ComposableArrows.mk₂ (natArr 0) (natArr 1)) =
+      (nerve _).δ 0 (ComposableArrows.mk₂ (natArr 0) (natArr 0)) at h₃
+    rw [nerve.δ₀_mk₂_eq, nerve.δ₀_mk₂_eq] at h₃
+    have h₄ := congr_arg (fun F : ComposableArrows (SingleObj ℕ) 1 ↦ (F.map' 0 1 : ℕ)) h₃
+    exact absurd h₄ (by simp)
+
+
 /-! ## §5 Dimension -/
 
 /-! ### Absolute colimits -/
@@ -554,6 +748,225 @@ theorem hasDimensionLE_prod (X Y : SSet.{u}) (n m : ℕ) [X.HasDimensionLE n]
     [Y.HasDimensionLE m] : (X ⊗ Y).HasDimensionLE (n + m) :=
   SSet.hasDimensionLE_prod X Y n m (n + m)
 
+section Products
+
+open MonoidalCategory
+
+/-- A monotone map out of `Fin (k + 1)` that is not injective identifies two adjacent points. -/
+lemma exists_eq_succ_of_not_injective {α : Type*} [PartialOrder α] {k : ℕ}
+    {f : Fin (k + 1) → α} (hf : Monotone f) (h : ¬ Function.Injective f) :
+    ∃ l : Fin k, f l.castSucc = f l.succ := by
+  simp only [Function.Injective, not_forall] at h
+  obtain ⟨s, t, hst, hne⟩ := h
+  wlog hlt : s < t generalizing s t
+  · exact this t s hst.symm (Ne.symm hne) (lt_of_le_of_ne (not_lt.1 hlt) (Ne.symm hne))
+  refine ⟨⟨s, by omega⟩, le_antisymm (hf (Fin.castSucc_le_succ _)) ?_⟩
+  calc f (Fin.succ ⟨s, _⟩) ≤ f t := hf (by rw [Fin.le_def]; simp; omega)
+    _ = f s := hst.symm
+    _ = f (Fin.castSucc ⟨s, _⟩) := rfl
+
+lemma σ_castSucc_eq_succ {k : ℕ} (l : Fin (k + 1)) :
+    (SimplexCategory.σ l).toOrderHom l.castSucc = (SimplexCategory.σ l).toOrderHom l.succ :=
+  (Fin.predAbove_castSucc_self l).trans (Fin.predAbove_succ_self l).symm
+
+/-- `ALGD-C2-SIMPLEX-26` (命題 26, p.32–33).
+Let `u = ⟨a, b⟩ ∈ (X × Y)_k` with `a = Xβ(a′)`, `b = Yγ(b′)` as in 命題 19 (`a′`, `b′`
+nondegenerate, `β`, `γ` surjective), and `θ = ⟨β, γ⟩ : [k] → [i] × [j]`. Then `u` is degenerate
+iff `θ` is not injective. -/
+theorem prod_degenerate_iff {X Y : SSet.{u}} {k i j : ℕ} (u : (X ⊗ Y) _⦋k⦌)
+    (a : X.nonDegenerate i) (b : Y.nonDegenerate j) (β : ⦋k⦌ ⟶ ⦋i⦌) [Epi β]
+    (γ : ⦋k⦌ ⟶ ⦋j⦌) [Epi γ] (ha : X.map β.op a.1 = u.1) (hb : Y.map γ.op b.1 = u.2) :
+    u ∈ (X ⊗ Y).degenerate k ↔
+      ¬ Function.Injective (fun t : Fin (k + 1) ↦ (β.toOrderHom t, γ.toOrderHom t)) := by
+  constructor
+  · intro hu hinj
+    cases k with
+    | zero => rw [degenerate_zero] at hu; exact hu
+    | succ k =>
+      rw [degenerate_eq_iUnion_range_σ, Set.mem_iUnion] at hu
+      obtain ⟨l, v, rfl⟩ := hu
+      obtain ⟨i', ξ, _, c, hc⟩ := X.exists_nonDegenerate v.1
+      obtain ⟨j', ζ, _, d, hd⟩ := Y.exists_nonDegenerate v.2
+      have h₁ : X.map (SimplexCategory.σ l ≫ ξ).op c.1 = X.map β.op a.1 := by
+        rw [op_comp, Functor.map_comp, ConcreteCategory.comp_apply, ← hc, ha]
+        rfl
+      have h₂ : Y.map (SimplexCategory.σ l ≫ ζ).op d.1 = Y.map γ.op b.1 := by
+        rw [op_comp, Functor.map_comp, ConcreteCategory.comp_apply, ← hd, hb]
+        rfl
+      obtain rfl := X.unique_nonDegenerate_dim _ β a rfl _ c h₁.symm
+      obtain rfl := Y.unique_nonDegenerate_dim _ γ b rfl _ d h₂.symm
+      have hβ := X.unique_nonDegenerate_map _ β a rfl _ c h₁.symm
+      have hγ := Y.unique_nonDegenerate_map _ γ b rfl _ d h₂.symm
+      have := @hinj l.castSucc l.succ (by
+        simp only [hβ, hγ, SimplexCategory.comp_toOrderHom, OrderHom.comp_coe,
+          Function.comp_apply, σ_castSucc_eq_succ])
+      exact (show l.castSucc < l.succ from Fin.castSucc_lt_succ).ne this
+  · intro hθ
+    obtain ⟨l, hl⟩ := exists_eq_succ_of_not_injective
+      (fun s t h ↦ Prod.mk_le_mk.2 ⟨β.toOrderHom.monotone h, γ.toOrderHom.monotone h⟩) hθ
+    cases k with
+    | zero => exact l.elim0
+    | succ k =>
+      obtain ⟨β', rfl⟩ := eq_σ_comp_of_not_injective' β l (Prod.ext_iff.1 hl).1
+      obtain ⟨γ', rfl⟩ := eq_σ_comp_of_not_injective' γ l (Prod.ext_iff.1 hl).2
+      refine ⟨k, by omega, SimplexCategory.σ l, (X.map β'.op a.1, Y.map γ'.op b.1), ?_⟩
+      refine Prod.ext ?_ ?_
+      · change X.map (SimplexCategory.σ l).op (X.map β'.op a.1) = u.1
+        rw [← ha, op_comp, Functor.map_comp, ConcreteCategory.comp_apply]
+      · change Y.map (SimplexCategory.σ l).op (Y.map γ'.op b.1) = u.2
+        rw [← hb, op_comp, Functor.map_comp, ConcreteCategory.comp_apply]
+
+/-- The simplex of `Δ^p × Δ^q` given by a monotone map `[n] → [p] × [q]`. -/
+abbrev prodSimplex {p q n : ℕ} (f : Fin (n + 1) →o Fin (p + 1) × Fin (q + 1)) :
+    ((Δ[p] : SSet.{u}) ⊗ Δ[q]) _⦋n⦌ :=
+  prodStdSimplex.objEquiv.symm f
+
+lemma prodSimplex_mem_nonDegenerate {p q n : ℕ} (f : Fin (n + 1) →o Fin (p + 1) × Fin (q + 1))
+    (hf : Function.Injective f) : prodSimplex.{u} f ∈ ((Δ[p] : SSet.{u}) ⊗ Δ[q]).nonDegenerate n := by
+  rw [prodStdSimplex.nonDegenerate_iff_injective_objEquiv, Equiv.apply_symm_apply]
+  exact hf
+
+/-- `u = ⟨σ^1_0, σ^1_1⟩` of 例 28: the chain `(0,0) < (0,1) < (1,1)`. -/
+def ex28u : Fin 3 →o Fin 2 × Fin 2 := ⟨![(0, 0), (0, 1), (1, 1)], by decide⟩
+
+/-- `v = ⟨σ^1_1, σ^1_0⟩` of 例 28: the chain `(0,0) < (1,0) < (1,1)`. -/
+def ex28v : Fin 3 →o Fin 2 × Fin 2 := ⟨![(0, 0), (1, 0), (1, 1)], by decide⟩
+
+lemma ex28u_apply (q : Fin 2 × Fin 2) (hq : q.1 ≤ q.2) :
+    ex28u ⟨(q.1 : ℕ) + q.2, by have := q.1.isLt; have := q.2.isLt; rw [Fin.le_def] at hq; omega⟩ =
+      q := by
+  fin_cases q <;> first | exact absurd hq (by decide) | rfl
+
+lemma ex28v_apply (q : Fin 2 × Fin 2) (hq : q.2 ≤ q.1) :
+    ex28v ⟨(q.1 : ℕ) + q.2, by have := q.1.isLt; have := q.2.isLt; rw [Fin.le_def] at hq; omega⟩ =
+      q := by
+  fin_cases q <;> first | exact absurd hq (by decide) | rfl
+
+/-- Every simplex of `Δ^1 × Δ^1` factors through `u` or `v`. -/
+lemma ex28_factor {k : ℕ} (z : ((Δ[1] : SSet.{u}) ⊗ Δ[1]) _⦋k⦌) :
+    ∃ w ∈ ({prodSimplex ex28u, prodSimplex ex28v} : Set (((Δ[1] : SSet.{u}) ⊗ Δ[1]) _⦋2⦌)),
+      ∃ β : ⦋k⦌ ⟶ ⦋2⦌, ((Δ[1] : SSet.{u}) ⊗ Δ[1]).map β.op w = z := by
+  set f := prodStdSimplex.objEquiv z with hf
+  have hchain : (∀ t, (f t).1 ≤ (f t).2) ∨ (∀ t, (f t).2 ≤ (f t).1) := by
+    by_contra h
+    simp only [not_or, not_forall, not_le] at h
+    obtain ⟨⟨t, ht⟩, ⟨s, hs⟩⟩ := h
+    rw [Fin.lt_def] at ht hs
+    have := (f t).1.isLt; have := (f s).2.isLt; have := (f s).1.isLt; have := (f t).2.isLt
+    rcases le_total t s with hts | hst
+    · have h' := Prod.le_def.1 (f.monotone hts)
+      rw [Fin.le_def, Fin.le_def] at h'
+      omega
+    · have h' := Prod.le_def.1 (f.monotone hst)
+      rw [Fin.le_def, Fin.le_def] at h'
+      omega
+  have sum_lt : ∀ t, ((f t).1 : ℕ) + (f t).2 < 3 := fun t ↦ by
+    have := (f t).1.isLt; have := (f t).2.isLt
+    rcases hchain with h | h <;> have := h t <;> rw [Fin.le_def] at this <;> omega
+  let β : ⦋k⦌ ⟶ ⦋2⦌ := mkHom ⟨fun t ↦ ⟨(f t).1 + (f t).2, sum_lt t⟩, fun s t h ↦ by
+    have := Prod.le_def.1 (f.monotone h)
+    rw [Fin.le_def, Fin.le_def] at this
+    rw [Fin.le_def]; dsimp; omega⟩
+  have key : ∀ w : Fin 3 →o Fin 2 × Fin 2, (∀ t, w (β.toOrderHom t) = f t) →
+      ((Δ[1] : SSet.{u}) ⊗ Δ[1]).map β.op (prodSimplex w) = z := fun w hw ↦ by
+    apply prodStdSimplex.objEquiv.injective
+    rw [← prodStdSimplex.objEquiv_naturality, Equiv.apply_symm_apply]
+    ext1
+    funext t
+    exact hw t
+  rcases hchain with h | h
+  · exact ⟨_, Or.inl rfl, β, key _ fun t ↦ ex28u_apply (f t) (h t)⟩
+  · exact ⟨_, Or.inr rfl, β, key _ fun t ↦ ex28v_apply (f t) (h t)⟩
+
+lemma fin_two_cases (a b c : Fin 2) (h : a ≠ b) : c = a ∨ c = b := by
+  fin_cases a <;> fin_cases b <;> fin_cases c <;> simp_all
+
+lemma fin_three_cases (a b c d : Fin 3) (hab : a ≠ b) (hac : a ≠ c) (hbc : b ≠ c) :
+    d = a ∨ d = b ∨ d = c := by
+  fin_cases a <;> fin_cases b <;> fin_cases c <;> fin_cases d <;> simp_all
+
+/-- `ALGD-C2-SIMPLEX-28` (例 28, p.34–37).
+`Δ^1 × Δ^1` has exactly two nondegenerate 2-simplices, `u = ⟨σ^1_0, σ^1_1⟩` (the chain
+`(0,0) < (0,1) < (1,1)`) and `v = ⟨σ^1_1, σ^1_0⟩` (the chain `(0,0) < (1,0) < (1,1)`), and it is
+generated by `{u, v}`. -/
+theorem stdSimplex_one_prod_one :
+    prodSimplex ex28u ∈ ((Δ[1] : SSet.{u}) ⊗ Δ[1]).nonDegenerate 2 ∧
+    prodSimplex ex28v ∈ ((Δ[1] : SSet.{u}) ⊗ Δ[1]).nonDegenerate 2 ∧
+    (∀ z ∈ ((Δ[1] : SSet.{u}) ⊗ Δ[1]).nonDegenerate 2,
+      z = prodSimplex ex28u ∨ z = prodSimplex ex28v) ∧
+    generated {prodSimplex ex28u, prodSimplex ex28v} =
+      (⊤ : ((Δ[1] : SSet.{u}) ⊗ Δ[1]).Subcomplex) := by
+  have hu := prodSimplex_mem_nonDegenerate.{u} ex28u (by decide)
+  have hv := prodSimplex_mem_nonDegenerate.{u} ex28v (by decide)
+  refine ⟨hu, hv, fun z hz ↦ ?_, ?_⟩
+  · let e := (prodStdSimplex₁.nonDegenerateEquiv (p := 1)).symm
+    have hne : e ⟨_, hu⟩ ≠ e ⟨_, hv⟩ := fun h ↦ absurd
+      (congr_arg (fun f : Fin 3 →o Fin 2 × Fin 2 ↦ f 1)
+        (prodStdSimplex.objEquiv.symm.injective (congr_arg Subtype.val (e.injective h))))
+      (by decide)
+    rcases fin_two_cases _ _ (e ⟨z, hz⟩) hne with h | h
+    · exact Or.inl (congr_arg Subtype.val (e.injective h))
+    · exact Or.inr (congr_arg Subtype.val (e.injective h))
+  · refine eq_top_iff.2 fun m z _ ↦ ?_
+    induction m using Opposite.rec with | _ m => ?_
+    induction m using SimplexCategory.rec with | _ m => ?_
+    obtain ⟨w, hw, β, rfl⟩ := ex28_factor z
+    exact (mem_generated_iff _ _).2 ⟨w, hw, β, rfl⟩
+
+/-- `θ_0` of 例 29: `(0,0) < (0,1) < (0,2) < (1,2)`. -/
+def ex29θ₀ : Fin 4 →o Fin 2 × Fin 3 := ⟨![(0, 0), (0, 1), (0, 2), (1, 2)], by decide⟩
+
+/-- `θ_1` of 例 29: `(0,0) < (0,1) < (1,1) < (1,2)`. -/
+def ex29θ₁ : Fin 4 →o Fin 2 × Fin 3 := ⟨![(0, 0), (0, 1), (1, 1), (1, 2)], by decide⟩
+
+/-- `θ_2` of 例 29: `(0,0) < (1,0) < (1,1) < (1,2)`. -/
+def ex29θ₂ : Fin 4 →o Fin 2 × Fin 3 := ⟨![(0, 0), (1, 0), (1, 1), (1, 2)], by decide⟩
+
+/-- `ALGD-C2-SIMPLEX-29` (例 29, p.37–40).
+`Δ^1 × Δ^2` has exactly three nondegenerate 3-simplices `θ_0, θ_1, θ_2` (the injective monotone
+maps `[3] → [1] × [2]`), and `d_2 θ_0 = d_2 θ_1`, `d_1 θ_1 = d_1 θ_2`: they glue to a triangular
+prism. -/
+theorem stdSimplex_one_prod_two :
+    prodSimplex ex29θ₀ ∈ ((Δ[1] : SSet.{u}) ⊗ Δ[2]).nonDegenerate 3 ∧
+    prodSimplex ex29θ₁ ∈ ((Δ[1] : SSet.{u}) ⊗ Δ[2]).nonDegenerate 3 ∧
+    prodSimplex ex29θ₂ ∈ ((Δ[1] : SSet.{u}) ⊗ Δ[2]).nonDegenerate 3 ∧
+    (∀ z ∈ ((Δ[1] : SSet.{u}) ⊗ Δ[2]).nonDegenerate 3,
+      z = prodSimplex ex29θ₀ ∨ z = prodSimplex ex29θ₁ ∨ z = prodSimplex ex29θ₂) ∧
+    ((Δ[1] : SSet.{u}) ⊗ Δ[2]).δ 2 (prodSimplex ex29θ₀) =
+      ((Δ[1] : SSet.{u}) ⊗ Δ[2]).δ 2 (prodSimplex ex29θ₁) ∧
+    ((Δ[1] : SSet.{u}) ⊗ Δ[2]).δ 1 (prodSimplex ex29θ₁) =
+      ((Δ[1] : SSet.{u}) ⊗ Δ[2]).δ 1 (prodSimplex ex29θ₂) := by
+  have h₀ := prodSimplex_mem_nonDegenerate.{u} ex29θ₀ (by decide)
+  have h₁ := prodSimplex_mem_nonDegenerate.{u} ex29θ₁ (by decide)
+  have h₂ := prodSimplex_mem_nonDegenerate.{u} ex29θ₂ (by decide)
+  refine ⟨h₀, h₁, h₂, fun z hz ↦ ?_, ?_, ?_⟩
+  · let e := (nonDegenerateEquivOfIso (β_ (Δ[1] : SSet.{u}) Δ[2])).trans
+      (prodStdSimplex₁.nonDegenerateEquiv (p := 2)).symm
+    have ne : ∀ (f g : Fin 4 →o Fin 2 × Fin 3) (hf hg), f 1 ≠ g 1 ∨ f 2 ≠ g 2 →
+        e ⟨prodSimplex f, hf⟩ ≠ e ⟨prodSimplex g, hg⟩ := fun f g hf hg hfg h ↦ by
+      have := prodStdSimplex.objEquiv.symm.injective (congr_arg Subtype.val (e.injective h))
+      subst this
+      simp at hfg
+    rcases fin_three_cases _ _ _ (e ⟨z, hz⟩) (ne _ _ h₀ h₁ (Or.inr (by decide)))
+      (ne _ _ h₀ h₂ (Or.inl (by decide))) (ne _ _ h₁ h₂ (Or.inl (by decide))) with h | h | h
+    · exact Or.inl (congr_arg Subtype.val (e.injective h))
+    · exact Or.inr (Or.inl (congr_arg Subtype.val (e.injective h)))
+    · exact Or.inr (Or.inr (congr_arg Subtype.val (e.injective h)))
+  · apply prodStdSimplex.objEquiv.injective
+    ext1
+    funext j
+    refine (prodStdSimplex.objEquiv_δ_apply _ 2 j).trans
+      (Eq.trans ?_ (prodStdSimplex.objEquiv_δ_apply _ 2 j).symm)
+    fin_cases j <;> rfl
+  · apply prodStdSimplex.objEquiv.injective
+    ext1
+    funext j
+    refine (prodStdSimplex.objEquiv_δ_apply _ 1 j).trans
+      (Eq.trans ?_ (prodStdSimplex.objEquiv_δ_apply _ 1 j).symm)
+    fin_cases j <;> rfl
+
+end Products
+
 /-! ### Skeleta and coskeleta -/
 
 /-- The adjunction `Sk_n ⊣ Csk_n`, composed from `sk_n ⊣ tr_n` and `tr_n ⊣ cosk_n`. -/
@@ -734,6 +1147,727 @@ theorem existsUnique_horn_filler {X : SSet.{u}} [X.IsCoskeletal 2] {n : ℕ} (hn
   have := isIso_truncation_map_horn_ι.{u} hn k
   have := (isCoskeletal_iff_isIso X 2).1 inferInstance
   exact (bijective_precomp_of_isIso_truncation (n := 2) Λ[n, k].ι).existsUnique f
+
+section Skeleta
+
+/-- Every element of `(sk_n P)_k` is `(sk_n P)(g)(η(y))` for some `y ∈ P_m`, `m ≤ n`, and
+`g : [k] → [m]`: the pointwise formula for the left Kan extension `sk_n`. -/
+lemma sk_obj_exists (n : ℕ) (P : SSet.Truncated.{u} n) (k : ℕ)
+    (x : ((SSet.Truncated.sk n).obj P) _⦋k⦌) :
+    ∃ (m : ℕ) (hm : m ≤ n) (g : ⦋k⦌ ⟶ ⦋m⦌) (y : P.obj (op ⟨⦋m⦌, hm⟩)),
+      ((SSet.Truncated.sk n).obj P).map g.op (((SSet.skAdj n).unit.app P).app _ y) = x := by
+  have h := Functor.isPointwiseLeftKanExtensionOfIsLeftKanExtension
+    (L := (SimplexCategory.Truncated.inclusion n).op) (F := P) _
+    ((SimplexCategory.Truncated.inclusion n).op.leftKanExtensionUnit P)
+  obtain ⟨j, y, hy⟩ := Types.jointly_surjective_of_isColimit (h (op ⦋k⦌)) x
+  obtain ⟨⟨⟨a, ha⟩⟩, ⟨⟨⟩⟩, g⟩ := j
+  refine ⟨a.len, ha, g.unop, y, ?_⟩
+  rw [← hy, Functor.LeftExtension.coconeAt_ι_app]
+  rfl
+
+/-- The source's `ε^n_X : Sk_n X → X`. -/
+noncomputable abbrev skCounit (n : ℕ) (X : SSet.{u}) : (SSet.sk n).obj X ⟶ X :=
+  (SSet.skAdj n).counit.app X
+
+lemma sk_obj_exists' (n : ℕ) (X : SSet.{u}) (k : ℕ) (x : ((SSet.sk n).obj X) _⦋k⦌) :
+    ∃ (m : ℕ) (hm : m ≤ n) (g : ⦋k⦌ ⟶ ⦋m⦌) (y : X _⦋m⦌),
+      ((SSet.sk n).obj X).map g.op
+        (((SSet.skAdj n).unit.app ((SSet.truncation n).obj X)).app (op ⟨⦋m⦌, hm⟩) y) = x :=
+  sk_obj_exists n ((SSet.truncation n).obj X) k x
+
+lemma skCounit_unit_apply (n : ℕ) (X : SSet.{u}) {m : ℕ} (hm : m ≤ n) (y : X _⦋m⦌) :
+    (skCounit n X).app (op ⦋m⦌)
+      (((SSet.skAdj n).unit.app ((SSet.truncation n).obj X)).app (op ⟨⦋m⦌, hm⟩) y) = y := by
+  have h := congr_arg (fun φ ↦ φ.app (op (⟨⦋m⦌, hm⟩ : SimplexCategory.Truncated n)))
+    ((SSet.skAdj n).right_triangle_components X)
+  exact ConcreteCategory.congr_hom h y
+
+/-- `ALGD-C2-SIMPLEX-31` (命題 31, p.41).
+`dim(Sk_n X) ≤ n`: every element of `(Sk_n X)_k` with `k > n` is degenerate. -/
+theorem sk_hasDimensionLE (n : ℕ) (X : SSet.{u}) : ((SSet.sk n).obj X).HasDimensionLE n := by
+  rw [hasDimensionLE_iff]
+  intro k hk x
+  obtain ⟨m, hm, g, y, rfl⟩ := sk_obj_exists n _ k x
+  exact ⟨m, by omega, g, _, rfl⟩
+
+lemma nonDegenerate_skCounit (n : ℕ) (X : SSet.{u}) {i : ℕ} (hi : i ≤ n)
+    {u : ((SSet.sk n).obj X) _⦋i⦌} (hu : u ∈ ((SSet.sk n).obj X).nonDegenerate i) :
+    (skCounit n X).app _ u ∈ X.nonDegenerate i := by
+  cases i with
+  | zero => rw [nonDegenerate_zero]; trivial
+  | succ i =>
+    have h₁ := isIso_skAdj_counit_app_app n X hi
+    have h₂ := isIso_skAdj_counit_app_app n X (Nat.le_of_succ_le hi)
+    exact nonDegenerate_map_of_bijective _ ((isIso_iff_bijective _).1 h₁)
+      ((isIso_iff_bijective _).1 h₂).2 hu
+
+/-- `ALGD-C2-SIMPLEX-32` (命題 32, p.41–42).
+`ε^n : Sk_n ⇒ id` is a monomorphism, so `Sk_n X ⊂ X`. -/
+theorem mono_skCounit (n : ℕ) (X : SSet.{u}) : Mono (skCounit n X) := by
+  rw [NatTrans.mono_iff_mono_app]
+  rintro ⟨k⟩
+  induction k using SimplexCategory.rec with | _ k => ?_
+  rw [CategoryTheory.mono_iff_injective]
+  intro a b hab
+  by_cases hk : k ≤ n
+  · exact ((isIso_iff_bijective _).1 (isIso_skAdj_counit_app_app n X hk)).1 hab
+  · obtain ⟨i, β, _, u, rfl⟩ := ((SSet.sk n).obj X).exists_nonDegenerate a
+    obtain ⟨j, θ, _, v, rfl⟩ := ((SSet.sk n).obj X).exists_nonDegenerate b
+    have := sk_hasDimensionLE n X
+    have hi : i ≤ n := by have := ((SSet.sk n).obj X).dim_lt_of_nonDegenerate u (n + 1); omega
+    have hj : j ≤ n := by have := ((SSet.sk n).obj X).dim_lt_of_nonDegenerate v (n + 1); omega
+    change (skCounit n X).app _ _ = (skCounit n X).app _ _ at hab
+    rw [NatTrans.naturality_apply, NatTrans.naturality_apply] at hab
+    have hu := nonDegenerate_skCounit n X hi u.2
+    have hv := nonDegenerate_skCounit n X hj v.2
+    obtain rfl := X.unique_nonDegenerate_dim _ β ⟨_, hu⟩ rfl θ ⟨_, hv⟩ hab
+    obtain rfl := X.unique_nonDegenerate_map _ β ⟨_, hu⟩ rfl θ ⟨_, hv⟩ hab
+    have huv := congr_arg Subtype.val
+      (X.unique_nonDegenerate_simplex _ β ⟨_, hu⟩ rfl β ⟨_, hv⟩ hab)
+    obtain rfl : u = v := Subtype.ext
+      (((isIso_iff_bijective _).1 (isIso_skAdj_counit_app_app n X hi)).1 huv)
+    rfl
+
+/-- `ALGD-C2-SIMPLEX-35` (命題 35, p.42).
+`X` is `n`-skeletal iff `dim X ≤ n`. -/
+theorem isSkeletal_iff_hasDimensionLE (X : SSet.{u}) (n : ℕ) :
+    IsSkeletal X n ↔ X.HasDimensionLE n := by
+  constructor
+  · intro h
+    have := sk_hasDimensionLE n X
+    exact ((hasDimension_iff_of_iso (@asIso _ _ _ _ (skCounit n X) h)).1 (n + 1)).1 this
+  · intro h
+    show IsIso (skCounit n X)
+    refine @NatIso.isIso_of_isIso_app _ _ _ _ _ _ _ fun ⟨k⟩ ↦ ?_
+    induction k using SimplexCategory.rec with | _ k => ?_
+    rw [isIso_iff_bijective]
+    refine ⟨(CategoryTheory.mono_iff_injective _).1 ((NatTrans.mono_iff_mono_app _).1 (mono_skCounit n X) _),
+      fun x ↦ ?_⟩
+    obtain ⟨l, β, _, u, rfl⟩ := X.exists_nonDegenerate x
+    have hl : l ≤ n := by have := X.dim_lt_of_nonDegenerate u (n + 1); omega
+    obtain ⟨u', hu'⟩ := ((isIso_iff_bijective _).1 (isIso_skAdj_counit_app_app n X hl)).2 u.1
+    refine ⟨((SSet.sk n).obj X).map β.op u', ?_⟩
+    rw [NatTrans.naturality_apply, hu']
+
+/-- `ALGD-C2-SIMPLEX-36` (命題 36, p.43).
+If `dim X, dim Y ≤ N` and `f_n : X_n → Y_n` is bijective for `n ≤ N`, then `f` is an
+isomorphism. -/
+theorem isIso_of_bijective_le {X Y : SSet.{u}} {N : ℕ} [X.HasDimensionLE N] [Y.HasDimensionLE N]
+    (f : X ⟶ Y) (hf : ∀ k ≤ N, Function.Bijective (f.app (op ⦋k⦌))) : IsIso f := by
+  have hX : IsIso (skCounit N X) := (isSkeletal_iff_hasDimensionLE X N).2 inferInstance
+  have hY : IsIso (skCounit N Y) := (isSkeletal_iff_hasDimensionLE Y N).2 inferInstance
+  have : IsIso ((SSet.truncation N).map f) := by
+    refine @NatIso.isIso_of_isIso_app _ _ _ _ _ _ _ fun ⟨⟨a, ha⟩⟩ ↦ ?_
+    rw [isIso_iff_bijective]
+    exact hf a.len ha
+  have : IsIso ((SSet.sk N).map f) :=
+    (inferInstance : IsIso ((SSet.Truncated.sk N).map ((SSet.truncation N).map f)))
+  have h : IsIso ((SSet.sk N).map f ≫ skCounit N Y) := inferInstance
+  exact IsIso.of_isIso_fac_left ((SSet.skAdj N).counit.naturality f).symm
+
+
+/-- `Sk_n X ⊂ X` is mathlib's `X.skeleton (n + 1)`. -/
+theorem range_skCounit (n : ℕ) (X : SSet.{u}) :
+    Subcomplex.range (skCounit n X) = X.skeleton (n + 1) := by
+  apply le_antisymm
+  · intro m z hz
+    obtain ⟨a, rfl⟩ := hz
+    induction m using Opposite.rec with | _ m => ?_
+    induction m using SimplexCategory.rec with | _ m => ?_
+    obtain ⟨m', hm', g, y, rfl⟩ := sk_obj_exists' n X m a
+    rw [NatTrans.naturality_apply, skCounit_unit_apply]
+    exact (X.skeleton (n + 1)).map g.op (X.mem_skeleton y (by omega))
+  · change (⨆ (i : Fin (n + 1)) (x : X.nonDegenerate i), Subcomplex.ofSimplex x.1) ≤ _
+    refine iSup₂_le fun i x ↦ (Subcomplex.ofSimplex_le_iff _ _).2 ?_
+    obtain ⟨a, ha⟩ := ((isIso_iff_bijective _).1
+      (isIso_skAdj_counit_app_app n X (Nat.lt_succ_iff.1 i.2))).2 x.1
+    exact ⟨a, ha⟩
+
+lemma skeleton_eq_generated (n : ℕ) (X : SSet.{u}) :
+    X.skeleton (n + 1) = ⨆ k : Fin (n + 1), generated (Set.univ : Set (X _⦋k⦌)) := by
+  apply le_antisymm
+  · change (⨆ (i : Fin (n + 1)) (x : X.nonDegenerate i), Subcomplex.ofSimplex x.1) ≤ _
+    refine iSup₂_le fun i x ↦ le_iSup_of_le i ((Subcomplex.ofSimplex_le_iff _ _).2 ?_)
+    exact (generated_spec _).1 (Set.mem_univ _)
+  · exact iSup_le fun k ↦ (generated_spec _).2 _ fun y _ ↦ X.mem_skeleton y (by omega)
+
+/-- `ALGD-C2-SIMPLEX-37` (命題 37, p.43).
+`ε^n_X` is a monomorphism and its image `Sk_n X ⊂ X` is the subset generated by
+`X_0, …, X_n`. -/
+theorem sk_eq_generated (n : ℕ) (X : SSet.{u}) :
+    Mono (skCounit n X) ∧
+    Subcomplex.range (skCounit n X) = ⨆ k : Fin (n + 1), generated (Set.univ : Set (X _⦋k⦌)) :=
+  ⟨mono_skCounit n X, (range_skCounit n X).trans (skeleton_eq_generated n X)⟩
+
+/-- `Sk_n X ≅ X.skeleton (n + 1)`. -/
+noncomputable def skIsoSkeleton (n : ℕ) (X : SSet.{u}) :
+    (SSet.sk n).obj X ≅ (X.skeleton (n + 1) : SSet.{u}) :=
+  have := mono_skCounit n X
+  asIso (Subcomplex.toRange (skCounit n X)) ≪≫ Subcomplex.eqToIso (range_skCounit n X)
+
+/-- `ALGD-C2-SIMPLEX-R08` (prose after 命題 37, p.43).
+`Sk_0 X ⊂ Sk_1 X ⊂ ⋯` as subsets of `X`, their union is `X`, and `X` is their colimit. -/
+theorem sk_chain (X : SSet.{u}) :
+    Monotone (fun n ↦ Subcomplex.range (skCounit n X)) ∧
+    ⨆ n, Subcomplex.range (skCounit n X) = ⊤ ∧
+    Nonempty (IsColimit (Subcomplex.toSSetFunctor.mapCocone (CompleteLattice.colimitCocone
+      (Monotone.functor (f := fun n ↦ Subcomplex.range (skCounit n X))
+        (fun a b h ↦ by simp only [range_skCounit]; exact X.skeleton.monotone (by omega)))).cocone)) := by
+  refine ⟨fun a b h ↦ by simp only [range_skCounit]; exact X.skeleton.monotone (by omega),
+    ?_, ⟨isColimitOfPreserves _ (CompleteLattice.colimitCocone _).isColimit⟩⟩
+  refine eq_top_iff.2 fun m x _ ↦ ?_
+  induction m using Opposite.rec with | _ m => ?_
+  induction m using SimplexCategory.rec with | _ m => ?_
+  rw [Subfunctor.iSup_obj, Set.mem_iUnion]
+  exact ⟨m, by rw [range_skCounit]; exact X.mem_skeleton x (by omega)⟩
+
+/-- `ALGD-C2-SIMPLEX-38` (例 38, p.43).
+`Sk_{n−1} Δ^n = ∂Δ^n` (stated for `n + 1`). -/
+theorem range_skCounit_stdSimplex (n : ℕ) :
+    Subcomplex.range (skCounit n Δ[n + 1]) = (∂Δ[n + 1] : (Δ[n + 1] : SSet.{u}).Subcomplex) := by
+  rw [range_skCounit]
+  apply le_antisymm
+  · change (⨆ (i : Fin (n + 1)) (x : (Δ[n + 1] : SSet.{u}).nonDegenerate i),
+      Subcomplex.ofSimplex x.1) ≤ _
+    refine iSup₂_le fun i x ↦ (Subcomplex.ofSimplex_le_iff _ _).2 ?_
+    rw [boundary_obj_eq_univ i (n + 1) (by omega)]
+    trivial
+  · rw [boundary_eq_iSup]
+    refine iSup_le fun i ↦ ?_
+    rw [stdSimplex.face_singleton_compl]
+    exact Δ[n + 1].ofSimplex_le_skeleton _ (by omega)
+
+/-- `ALGD-C2-SIMPLEX-39` (命題 39, p.43–44).
+If `dim X ≤ n`, every `f : X → Y` factors through `ε^n_Y : Sk_n Y → Y`. -/
+theorem exists_factor_skCounit {X Y : SSet.{u}} {n : ℕ} [X.HasDimensionLE n] (f : X ⟶ Y) :
+    ∃ g : X ⟶ (SSet.sk n).obj Y, g ≫ skCounit n Y = f := by
+  have : IsIso (skCounit n X) := (isSkeletal_iff_hasDimensionLE X n).2 inferInstance
+  refine ⟨inv (skCounit n X) ≫ (SSet.sk n).map f, ?_⟩
+  rw [Category.assoc, (SSet.skAdj n).counit.naturality f, IsIso.inv_hom_id_assoc]
+  rfl
+
+/-- `ALGD-C2-SIMPLEX-40` (命題 40, p.44).
+A commutative square of simplicial sets of dimension `≤ N` whose components in degrees `≤ N` are
+pushouts is a pushout. -/
+theorem isPushout_of_app {A B X Y : SSet.{u}} {N : ℕ} [A.HasDimensionLE N] [B.HasDimensionLE N]
+    [X.HasDimensionLE N] [Y.HasDimensionLE N] {f : A ⟶ B} {g : A ⟶ X} {h : B ⟶ Y} {i : X ⟶ Y}
+    (H : ∀ k ≤ N, IsPushout (f.app (op ⦋k⦌)) (g.app (op ⦋k⦌)) (h.app (op ⦋k⦌)) (i.app (op ⦋k⦌))) :
+    IsPushout f g h i := by
+  have hT : IsPushout ((SSet.truncation N).map f) ((SSet.truncation N).map g)
+      ((SSet.truncation N).map h) ((SSet.truncation N).map i) :=
+    IsPushout.of_forall_isPushout_app fun ⟨⟨a, ha⟩⟩ ↦ H a.len ha
+  have := (SSet.skAdj N).leftAdjoint_preservesColimits
+  have hS := hT.map (SSet.Truncated.sk N)
+  have eA : IsIso (skCounit N A) := (isSkeletal_iff_hasDimensionLE A N).2 inferInstance
+  have eB : IsIso (skCounit N B) := (isSkeletal_iff_hasDimensionLE B N).2 inferInstance
+  have eX : IsIso (skCounit N X) := (isSkeletal_iff_hasDimensionLE X N).2 inferInstance
+  have eY : IsIso (skCounit N Y) := (isSkeletal_iff_hasDimensionLE Y N).2 inferInstance
+  exact hS.of_iso (asIso (skCounit N A)) (asIso (skCounit N B)) (asIso (skCounit N X))
+    (asIso (skCounit N Y)) ((SSet.skAdj N).counit.naturality f)
+    ((SSet.skAdj N).counit.naturality g) ((SSet.skAdj N).counit.naturality h)
+    ((SSet.skAdj N).counit.naturality i)
+
+lemma skeletonOfMono_bot (X : SSet.{u}) (d : ℕ) :
+    skeletonOfMono (⊥ : X.Subcomplex).ι d = X.skeleton d := by
+  change Subcomplex.range (⊥ : X.Subcomplex).ι ⊔ X.skeleton d = _
+  rw [show Subcomplex.range (⊥ : X.Subcomplex).ι = ⊥ from
+    eq_bot_iff.2 fun m x hx ↦ by obtain ⟨⟨_, hy⟩, _⟩ := hx; simp at hy, bot_sup_eq]
+
+/-- The cells attached to `Sk_n X` are the nondegenerate `(n + 1)`-simplices of `X`. -/
+def cellEquiv (X : SSet.{u}) (d : ℕ) :
+    relativeCellComplexOfMono.Cell (⊥ : X.Subcomplex).ι d ≃ X.nonDegenerate d where
+  toFun c := ⟨c.simplex, c.nonDegenerate⟩
+  invFun x := ⟨x.1, x.2, by rintro ⟨⟨_, hy⟩, _⟩; simp at hy⟩
+  left_inv _ := rfl
+  right_inv _ := rfl
+
+open relativeCellComplexOfMono in
+/-- `ALGD-C2-SIMPLEX-41` (命題 41, p.44–45).
+With `A` the nondegenerate `(n + 1)`-simplices of `X`, the square
+`∐_A ∂Δ^{n+1} → Sk_n X`, `∐_A Δ^{n+1} → Sk_{n+1} X` (the summand of `x` mapped by `x`) is a
+pushout; this is mathlib's cell attachment for the skeleton filtration, identified with
+`Sk_n X ⊂ Sk_{n+1} X`. -/
+theorem sk_isPushout (X : SSet.{u}) (n : ℕ) :
+    skeletonOfMono (⊥ : X.Subcomplex).ι (n + 1) = Subcomplex.range (skCounit n X) ∧
+    skeletonOfMono (⊥ : X.Subcomplex).ι (n + 2) = Subcomplex.range (skCounit (n + 1) X) ∧
+    Nonempty (Cell (⊥ : X.Subcomplex).ι (n + 1) ≃ X.nonDegenerate (n + 1)) ∧
+    (∀ c : Cell (⊥ : X.Subcomplex).ι (n + 1),
+      c.ιSigmaBoundary ≫ l _ (n + 1) = ∂Δ[n + 1].ι ≫ c.ιSigmaStdSimplex ∧
+      c.ιSigmaStdSimplex ≫ b _ (n + 1) ≫ Subcomplex.ι _ = c.map) ∧
+    IsPushout (t (⊥ : X.Subcomplex).ι (n + 1)) (l _ (n + 1)) (r _ (n + 1)) (b _ (n + 1)) :=
+  ⟨(skeletonOfMono_bot X _).trans (range_skCounit n X).symm,
+    (skeletonOfMono_bot X _).trans (range_skCounit (n + 1) X).symm, ⟨cellEquiv X _⟩,
+    fun c ↦ ⟨c.ι_l, c.ι_b_ι⟩, isPushout _ _⟩
+
+lemma boundary_one_eq {k : ℕ} {a : (Δ[1] : SSet.{u}) _⦋k⦌}
+    (ha : a ∈ (∂Δ[1] : (Δ[1] : SSet.{u}).Subcomplex).obj (op ⦋k⦌)) (s t : Fin (k + 1)) :
+    a s = a t := by
+  by_contra h
+  apply ha
+  intro y
+  have hy : y = a s ∨ y = a t := by
+    have := y.isLt; have := (a s).isLt; have := (a t).isLt
+    rw [Fin.ext_iff, Fin.ext_iff]; rw [Fin.ext_iff] at h; omega
+  rcases hy with rfl | rfl
+  · exact ⟨s, rfl⟩
+  · exact ⟨t, rfl⟩
+
+lemma not_strictMono_of_const {k : ℕ} (hk : 2 ≤ k) (f : Fin (k + 1) → Fin 2 × Fin 2)
+    (hf : (∀ s t, (f s).2 = (f t).2) ∨ (∀ s t, (f s).1 = (f t).1)) : ¬ StrictMono f := by
+  intro h
+  have h₁ := h (show (⟨0, by omega⟩ : Fin (k + 1)) < ⟨1, by omega⟩ from Fin.mk_lt_mk.2 (by omega))
+  have h₂ := h (show (⟨1, by omega⟩ : Fin (k + 1)) < ⟨2, by omega⟩ from Fin.mk_lt_mk.2 (by omega))
+  rw [Prod.lt_iff] at h₁ h₂
+  rcases hf with hf | hf
+  · rw [hf ⟨0, by omega⟩ ⟨1, by omega⟩] at h₁
+    rw [hf ⟨1, by omega⟩ ⟨2, by omega⟩] at h₂
+    simp only [lt_self_iff_false, and_false, or_false] at h₁ h₂
+    have := (f ⟨2, by omega⟩).1.isLt
+    rw [Fin.lt_def] at h₁ h₂
+    omega
+  · rw [hf ⟨0, by omega⟩ ⟨1, by omega⟩] at h₁
+    rw [hf ⟨1, by omega⟩ ⟨2, by omega⟩] at h₂
+    simp only [lt_self_iff_false, false_and, false_or] at h₁ h₂
+    have := (f ⟨2, by omega⟩).2.isLt
+    rw [Fin.lt_def] at h₁ h₂
+    omega
+
+open MonoidalCategory in
+/-- `ALGD-C2-SIMPLEX-42` (例 42, p.45–46).
+`Sk_0(Δ^1) = ∂Δ^1` (two points); `Sk_0(Δ^1 × Δ^1) = Sk_0(Δ^1) × Sk_0(Δ^1)`, and the union
+`X = Δ^1 × Sk_0(Δ^1) ∪ Sk_0(Δ^1) × Δ^1` is the pushout of its two pieces over their
+intersection `Sk_0(Δ^1 × Δ^1)`; `dim X ≤ 1`. -/
+theorem square_boundary :
+    Subcomplex.range (skCounit 0 (Δ[1] : SSet.{u})) = ∂Δ[1] ∧
+    (∂Δ[1] : (Δ[1] : SSet.{u}).Subcomplex).prod ∂Δ[1] =
+      Subcomplex.range (skCounit 0 ((Δ[1] : SSet.{u}) ⊗ Δ[1])) ∧
+    IsPushout
+      (Subcomplex.homOfLE (Subcomplex.unionProd.bicartSq (∂Δ[1] : (Δ[1] : SSet.{u}).Subcomplex)
+        ∂Δ[1]).le₁₂)
+      (Subcomplex.homOfLE (Subcomplex.unionProd.bicartSq (∂Δ[1] : (Δ[1] : SSet.{u}).Subcomplex)
+        ∂Δ[1]).le₁₃)
+      (Subcomplex.homOfLE (Subcomplex.unionProd.bicartSq (∂Δ[1] : (Δ[1] : SSet.{u}).Subcomplex)
+        ∂Δ[1]).le₂₄)
+      (Subcomplex.homOfLE (Subcomplex.unionProd.bicartSq (∂Δ[1] : (Δ[1] : SSet.{u}).Subcomplex)
+        ∂Δ[1]).le₃₄) ∧
+    ((∂Δ[1] : (Δ[1] : SSet.{u}).Subcomplex).unionProd ∂Δ[1] : SSet.{u}).HasDimensionLE 1 := by
+  refine ⟨range_skCounit_stdSimplex 0, ?_, (Subcomplex.unionProd.bicartSq _ _).isPushout, ?_⟩
+  · rw [range_skCounit]
+    apply le_antisymm
+    · rw [Subcomplex.le_iff_contains_nonDegenerate]
+      intro k x hx
+      cases k with
+      | zero => exact mem_skeleton _ _ (by omega)
+      | succ k =>
+        exfalso
+        rw [Subcomplex.prod_obj] at hx
+        have h := (prodStdSimplex.nonDegenerate_iff_strictMono_objEquiv x.1).1 x.2
+          (show (0 : Fin (k + 2)) < 1 from Fin.zero_lt_one)
+        have e : prodStdSimplex.objEquiv x.1 0 = prodStdSimplex.objEquiv x.1 1 :=
+          Prod.ext (boundary_one_eq hx.1 0 1) (boundary_one_eq hx.2 0 1)
+        exact lt_irrefl _ (e ▸ h)
+    · change (⨆ (i : Fin 1) (x : ((Δ[1] : SSet.{u}) ⊗ Δ[1]).nonDegenerate i),
+        Subcomplex.ofSimplex x.1) ≤ _
+      refine iSup₂_le fun i x ↦ (Subcomplex.ofSimplex_le_iff _ _).2 ?_
+      obtain ⟨i, hi⟩ := i
+      obtain rfl : i = 0 := by omega
+      rw [Subcomplex.prod_obj, boundary_obj_eq_univ 0 1 (by omega)]
+      exact ⟨trivial, trivial⟩
+  · refine ⟨fun k hk ↦ Set.eq_univ_of_forall fun z ↦ ?_⟩
+    by_contra hdeg
+    have hz' := (mem_nonDegenerate_iff_notMem_degenerate _ _).2 hdeg
+    rw [← nonDegenerate_iff_of_mono (Subcomplex.ι _),
+      prodStdSimplex.nonDegenerate_iff_strictMono_objEquiv] at hz'
+    obtain ⟨z, hz⟩ := z
+    change StrictMono (prodStdSimplex.objEquiv z) at hz'
+    refine not_strictMono_of_const (by omega) _ ?_ hz'
+    rcases hz with hz | hz <;> rw [Subcomplex.prod_obj] at hz
+    · exact Or.inl fun s t ↦ boundary_one_eq hz.2 s t
+    · exact Or.inr fun s t ↦ boundary_one_eq hz.1 s t
+
+end Skeleta
+
+section NerveCharacterization
+
+variable {X : SSet.{u}}
+
+lemma δ_yonedaEquiv {n : ℕ} (x : Δ[n + 1] ⟶ X) (i : Fin (n + 2)) :
+    X.δ i (yonedaEquiv x) = yonedaEquiv (stdSimplex.δ i ≫ x) :=
+  yonedaEquiv_naturality _ _
+
+lemma two_simplex_ext
+    (hX : ∀ f : (Λ[2, 1] : SSet.{u}) ⟶ X, ∃! h : Δ[2] ⟶ X, Λ[2, 1].ι ≫ h = f)
+    {x y : X _⦋2⦌} (h₂ : X.δ 2 x = X.δ 2 y) (h₀ : X.δ 0 x = X.δ 0 y) : x = y := by
+  obtain ⟨_, _, hu⟩ := hX (Λ[2, 1].ι ≫ yonedaEquiv.symm y)
+  have hx : Λ[2, 1].ι ≫ yonedaEquiv.symm x = Λ[2, 1].ι ≫ yonedaEquiv.symm y := by
+    apply horn₂₁.isPushout.hom_ext
+    · rw [← Category.assoc, ← Category.assoc, horn.ι_ι, stdSimplex.δ_comp_yonedaEquiv_symm,
+        stdSimplex.δ_comp_yonedaEquiv_symm, h₂]
+    · rw [← Category.assoc, ← Category.assoc, horn.ι_ι, stdSimplex.δ_comp_yonedaEquiv_symm,
+        stdSimplex.δ_comp_yonedaEquiv_symm, h₀]
+  exact yonedaEquiv.symm.injective ((hu _ hx).trans (hu _ rfl).symm)
+
+lemma exists_two_simplex
+    (hX : ∀ f : (Λ[2, 1] : SSet.{u}) ⟶ X, ∃! h : Δ[2] ⟶ X, Λ[2, 1].ι ≫ h = f)
+    {e e' : X _⦋1⦌} (h : X.δ 0 e = X.δ 1 e') : ∃ x : X _⦋2⦌, X.δ 2 x = e ∧ X.δ 0 x = e' := by
+  obtain ⟨φ, ⟨h₁, h₂⟩, -⟩ := existsUnique_of_isPushout horn₂₁.isPushout e e'
+    (by rw [stdSimplex.δ_comp_yonedaEquiv_symm, stdSimplex.δ_comp_yonedaEquiv_symm, h])
+  obtain ⟨H, hH, -⟩ := hX φ
+  refine ⟨yonedaEquiv H, ?_, ?_⟩
+  · rw [δ_yonedaEquiv, ← h₁, ← hH, ← Category.assoc, horn.ι_ι]
+  · rw [δ_yonedaEquiv, ← h₂, ← hH, ← Category.assoc, horn.ι_ι]
+
+lemma exists_three_simplex
+    (hX : ∀ f : (Λ[3, 2] : SSet.{u}) ⟶ X, ∃ h : Δ[3] ⟶ X, Λ[3, 2].ι ≫ h = f)
+    {x₀ x₁ x₃ : X _⦋2⦌} (h01 : X.δ 0 x₀ = X.δ 0 x₁) (h03 : X.δ 2 x₀ = X.δ 0 x₃)
+    (h13 : X.δ 2 x₁ = X.δ 1 x₃) :
+    ∃ x : X _⦋3⦌, X.δ 0 x = x₀ ∧ X.δ 1 x = x₁ ∧ X.δ 3 x = x₃ := by
+  let fam : Fin 4 → X _⦋2⦌ := ![x₀, x₁, x₀, x₃]
+  have hf : horn.IsCompatible (fun (j : Fin 4) (_ : j ≠ 2) ↦ yonedaEquiv.symm (fam j)) := by
+    rw [horn.isCompatible_iff]
+    intro j k hj hk hjk
+    simp only [stdSimplex.δ_comp_yonedaEquiv_symm]
+    congr 1
+    fin_cases j <;> fin_cases k
+    all_goals first
+      | exact absurd hjk (by decide)
+      | exact absurd rfl hj
+      | exact absurd rfl hk
+      | exact h01
+      | exact h03
+      | exact h13
+  obtain ⟨φ, hφ⟩ := hf.exists_desc
+  obtain ⟨H, hH⟩ := hX φ
+  have key : ∀ (j : Fin 4) (hj : j ≠ 2), X.δ j (yonedaEquiv H) = fam j := fun j hj ↦ by
+    rw [δ_yonedaEquiv, ← horn.ι_ι 2 j hj, Category.assoc, hH, hφ, Equiv.apply_symm_apply]
+  exact ⟨_, key 0 (by decide), key 1 (by decide), key 3 (by decide)⟩
+
+variable (X) in
+/-- The hypotheses of 定理 49 in the form used for the construction: unique fillers of
+`Λ^{2,1}` and fillers of `Λ^{3,2}`. -/
+structure NerveData : Prop where
+  two : ∀ f : (Λ[2, 1] : SSet.{u}) ⟶ X, ∃! h : Δ[2] ⟶ X, Λ[2, 1].ι ≫ h = f
+  three : ∀ f : (Λ[3, 2] : SSet.{u}) ⟶ X, ∃ h : Δ[3] ⟶ X, Λ[3, 2].ι ≫ h = f
+
+/-- The objects of the category of 定理 49: `X_0`. -/
+@[nolint unusedArguments]
+def NerveCat (X : SSet.{u}) (_ : NerveData X) : Type u := X _⦋0⦌
+
+namespace NerveCat
+
+variable {hX : NerveData X}
+
+/-- A morphism `a → b` is an `e ∈ X_1` with `d_1 e = a` and `d_0 e = b`. -/
+def Hom (a b : NerveCat X hX) : Type u := {e : X _⦋1⦌ // X.δ 1 e = a ∧ X.δ 0 e = b}
+
+/-- The 2-simplex filling the horn `a → b → c`. -/
+noncomputable def fill {a b c : NerveCat X hX} (e : Hom a b) (e' : Hom b c) : X _⦋2⦌ :=
+  (exists_two_simplex hX.two (e.2.2.trans e'.2.1.symm)).choose
+
+lemma fill_δ₂ {a b c : NerveCat X hX} (e : Hom a b) (e' : Hom b c) : X.δ 2 (fill e e') = e.1 :=
+  (exists_two_simplex hX.two (e.2.2.trans e'.2.1.symm)).choose_spec.1
+
+lemma fill_δ₀ {a b c : NerveCat X hX} (e : Hom a b) (e' : Hom b c) : X.δ 0 (fill e e') = e'.1 :=
+  (exists_two_simplex hX.two (e.2.2.trans e'.2.1.symm)).choose_spec.2
+
+lemma fill_eq {a b c : NerveCat X hX} (e : Hom a b) (e' : Hom b c) (x : X _⦋2⦌)
+    (h₂ : X.δ 2 x = e.1) (h₀ : X.δ 0 x = e'.1) : fill e e' = x :=
+  two_simplex_ext hX.two ((fill_δ₂ e e').trans h₂.symm) ((fill_δ₀ e e').trans h₀.symm)
+
+/-- Composition: `g ∘ f := d_1` of the filler of the horn `(f, g)`. -/
+noncomputable def comp {a b c : NerveCat X hX} (e : Hom a b) (e' : Hom b c) : Hom a c :=
+  ⟨X.δ 1 (fill e e'),
+    (δ_comp_δ_apply (i := 1) (j := 1) le_rfl (fill e e')).symm.trans
+      ((congr_arg (fun y ↦ X.δ 1 y) (fill_δ₂ e e')).trans e.2.1),
+    (δ_comp_δ_apply (i := 0) (j := 0) le_rfl (fill e e')).trans
+      ((congr_arg (fun y ↦ X.δ 0 y) (fill_δ₀ e e')).trans e'.2.2)⟩
+
+lemma comp_val {a b c : NerveCat X hX} (e : Hom a b) (e' : Hom b c) (x : X _⦋2⦌)
+    (h₂ : X.δ 2 x = e.1) (h₀ : X.δ 0 x = e'.1) : (comp e e').1 = X.δ 1 x := by
+  rw [← fill_eq e e' x h₂ h₀]
+  rfl
+
+/-- The identity of `a` is `s_0 a`. -/
+def id (a : NerveCat X hX) : Hom a a :=
+  ⟨X.σ 0 a, δ_comp_σ_succ_apply (i := 0) a, δ_comp_σ_self_apply (i := 0) a⟩
+
+noncomputable instance : Category (NerveCat X hX) where
+  Hom := Hom
+  id := id
+  comp := comp
+  id_comp {a b} e := Subtype.ext <|
+    (comp_val (id a) e (X.σ 0 e.1)
+      ((δ_comp_σ_of_gt_apply (i := 1) (j := 0) (by decide) e.1).trans
+        (congr_arg (fun y ↦ X.σ 0 y) e.2.1))
+      (δ_comp_σ_self_apply (i := 0) e.1)).trans (δ_comp_σ_succ_apply (i := 0) e.1)
+  comp_id {a b} e := Subtype.ext <|
+    (comp_val e (id b) (X.σ 1 e.1) (δ_comp_σ_succ_apply (i := 1) e.1)
+      ((δ_comp_σ_of_le_apply (i := 0) (j := 0) (by decide) e.1).trans
+        (congr_arg (fun y ↦ X.σ 0 y) e.2.2))).trans (δ_comp_σ_self_apply (i := 1) e.1)
+  assoc {a b c d} e e' e'' := Subtype.ext <| by
+    obtain ⟨x, h₀, h₁, h₃⟩ := exists_three_simplex hX.three
+      (x₀ := fill e' e'') (x₁ := fill (comp e e') e'') (x₃ := fill e e')
+      ((fill_δ₀ _ _).trans (fill_δ₀ _ _).symm) ((fill_δ₂ _ _).trans (fill_δ₀ _ _).symm)
+      (fill_δ₂ _ _)
+    have hu₂ : X.δ 2 (X.δ 2 x) = e.1 :=
+      (δ_comp_δ_apply (i := 2) (j := 2) le_rfl x).symm.trans
+        ((congr_arg (fun y ↦ X.δ 2 y) h₃).trans (fill_δ₂ e e'))
+    have hu₀ : X.δ 0 (X.δ 2 x) = (comp e' e'').1 :=
+      (δ_comp_δ_apply (i := 0) (j := 1) (by decide) x).trans (congr_arg (fun y ↦ X.δ 1 y) h₀)
+    change (comp (comp e e') e'').1 = (comp e (comp e' e'')).1
+    rw [comp_val e (comp e' e'') (X.δ 2 x) hu₂ hu₀]
+    exact (congr_arg (fun y ↦ X.δ 1 y) h₁.symm).trans
+      (δ_comp_δ_apply (i := 1) (j := 1) le_rfl x).symm
+
+lemma hom_val {a b : NerveCat X hX} (e : a ⟶ b) : X.δ 1 e.1 = a ∧ X.δ 0 e.1 = b := e.2
+
+end NerveCat
+
+namespace NerveCat
+
+variable (hX : NerveData X)
+
+/-- The vertex `a` of `x ∈ X_n`, as an object of the category. -/
+abbrev vertex {n : ℕ} (x : X _⦋n⦌) (a : Fin (n + 1)) : NerveCat X hX :=
+  X.map (SimplexCategory.const ⦋0⦌ ⦋n⦌ a).op x
+
+lemma map_map {a b c : ℕ} (f : ⦋a⦌ ⟶ ⦋b⦌) (g : ⦋b⦌ ⟶ ⦋c⦌) (x : X _⦋c⦌) :
+    X.map f.op (X.map g.op x) = X.map (f ≫ g).op x := by
+  rw [op_comp, Functor.map_comp, ConcreteCategory.comp_apply]
+
+/-- The edge from `a` to `b` of `x ∈ X_n`, as a morphism of the category. -/
+def edge {n : ℕ} (x : X _⦋n⦌) {a b : Fin (n + 1)} (h : a ≤ b) :
+    vertex hX x a ⟶ vertex hX x b :=
+  ⟨X.map (mkOfLe a b h).op x,
+    (map_map _ _ x).trans (congr_arg (fun f : ⦋0⦌ ⟶ ⦋n⦌ ↦ X.map f.op x)
+      (by ext i; fin_cases i; rfl)),
+    (map_map _ _ x).trans (congr_arg (fun f : ⦋0⦌ ⟶ ⦋n⦌ ↦ X.map f.op x)
+      (by ext i; fin_cases i; rfl))⟩
+
+lemma edge_val {n : ℕ} (x : X _⦋n⦌) {a b : Fin (n + 1)} (h : a ≤ b) :
+    (edge hX x h).1 = X.map (mkOfLe a b h).op x := rfl
+
+lemma edge_refl {n : ℕ} (x : X _⦋n⦌) (a : Fin (n + 1)) : edge hX x (le_refl a) = 𝟙 _ := by
+  apply Subtype.ext
+  change X.map (mkOfLe a a le_rfl).op x = X.σ 0 (X.map (SimplexCategory.const ⦋0⦌ ⦋n⦌ a).op x)
+  exact (congr_arg (fun f : ⦋1⦌ ⟶ ⦋n⦌ ↦ X.map f.op x) (by ext i; fin_cases i <;> rfl)).trans
+    (map_map (SimplexCategory.σ 0) _ x).symm
+
+lemma edge_trans {n : ℕ} (x : X _⦋n⦌) {a b c : Fin (n + 1)} (h₁ : a ≤ b) (h₂ : b ≤ c) :
+    edge hX x (h₁.trans h₂) = edge hX x h₁ ≫ edge hX x h₂ := by
+  apply Subtype.ext
+  refine Eq.trans ?_ (comp_val (edge hX x h₁) (edge hX x h₂)
+    (X.map (mkOfLeComp a b c h₁ h₂).op x) ?_ ?_).symm
+  · exact (congr_arg (fun f : ⦋1⦌ ⟶ ⦋n⦌ ↦ X.map f.op x) (by ext i; fin_cases i <;> rfl)).trans
+      (map_map _ _ x).symm
+  · exact (map_map _ _ x).trans
+      (congr_arg (fun f : ⦋1⦌ ⟶ ⦋n⦌ ↦ X.map f.op x) (by ext i; fin_cases i <;> rfl))
+  · exact (map_map _ _ x).trans
+      (congr_arg (fun f : ⦋1⦌ ⟶ ⦋n⦌ ↦ X.map f.op x) (by ext i; fin_cases i <;> rfl))
+
+/-- `x ∈ X_n` as a diagram `[n] → C`: the vertices of `x` and its edges. -/
+def toFunctor {n : ℕ} (x : X _⦋n⦌) : Fin (n + 1) ⥤ NerveCat X hX where
+  obj := vertex hX x
+  map f := edge hX x (leOfHom f)
+  map_id a := edge_refl hX x a
+  map_comp f g := edge_trans hX x (leOfHom f) (leOfHom g)
+
+lemma hom_eq_of_val {a a' b b' : NerveCat X hX} (f : a ⟶ b) (g : a' ⟶ b') (ha : a = a')
+    (hb : b = b') (h : f.1 = g.1) : f = eqToHom ha ≫ g ≫ eqToHom hb.symm := by
+  subst ha hb
+  simp only [eqToHom_refl, Category.id_comp, Category.comp_id]
+  exact Subtype.ext h
+
+lemma toFunctor_map {m n : ℕ} (β : ⦋m⦌ ⟶ ⦋n⦌) (x : X _⦋n⦌) :
+    toFunctor hX (X.map β.op x) = (toCat.map β).toFunctor ⋙ toFunctor hX x := by
+  have hobj : ∀ a, (toFunctor hX (X.map β.op x)).obj a =
+      ((toCat.map β).toFunctor ⋙ toFunctor hX x).obj a := fun a ↦
+    (map_map _ _ x).trans
+      (congr_arg (fun f : ⦋0⦌ ⟶ ⦋n⦌ ↦ X.map f.op x) (SimplexCategory.const_comp _ _ _))
+  refine CategoryTheory.Functor.ext hobj fun a b f ↦ hom_eq_of_val hX _ _ (hobj a) (hobj b) ?_
+  exact (map_map _ _ x).trans
+    (congr_arg (fun f : ⦋1⦌ ⟶ ⦋n⦌ ↦ X.map f.op x) (by ext i; fin_cases i <;> rfl))
+
+/-- The morphism `f : X → NC` of the proof of 定理 49: `x ↦ (a₀ → ⋯ → aₙ)`, the vertices and
+edges of `x`. -/
+def toNerve : X ⟶ nerve (NerveCat X hX) where
+  app n := ↾fun x ↦ (toFunctor hX (n := n.unop.len) x : ComposableArrows _ _)
+  naturality {n m} f := by
+    ext x
+    exact toFunctor_map hX f.unop x
+
+lemma vertex_zero (x : X _⦋0⦌) : vertex hX x 0 = x := by
+  have h : SimplexCategory.const ⦋0⦌ ⦋0⦌ 0 = 𝟙 _ := by ext i; fin_cases i; rfl
+  change X.map (SimplexCategory.const ⦋0⦌ ⦋0⦌ 0).op x = x
+  rw [h, op_id, X.map_id]
+  rfl
+
+lemma bijective_app_zero : Function.Bijective ((toNerve hX).app (op ⦋0⦌)) := by
+  refine ⟨fun x y h ↦ ?_, fun (G : ComposableArrows (NerveCat X hX) 0) ↦ ⟨G.obj 0, ?_⟩⟩
+  · have := congr_arg (fun F : ComposableArrows (NerveCat X hX) 0 ↦ F.obj 0) h
+    exact (vertex_zero hX x).symm.trans (this.trans (vertex_zero hX y))
+  · exact ComposableArrows.ext₀ (vertex_zero hX _)
+
+lemma bijective_app_one : Function.Bijective ((toNerve hX).app (op ⦋1⦌)) := by
+  have hid : ∀ e : X _⦋1⦌, X.map (mkOfLe (0 : Fin 2) 1 (by decide)).op e = e := fun e ↦ by
+    have h : mkOfLe (0 : Fin 2) 1 (by decide) = 𝟙 _ := by ext i; fin_cases i <;> rfl
+    rw [h, op_id, X.map_id]
+    rfl
+  refine ⟨fun e e' h ↦ ?_, fun (G : ComposableArrows (NerveCat X hX) 1) ↦
+    ⟨(G.map' 0 1).1, ?_⟩⟩
+  · have := congr_arg (fun F : ComposableArrows (NerveCat X hX) 1 ↦ (F.map' 0 1).1) h
+    exact (hid e).symm.trans (this.trans (hid e'))
+  · let F : ComposableArrows (NerveCat X hX) 1 := toFunctor hX (G.map' 0 1).1
+    have hl : F.left = G.left :=
+      (congr_arg (fun f : ⦋0⦌ ⟶ ⦋1⦌ ↦ X.map f.op (G.map' 0 1).1) (by ext i; fin_cases i; rfl)).trans
+        (G.map' 0 1).2.1
+    have hr : F.right = G.right :=
+      (congr_arg (fun f : ⦋0⦌ ⟶ ⦋1⦌ ↦ X.map f.op (G.map' 0 1).1) (by ext i; fin_cases i; rfl)).trans
+        (G.map' 0 1).2.2
+    exact ComposableArrows.ext₁ hl hr (hom_eq_of_val hX _ _ hl hr (hid _))
+
+end NerveCat
+
+lemma post_injective {Y : SSet.{u}} (F : X ⟶ Y) {m : ℕ}
+    (hm : Function.Injective (F.app (op ⦋m⦌))) {a b : Δ[m] ⟶ X} (h : a ≫ F = b ≫ F) : a = b :=
+  yonedaEquiv.injective (hm (by rw [← yonedaEquiv_comp, ← yonedaEquiv_comp, h]))
+
+/-- Postcomposition with `F` is bijective on maps out of `Λ^{n+1,i}` if `F_n` is bijective and
+`F_m` is injective for `m < n`. -/
+lemma bijective_comp_horn {Y : SSet.{u}} (F : X ⟶ Y) {n : ℕ} (i : Fin (n + 2))
+    (hn : Function.Bijective (F.app (op ⦋n⦌)))
+    (hn' : ∀ m < n, Function.Injective (F.app (op ⦋m⦌))) :
+    Function.Bijective (fun φ : (Λ[n + 1, i] : SSet.{u}) ⟶ X ↦ φ ≫ F) := by
+  refine ⟨fun φ ψ h ↦ horn.hom_ext' fun j hj ↦ post_injective F hn.1 ?_, fun g ↦ ?_⟩
+  · simp only [Category.assoc]
+    exact congr_arg (horn.ι i j hj ≫ ·) h
+  choose x hx using fun j (hj : j ≠ i) ↦ hn.2 (yonedaEquiv (horn.ι i j hj ≫ g))
+  let f : ∀ j, j ≠ i → (Δ[n] ⟶ X) := fun j hj ↦ yonedaEquiv.symm (x j hj)
+  have hf : ∀ j hj, f j hj ≫ F = horn.ι i j hj ≫ g := fun j hj ↦ by
+    apply yonedaEquiv.injective
+    rw [yonedaEquiv_comp, Equiv.apply_symm_apply, hx]
+  have hc : horn.IsCompatible f := by
+    cases n with
+    | zero => trivial
+    | succ m =>
+      rw [horn.isCompatible_iff]
+      intro j k hj hk hjk
+      have h' := (horn.IsCompatible.of_hom g).δ_pred_comp j k hj hk hjk
+      refine post_injective F (hn' m (by omega)) ?_
+      simp only [Category.assoc, hf]
+      exact h'
+  obtain ⟨φ, hφ⟩ := hc.exists_desc
+  exact ⟨φ, horn.hom_ext' fun j hj ↦ by rw [← Category.assoc, hφ, hf]⟩
+
+variable (X) in
+/-- Every inner horn has a unique filler. -/
+def UniqueInnerFillers : Prop :=
+  ∀ (n : ℕ) (k : Fin (n + 1)), 0 < k → k < Fin.last n →
+    ∀ f : (Λ[n, k] : SSet.{u}) ⟶ X, ∃! h : Δ[n] ⟶ X, Λ[n, k].ι ≫ h = f
+
+lemma uniqueInnerFillers_of_isStrictSegal [X.IsStrictSegal] [X.Quasicategory] :
+    UniqueInnerFillers X := by
+  intro n k h0 hl f
+  obtain _ | _ | n := n
+  · rw [Fin.lt_def] at h0; simp at h0
+  · rw [Fin.lt_def] at h0 hl; simp at h0 hl; omega
+  · obtain ⟨h, rfl⟩ := Quasicategory.hornFilling' f h0 hl
+    refine ⟨h, rfl, fun h' hh' ↦ hom_ext_of_isStrictSegal fun i ↦ ?_⟩
+    rw [← spineId_arrow_ι k h0 hl i]
+    have := congr_arg (fun φ ↦ φ.app (op ⦋1⦌) ((horn.spineId k h0 hl).arrow i)) hh'
+    simpa only [NatTrans.comp_app, ConcreteCategory.comp_apply] using this
+
+lemma UniqueInnerFillers.nerveData (hU : UniqueInnerFillers X) : NerveData X :=
+  ⟨hU 2 1 (by decide) (by decide), fun f ↦ (hU 3 2 (by decide) (by decide) f).exists⟩
+
+lemma isIso_toNerve (hU : UniqueInnerFillers X) : IsIso (NerveCat.toNerve hU.nerveData) := by
+  let F := NerveCat.toNerve hU.nerveData
+  have hY : UniqueInnerFillers (nerve (NerveCat X hU.nerveData)) :=
+    uniqueInnerFillers_of_isStrictSegal
+  have key : ∀ n, Function.Bijective (F.app (op ⦋n⦌)) := by
+    intro n
+    induction n using Nat.strong_induction_on with
+    | _ n ih =>
+      match n, ih with
+      | 0, _ => exact NerveCat.bijective_app_zero _
+      | 1, _ => exact NerveCat.bijective_app_one _
+      | m + 2, ih =>
+        have hΛ := bijective_comp_horn F (n := m + 1) 1 (ih (m + 1) (by omega))
+          fun k hk ↦ (ih k (by omega)).1
+        have h1 : (1 : Fin (m + 3)) < Fin.last (m + 2) := by
+          rw [Fin.lt_def, Fin.val_last, Fin.val_one]; omega
+        have hX' := (Function.bijective_iff_existsUnique
+          (fun h : Δ[m + 2] ⟶ X ↦ Λ[m + 2, 1].ι ≫ h)).2 (hU (m + 2) 1 Fin.zero_lt_one h1)
+        have hY' := (Function.bijective_iff_existsUnique
+          (fun h : Δ[m + 2] ⟶ nerve (NerveCat X hU.nerveData) ↦ Λ[m + 2, 1].ι ≫ h)).2
+            (hY (m + 2) 1 Fin.zero_lt_one h1)
+        have hpost : Function.Bijective (fun h : Δ[m + 2] ⟶ X ↦ h ≫ F) := by
+          have : (fun h : Δ[m + 2] ⟶ X ↦ h ≫ F) =
+              (Equiv.ofBijective _ hY').symm ∘ (fun φ ↦ φ ≫ F) ∘ (Equiv.ofBijective _ hX') := by
+            funext h
+            apply (Equiv.ofBijective _ hY').injective
+            simp [Category.assoc]
+          rw [this]
+          exact (Equiv.ofBijective _ hY').symm.bijective.comp
+            (hΛ.comp (Equiv.ofBijective _ hX').bijective)
+        have hF : ⇑(F.app (op ⦋m + 2⦌)) = yonedaEquiv ∘ (fun h ↦ h ≫ F) ∘ yonedaEquiv.symm := by
+          funext x
+          simp [yonedaEquiv_comp]
+        rw [hF]
+        exact yonedaEquiv.bijective.comp (hpost.comp yonedaEquiv.symm.bijective)
+  refine @NatIso.isIso_of_isIso_app _ _ _ _ _ _ _ fun ⟨n⟩ ↦ ?_
+  induction n using SimplexCategory.rec with | _ n => ?_
+  rw [isIso_iff_bijective]
+  exact key n
+
+lemma uniqueInnerFillers_of_iso {Y : SSet.{u}} (e : X ≅ Y) (hY : UniqueInnerFillers Y) :
+    UniqueInnerFillers X := by
+  intro n k h0 hl f
+  obtain ⟨h, hh, hu⟩ := hY n k h0 hl (f ≫ e.hom)
+  refine ⟨h ≫ e.inv, ?_, fun h' hh' ↦ ?_⟩
+  · change Λ[n, k].ι ≫ h ≫ e.inv = f
+    rw [← Category.assoc, hh, Category.assoc, e.hom_inv_id, Category.comp_id]
+  · change Λ[n, k].ι ≫ h' = f at hh'
+    have := hu (h' ≫ e.hom) (by change Λ[n, k].ι ≫ h' ≫ e.hom = _; rw [← Category.assoc, hh'])
+    rw [← this, Category.assoc, e.hom_inv_id, Category.comp_id]
+
+/-- `ALGD-C2-SIMPLEX-49` (定理 49, p.48–55).
+`X ≅ NC` for some small category `C` iff for `0 < k < n` every `f : Λ^{n,k} → X` extends uniquely
+along `inc : Λ^{n,k} → Δ^n`. -/
+theorem nerve_iff (X : SSet.{u}) :
+    (∃ (C : Type u) (_ : SmallCategory C), Nonempty (X ≅ nerve C)) ↔
+      ∀ (n : ℕ) (k : Fin (n + 1)), 0 < k → k < Fin.last n →
+        ∀ f : (Λ[n, k] : SSet.{u}) ⟶ X, ∃! h : Δ[n] ⟶ X, Λ[n, k].ι ≫ h = f := by
+  refine ⟨fun ⟨C, _, ⟨e⟩⟩ ↦ uniqueInnerFillers_of_iso e uniqueInnerFillers_of_isStrictSegal,
+    fun hU ↦ ⟨NerveCat X (UniqueInnerFillers.nerveData hU), inferInstance, ⟨?_⟩⟩⟩
+  have := isIso_toNerve hU
+  exact asIso (NerveCat.toNerve (UniqueInnerFillers.nerveData hU))
+
+/-- `ALGD-C2-SIMPLEX-R10` (prose, p.55).
+By 命題 48, a 2-coskeletal `X` is isomorphic to a nerve iff the horns `Λ^{2,1}`, `Λ^{3,1}` and
+`Λ^{3,2}` have unique fillers. -/
+theorem nerve_iff_of_isCoskeletal (X : SSet.{u}) [X.IsCoskeletal 2] :
+    (∃ (C : Type u) (_ : SmallCategory C), Nonempty (X ≅ nerve C)) ↔
+      (∀ f : (Λ[2, 1] : SSet.{u}) ⟶ X, ∃! h : Δ[2] ⟶ X, Λ[2, 1].ι ≫ h = f) ∧
+      (∀ f : (Λ[3, 1] : SSet.{u}) ⟶ X, ∃! h : Δ[3] ⟶ X, Λ[3, 1].ι ≫ h = f) ∧
+      (∀ f : (Λ[3, 2] : SSet.{u}) ⟶ X, ∃! h : Δ[3] ⟶ X, Λ[3, 2].ι ≫ h = f) := by
+  rw [nerve_iff]
+  refine ⟨fun hU ↦ ⟨hU 2 1 (by decide) (by decide), hU 3 1 (by decide) (by decide),
+    hU 3 2 (by decide) (by decide)⟩, fun ⟨h₂, h₃₁, h₃₂⟩ n k h0 hl f ↦ ?_⟩
+  rcases n with _ | _ | _ | _ | n
+  · rw [Fin.lt_def] at h0; simp at h0
+  · rw [Fin.lt_def] at h0 hl; simp at h0 hl; omega
+  · obtain rfl : k = 1 := by
+      rw [Fin.lt_def] at h0 hl; simp at h0 hl; exact Fin.ext (by simp; omega)
+    exact h₂ f
+  · fin_cases k
+    · exact absurd h0 (by decide)
+    · exact h₃₁ f
+    · exact h₃₂ f
+    · exact absurd hl (by decide)
+  · exact existsUnique_horn_filler (by omega) k f
+
+end NerveCharacterization
 
 /-! ## §6 Quasi-categories -/
 
@@ -947,5 +2081,85 @@ output is pinned with `#guard_msgs`, so `lake build` fails if it changes. -/
 /-- info: 'ProjectEpisteme.AlgD.Simplex.quasicategory_of_kanComplex_of_nerve' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms ProjectEpisteme.AlgD.Simplex.quasicategory_of_kanComplex_of_nerve
+
+/-- info: 'ProjectEpisteme.AlgD.Simplex.simplex_pictures' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.Simplex.simplex_pictures
+
+/-- info: 'ProjectEpisteme.AlgD.Simplex.gamma_composite' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.Simplex.gamma_composite
+
+/-- info: 'ProjectEpisteme.AlgD.Simplex.nerve_horn_hom_ext' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.Simplex.nerve_horn_hom_ext
+
+/-- info: 'ProjectEpisteme.AlgD.Simplex.horn_three_examples' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.Simplex.horn_three_examples
+
+/-- info: 'ProjectEpisteme.AlgD.Simplex.prod_degenerate_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.Simplex.prod_degenerate_iff
+
+/-- info: 'ProjectEpisteme.AlgD.Simplex.stdSimplex_one_prod_one' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.Simplex.stdSimplex_one_prod_one
+
+/-- info: 'ProjectEpisteme.AlgD.Simplex.stdSimplex_one_prod_two' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.Simplex.stdSimplex_one_prod_two
+
+/-- info: 'ProjectEpisteme.AlgD.Simplex.sk_hasDimensionLE' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.Simplex.sk_hasDimensionLE
+
+/-- info: 'ProjectEpisteme.AlgD.Simplex.mono_skCounit' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.Simplex.mono_skCounit
+
+/-- info: 'ProjectEpisteme.AlgD.Simplex.isSkeletal_iff_hasDimensionLE' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.Simplex.isSkeletal_iff_hasDimensionLE
+
+/-- info: 'ProjectEpisteme.AlgD.Simplex.isIso_of_bijective_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.Simplex.isIso_of_bijective_le
+
+/-- info: 'ProjectEpisteme.AlgD.Simplex.sk_eq_generated' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.Simplex.sk_eq_generated
+
+/-- info: 'ProjectEpisteme.AlgD.Simplex.sk_chain' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.Simplex.sk_chain
+
+/-- info: 'ProjectEpisteme.AlgD.Simplex.range_skCounit_stdSimplex' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.Simplex.range_skCounit_stdSimplex
+
+/-- info: 'ProjectEpisteme.AlgD.Simplex.exists_factor_skCounit' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.Simplex.exists_factor_skCounit
+
+/-- info: 'ProjectEpisteme.AlgD.Simplex.isPushout_of_app' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.Simplex.isPushout_of_app
+
+/-- info: 'ProjectEpisteme.AlgD.Simplex.sk_isPushout' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.Simplex.sk_isPushout
+
+/-- info: 'ProjectEpisteme.AlgD.Simplex.square_boundary' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.Simplex.square_boundary
+
+/-- info: 'ProjectEpisteme.AlgD.Simplex.nerve_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.Simplex.nerve_iff
+
+/-- info: 'ProjectEpisteme.AlgD.Simplex.nerve_iff_of_isCoskeletal' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ProjectEpisteme.AlgD.Simplex.nerve_iff_of_isCoskeletal
 
 end ProjectEpisteme.AlgD.Simplex

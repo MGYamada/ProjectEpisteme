@@ -16,10 +16,10 @@ This report counts the rows of the [alg-d ledgers](ledger/algd/) against the [so
 | --- | --- | --- | --- | --- | --- |
 | Chapter 0 | 8 / 8 | 120 / 120 | 189 | 0 | 2 |
 | Chapter 1 | 5 / 5 | 121 / 121 | 175 | 154 | 0 |
-| Chapter 2 | 6 / 10 | 155 / 203 | 241 | 199 | 0 |
-| **Chapters 0–2** | **19 / 23** | **396 / 444** | **605** | **353** | **2** |
+| Chapter 2 | 6 / 10 | 155 / 203 | 241 | 226 | 0 |
+| **Chapters 0–2** | **19 / 23** | **396 / 444** | **605** | **380** | **2** |
 
-Verified main-text items: **353** (235 numbered items and 118 definitions or prose claims). Exercises cataloged: **2**.
+Verified main-text items: **380** (257 numbered items and 123 definitions or prose claims). Exercises cataloged: **2**.
 <!-- END GENERATED: summary -->
 
 The two Chapter 0 exercises are ALGD-C0-CDIAG-E01 and -E02. They will be proved in a later phase.
@@ -51,8 +51,8 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | [C2-END](ledger/algd/C2-END.md) | 21 | 9 (9 + 0) | 6 | 6 | 0 | 0 | 2 | 6 | 13 | 0 | 0 | 21 |
 | [C2-FILTERED](ledger/algd/C2-FILTERED.md) | 27 | 15 (15 + 0) | 9 | 3 | 0 | 0 | 6 | 9 | 9 | 0 | 3 | 24 |
 | [C2-KAN](ledger/algd/C2-KAN.md) | 72 | 55 (47 + 8) | 12 | 5 | 0 | 0 | 23 | 11 | 31 | 0 | 7 | 65 |
-| [C2-SIMPLEX](ledger/algd/C2-SIMPLEX.md) | 79 | 50 (44 + 6) | 18 | 11 | 0 | 27 | 13 | 17 | 18 | 0 | 4 | 48 |
-| **Chapter 2** | **241** | **155 (140 + 15)** | **56** | **30** | **0** | **27** | **49** | **61** | **89** | **0** | **15** | **199** |
+| [C2-SIMPLEX](ledger/algd/C2-SIMPLEX.md) | 79 | 50 (44 + 6) | 18 | 11 | 0 | 0 | 13 | 20 | 42 | 0 | 4 | 75 |
+| **Chapter 2** | **241** | **155 (140 + 15)** | **56** | **30** | **0** | **0** | **49** | **64** | **113** | **0** | **15** | **226** |
 <!-- END GENERATED: by-document -->
 
 ## Verified declarations
@@ -382,11 +382,22 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | ALGD-C2-SIMPLEX-06 | `ProjectEpisteme.AlgD.Simplex.face_generated` | bridged |
 | ALGD-C2-SIMPLEX-D07 | `ProjectEpisteme.AlgD.Simplex.boundary_eq_generated` | bridged |
 | ALGD-C2-SIMPLEX-D08 | `ProjectEpisteme.AlgD.Simplex.horn_eq_generated` | bridged |
+| ALGD-C2-SIMPLEX-07 | `ProjectEpisteme.AlgD.Simplex.IsDownClosed` | new-proved |
+| ALGD-C2-SIMPLEX-D09 | `ProjectEpisteme.AlgD.Simplex.simplexSub_spec` | bridged |
+| ALGD-C2-SIMPLEX-08 | `ProjectEpisteme.AlgD.Simplex.realMap_face` | new-proved |
+| ALGD-C2-SIMPLEX-09 | `ProjectEpisteme.AlgD.Simplex.realMap_homOfLE` | new-proved |
+| ALGD-C2-SIMPLEX-10 | `ProjectEpisteme.AlgD.Simplex.realMap_simplexSub` | new-proved |
+| ALGD-C2-SIMPLEX-11 | `ProjectEpisteme.AlgD.Simplex.boundary_realization_sphere` | new-proved |
 | ALGD-C2-SIMPLEX-D10 | `ProjectEpisteme.AlgD.Simplex.kanComplex_iff` | bridged |
+| ALGD-C2-SIMPLEX-12 | `ProjectEpisteme.AlgD.Simplex.sing_kanComplex` | new-proved |
 | ALGD-C2-SIMPLEX-R04 | `ProjectEpisteme.AlgD.Simplex.nerve_faces` | existing |
+| ALGD-C2-SIMPLEX-R05 | `ProjectEpisteme.AlgD.Simplex.simplex_pictures` | new-proved |
 | ALGD-C2-SIMPLEX-D11 | `ProjectEpisteme.AlgD.Simplex.gamma_spec` | bridged |
+| ALGD-C2-SIMPLEX-R06 | `ProjectEpisteme.AlgD.Simplex.gamma_composite` | new-proved |
 | ALGD-C2-SIMPLEX-13 | `ProjectEpisteme.AlgD.Simplex.nerve_hom_ext` | bridged |
 | ALGD-C2-SIMPLEX-14 | `ProjectEpisteme.AlgD.Simplex.nerve_three_simplex` | new-proved |
+| ALGD-C2-SIMPLEX-15 | `ProjectEpisteme.AlgD.Simplex.horn_three_examples` | new-proved |
+| ALGD-C2-SIMPLEX-17 | `ProjectEpisteme.AlgD.Simplex.nerve_horn_hom_ext` | bridged |
 | ALGD-C2-SIMPLEX-D12 | `ProjectEpisteme.AlgD.Simplex.IsAbsoluteColimit` | new-proved |
 | ALGD-C2-SIMPLEX-18 | `ProjectEpisteme.AlgD.Simplex.isAbsolutePushout_of_sections` | new-proved |
 | ALGD-C2-SIMPLEX-D13 | `ProjectEpisteme.AlgD.Simplex.degenerate_spec` | bridged |
@@ -398,12 +409,26 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | ALGD-C2-SIMPLEX-23 | `ProjectEpisteme.AlgD.Simplex.nonDegenerate_map_of_bijective` | new-proved |
 | ALGD-C2-SIMPLEX-24 | `ProjectEpisteme.AlgD.Simplex.hasDimension_iff_of_iso` | existing |
 | ALGD-C2-SIMPLEX-25 | `ProjectEpisteme.AlgD.Simplex.hasDimensionLE_of_isColimit` | existing |
+| ALGD-C2-SIMPLEX-26 | `ProjectEpisteme.AlgD.Simplex.prod_degenerate_iff` | new-proved |
 | ALGD-C2-SIMPLEX-27 | `ProjectEpisteme.AlgD.Simplex.hasDimensionLE_prod` | existing |
+| ALGD-C2-SIMPLEX-28 | `ProjectEpisteme.AlgD.Simplex.stdSimplex_one_prod_one` | new-proved |
+| ALGD-C2-SIMPLEX-29 | `ProjectEpisteme.AlgD.Simplex.stdSimplex_one_prod_two` | new-proved |
 | ALGD-C2-SIMPLEX-D15 | `ProjectEpisteme.AlgD.Simplex.truncation_spec` | bridged |
 | ALGD-C2-SIMPLEX-R07 | `ProjectEpisteme.AlgD.Simplex.sk_cosk_idempotent` | new-proved |
 | ALGD-C2-SIMPLEX-30 | `ProjectEpisteme.AlgD.Simplex.isIso_skAdj_counit_app_app` | new-proved |
+| ALGD-C2-SIMPLEX-31 | `ProjectEpisteme.AlgD.Simplex.sk_hasDimensionLE` | new-proved |
+| ALGD-C2-SIMPLEX-32 | `ProjectEpisteme.AlgD.Simplex.mono_skCounit` | new-proved |
 | ALGD-C2-SIMPLEX-D16 | `ProjectEpisteme.AlgD.Simplex.isSkeletal_iff` | new-proved |
 | ALGD-C2-SIMPLEX-34 | `ProjectEpisteme.AlgD.Simplex.isSkeletal_iff` | new-proved |
+| ALGD-C2-SIMPLEX-35 | `ProjectEpisteme.AlgD.Simplex.isSkeletal_iff_hasDimensionLE` | new-proved |
+| ALGD-C2-SIMPLEX-36 | `ProjectEpisteme.AlgD.Simplex.isIso_of_bijective_le` | new-proved |
+| ALGD-C2-SIMPLEX-37 | `ProjectEpisteme.AlgD.Simplex.sk_eq_generated` | new-proved |
+| ALGD-C2-SIMPLEX-R08 | `ProjectEpisteme.AlgD.Simplex.sk_chain` | new-proved |
+| ALGD-C2-SIMPLEX-38 | `ProjectEpisteme.AlgD.Simplex.range_skCounit_stdSimplex` | new-proved |
+| ALGD-C2-SIMPLEX-39 | `ProjectEpisteme.AlgD.Simplex.exists_factor_skCounit` | new-proved |
+| ALGD-C2-SIMPLEX-40 | `ProjectEpisteme.AlgD.Simplex.isPushout_of_app` | new-proved |
+| ALGD-C2-SIMPLEX-41 | `ProjectEpisteme.AlgD.Simplex.sk_isPushout` | bridged |
+| ALGD-C2-SIMPLEX-42 | `ProjectEpisteme.AlgD.Simplex.square_boundary` | new-proved |
 | ALGD-C2-SIMPLEX-R09 | `ProjectEpisteme.AlgD.Simplex.cosk_obj_equiv` | new-proved |
 | ALGD-C2-SIMPLEX-44 | `ProjectEpisteme.AlgD.Simplex.coskAdj_unit_app_app_eq` | new-proved |
 | ALGD-C2-SIMPLEX-45 | `ProjectEpisteme.AlgD.Simplex.isIso_coskAdj_unit_app_app` | new-proved |
@@ -411,6 +436,8 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | ALGD-C2-SIMPLEX-46 | `ProjectEpisteme.AlgD.Simplex.isCoskeletal_iff_exists` | new-proved |
 | ALGD-C2-SIMPLEX-47 | `ProjectEpisteme.AlgD.Simplex.nerve_isCoskeletal` | existing |
 | ALGD-C2-SIMPLEX-48 | `ProjectEpisteme.AlgD.Simplex.existsUnique_horn_filler` | new-proved |
+| ALGD-C2-SIMPLEX-49 | `ProjectEpisteme.AlgD.Simplex.nerve_iff` | new-proved |
+| ALGD-C2-SIMPLEX-R10 | `ProjectEpisteme.AlgD.Simplex.nerve_iff_of_isCoskeletal` | new-proved |
 | ALGD-C2-SIMPLEX-D18 | `ProjectEpisteme.AlgD.Simplex.quasicategory_iff` | bridged |
 | ALGD-C2-SIMPLEX-R11 | `ProjectEpisteme.AlgD.Simplex.quasicategory_of_kanComplex_of_nerve` | existing |
 <!-- END GENERATED: verified -->
@@ -430,7 +457,7 @@ These rows are expected to become `new-proved` or `blocked` rather than `existin
   - Kan extensions along a composite (AFT-04, -05), the left-adjoint form of the general adjoint functor theorem (AFT-10), well-copowered categories through quotient objects (AFT-D06, -15, -17) and adjoint functors from small dense subcategories (AFT-24). They are verified as new work or bridges.
   - Fubini's theorem for ends and the interchange of ends and of coends (END-04, -R01), and the (co)end formulas for pointwise Kan extensions (END-09, -R06). They are verified as new work.
   - Absolute colimits and the absolute pushouts of 補題 18 (SIMPLEX-D12, -18), the subset generated by a set of simplices (SIMPLEX-D06, -03, -04), n-skeletal simplicial sets and the idempotency of Sk_n ⊣ Csk_n (SIMPLEX-D16, -R07, -34), and unique horn fillers in 2-coskeletal simplicial sets (SIMPLEX-48). They are verified as new work.
-  - In SIMPLEX: \|∂Δ^n\| ≅ S^{n−1} (SIMPLEX-08–11), Sing(S) is a Kan complex (SIMPLEX-12, a TODO in mathlib), dim(Sk_n X) ≤ n and the identification of `SSet.sk` with mathlib's `skeleton` (SIMPLEX-31, a TODO in mathlib), and the characterization of nerves by unique inner horn fillers (SIMPLEX-49). They are deferred to the second SIMPLEX batch.
+  - In SIMPLEX: \|∂Δ^n\| ≅ S^{n−1} (SIMPLEX-08–11), Sing(S) is a Kan complex (SIMPLEX-12), Sk_n X ≅ X.skeleton (n + 1) and dim(Sk_n X) ≤ n (SIMPLEX-31, -37), and the characterization of nerves by unique inner horn fillers (SIMPLEX-49). They are verified as new work; three of them are TODOs in mathlib.
 - **Topology and algebra prerequisites**
   - π₁ as a functor on pointed spaces (INTRO-10, CONSTR-07).
   - Seifert–van Kampen for groupoids (FUNDGPD-10, -11).
