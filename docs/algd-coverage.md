@@ -16,10 +16,10 @@ This report counts the rows of the [alg-d ledgers](ledger/algd/) against the [so
 | --- | --- | --- | --- | --- | --- |
 | Chapter 0 | 8 / 8 | 120 / 120 | 189 | 0 | 2 |
 | Chapter 1 | 5 / 5 | 121 / 121 | 175 | 154 | 0 |
-| Chapter 2 | 6 / 10 | 155 / 203 | 241 | 226 | 0 |
-| **Chapters 0–2** | **19 / 23** | **396 / 444** | **605** | **380** | **2** |
+| Chapter 2 | 7 / 10 | 179 / 203 | 286 | 253 | 0 |
+| **Chapters 0–2** | **20 / 23** | **420 / 444** | **650** | **407** | **2** |
 
-Verified main-text items: **380** (257 numbered items and 123 definitions or prose claims). Exercises cataloged: **2**.
+Verified main-text items: **407** (273 numbered items and 134 definitions or prose claims). Exercises cataloged: **2**.
 <!-- END GENERATED: summary -->
 
 The two Chapter 0 exercises are ALGD-C0-CDIAG-E01 and -E02. They will be proved in a later phase.
@@ -51,8 +51,9 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | [C2-END](ledger/algd/C2-END.md) | 21 | 9 (9 + 0) | 6 | 6 | 0 | 0 | 2 | 6 | 13 | 0 | 0 | 21 |
 | [C2-FILTERED](ledger/algd/C2-FILTERED.md) | 27 | 15 (15 + 0) | 9 | 3 | 0 | 0 | 6 | 9 | 9 | 0 | 3 | 24 |
 | [C2-KAN](ledger/algd/C2-KAN.md) | 72 | 55 (47 + 8) | 12 | 5 | 0 | 0 | 23 | 11 | 31 | 0 | 7 | 65 |
+| [C2-SHEAF2](ledger/algd/C2-SHEAF2.md) | 45 | 24 (20 + 4) | 10 | 11 | 0 | 18 | 11 | 7 | 9 | 0 | 0 | 27 |
 | [C2-SIMPLEX](ledger/algd/C2-SIMPLEX.md) | 79 | 50 (44 + 6) | 18 | 11 | 0 | 0 | 13 | 20 | 42 | 0 | 4 | 75 |
-| **Chapter 2** | **241** | **155 (140 + 15)** | **56** | **30** | **0** | **0** | **49** | **64** | **113** | **0** | **15** | **226** |
+| **Chapter 2** | **286** | **179 (160 + 19)** | **66** | **41** | **0** | **18** | **60** | **71** | **122** | **0** | **15** | **253** |
 <!-- END GENERATED: by-document -->
 
 ## Verified declarations
@@ -365,6 +366,33 @@ Numbered counts the numbers 1..max, split into statements and labelled displays 
 | ALGD-C2-KAN-D12 | `ProjectEpisteme.AlgD.Kan.IsSmallProjective` | new-proved |
 | ALGD-C2-KAN-51 | `ProjectEpisteme.AlgD.Kan.presheafCategory_iff` | new-proved |
 | ALGD-C2-KAN-54 | `ProjectEpisteme.AlgD.Kan.over_presheaf_equivalence` | existing |
+| ALGD-C2-SHEAF2-01 | `ProjectEpisteme.AlgD.Kan.commutesWith_of_preservesColimit` | existing |
+| ALGD-C2-SHEAF2-02 | `ProjectEpisteme.AlgD.Kan.unit_isIso_of_fullyFaithful` | existing |
+| ALGD-C2-SHEAF2-03 | `ProjectEpisteme.AlgD.Kan.universal_adjunction` | new-proved |
+| ALGD-C2-SHEAF2-04 | `ProjectEpisteme.AlgD.Kan.restrictYoneda_isPointwise` | new-proved |
+| ALGD-C2-SHEAF2-05 | `ProjectEpisteme.AlgD.Kan.yoneda_lan_yoneda` | existing |
+| ALGD-C2-SHEAF2-06 | `ProjectEpisteme.AlgD.Kan.presheaf_colimit_of_representables` | existing |
+| ALGD-C2-SHEAF2-07 | `ProjectEpisteme.AlgD.Kan.over_presheaf_equivalence` | existing |
+| ALGD-C2-SHEAF2-D01 | `ProjectEpisteme.AlgD.Sheaf2.presheaf_def` | existing |
+| ALGD-C2-SHEAF2-R01 | `ProjectEpisteme.AlgD.Kan.pullback_pushforward` | existing |
+| ALGD-C2-SHEAF2-08 | `ProjectEpisteme.AlgD.Kan.pullback_obj_iso_colimit` | bridged |
+| ALGD-C2-SHEAF2-D02 | `ProjectEpisteme.AlgD.Sheaf2.stalkFunctor_iso_pullback` | bridged |
+| ALGD-C2-SHEAF2-R02 | `ProjectEpisteme.AlgD.Sheaf2.stalk_quotient` | bridged |
+| ALGD-C2-SHEAF2-D03 | `TopCat.Presheaf.germ` | existing |
+| ALGD-C2-SHEAF2-09 | `ProjectEpisteme.AlgD.Sheaf2.real_germ_eq_iff` | new-proved |
+| ALGD-C2-SHEAF2-10 | `ProjectEpisteme.AlgD.Sheaf2.stalk_yoneda` | new-proved |
+| ALGD-C2-SHEAF2-R03 | `ProjectEpisteme.AlgD.Sheaf2.stalk_map_germ` | existing |
+| ALGD-C2-SHEAF2-R04 | `ProjectEpisteme.AlgD.Sheaf2.stalk_yonedaEquiv` | new-proved |
+| ALGD-C2-SHEAF2-D04 | `ProjectEpisteme.AlgD.Sheaf2.toOver` | new-proved |
+| ALGD-C2-SHEAF2-R05 | `ProjectEpisteme.AlgD.Sheaf2.universal_adjunction_exists` | existing |
+| ALGD-C2-SHEAF2-11 | `ProjectEpisteme.AlgD.Sheaf2.sections_spec` | bridged |
+| ALGD-C2-SHEAF2-18 | `ProjectEpisteme.AlgD.Sheaf2.sections_isSheaf` | new-proved |
+| ALGD-C2-SHEAF2-19 | `ProjectEpisteme.AlgD.Sheaf2.sheafify_universal` | existing |
+| ALGD-C2-SHEAF2-20 | `ProjectEpisteme.AlgD.Sheaf2.sheafify_stalk` | bridged |
+| ALGD-C2-SHEAF2-22 | `ProjectEpisteme.AlgD.Sheaf2.locallyConstant_iff` | new-proved |
+| ALGD-C2-SHEAF2-D08 | `ProjectEpisteme.AlgD.Sheaf2.restrict_obj` | bridged |
+| ALGD-C2-SHEAF2-D09 | `ProjectEpisteme.AlgD.Sheaf2.IsLocallyConstantSheaf` | new-proved |
+| ALGD-C2-SHEAF2-24 | `ProjectEpisteme.AlgD.Sheaf2.skyscraper_spec` | bridged |
 | ALGD-C2-SIMPLEX-D01 | `ProjectEpisteme.AlgD.Simplex.toCat_fullSubcategory` | bridged |
 | ALGD-C2-SIMPLEX-D02 | `ProjectEpisteme.AlgD.Simplex.sSet_stdSimplex` | bridged |
 | ALGD-C2-SIMPLEX-R01 | `ProjectEpisteme.AlgD.Simplex.isColimit_stdSimplex` | existing |
@@ -458,6 +486,7 @@ These rows are expected to become `new-proved` or `blocked` rather than `existin
   - Fubini's theorem for ends and the interchange of ends and of coends (END-04, -R01), and the (co)end formulas for pointwise Kan extensions (END-09, -R06). They are verified as new work.
   - Absolute colimits and the absolute pushouts of 補題 18 (SIMPLEX-D12, -18), the subset generated by a set of simplices (SIMPLEX-D06, -03, -04), n-skeletal simplicial sets and the idempotency of Sk_n ⊣ Csk_n (SIMPLEX-D16, -R07, -34), and unique horn fillers in 2-coskeletal simplicial sets (SIMPLEX-48). They are verified as new work.
   - In SIMPLEX: \|∂Δ^n\| ≅ S^{n−1} (SIMPLEX-08–11), Sing(S) is a Kan complex (SIMPLEX-12), Sk_n X ≅ X.skeleton (n + 1) and dim(Sk_n X) ≤ n (SIMPLEX-31, -37), and the characterization of nerves by unique inner horn fillers (SIMPLEX-49). They are verified as new work; three of them are TODOs in mathlib.
+  - In SHEAF2: the equivalence Sh(X) ≃ Etale(X) of sheaves with étale bundles (SHEAF2-15) and the description of y†F by the étale space (SHEAF2-R06–R09, -12–14, -16). They are deferred to the second batch. mathlib has the étale space (`TopCat.Presheaf.EtaleSpace`) with the source's topology, but no equivalence.
 - **Topology and algebra prerequisites**
   - π₁ as a functor on pointed spaces (INTRO-10, CONSTR-07).
   - Seifert–van Kampen for groupoids (FUNDGPD-10, -11).
@@ -472,3 +501,4 @@ These rows are expected to become `new-proved` or `blocked` rather than `existin
   - A missing commutativity hypothesis in ADJOINT 例 50.
   - A missing hypothesis in AFT 補題 5 (H must commute with F†E); the printed statement is refuted in Lean and the corrected one is verified.
   - In SIMPLEX: footnote 8 calls every element of X_0 degenerate (it means nondegenerate); 補題 13 needs n ≥ 1; 補題 18 lists an unused hypothesis.
+  - In SHEAF2: 例 9 omits x ∈ W from the germ relation.
