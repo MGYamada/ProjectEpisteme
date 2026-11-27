@@ -470,7 +470,8 @@ theorem commutesWith_iff_preserves (K : U ⥤ V) {F : C ⥤ D} {E : C ⥤ U} (T 
   ⟨fun h ↦ PreservesLeftKanExtension.mk_of_preserves_isLeftKanExtension K E F T η h,
     fun _ ↦ PreservesLeftKanExtension.preserves T η⟩
 
-/-- `ALGD-C2-KAN-15` (定理 15, p.18).
+/-- `ALGD-C2-KAN-15`, `ALGD-C2-SHEAF2-01` (定理 15, p.18; restated as `sheaf_kan_extension.pdf`
+定理 1, p.1).
 If `⟨T, η⟩` is a pointwise left Kan extension of `E` along `F` and `K : U → V` preserves the
 colimits of `F ↓ d → C → U`, then `⟨K ∘ T, Kη⟩` is again pointwise, so `K` commutes with
 `⟨T, η⟩`. -/
@@ -973,7 +974,8 @@ theorem leftAdjoint_commutesWith {V : Type u₄} [Category.{v₄} V] (K : U ⥤ 
 
 /-! ## §4 The Yoneda embedding and Kan extensions -/
 
-/-- `ALGD-C2-KAN-29` (系 29, p.33).
+/-- `ALGD-C2-KAN-29`, `ALGD-C2-SHEAF2-05` (系 29, p.33; restated as `sheaf_kan_extension.pdf` 系 5,
+p.2).
 `y † y ≅ id_Ĉ`: the left Kan extension of the Yoneda embedding along itself exists and is
 isomorphic to the identity. The source assumes `C` small; this holds for any locally small `C`,
 with `Ĉ = C^op → Type v₁`. -/
@@ -990,7 +992,8 @@ theorem yoneda_isLeftKanExtension_id :
       (Functor.rightUnitor (yoneda : C ⥤ _)).inv).IsPointwiseLeftKanExtension :=
   ⟨inferInstance, (isDense_iff_nonempty_isPointwiseLeftKanExtension yoneda).1 inferInstance⟩
 
-/-- `ALGD-C2-KAN-30` (系 30, p.33–34).
+/-- `ALGD-C2-KAN-30`, `ALGD-C2-SHEAF2-06` (系 30, p.33–34; restated as `sheaf_kan_extension.pdf`
+系 6, p.2).
 Every presheaf `P` on a small category `C` is a colimit of representables: there are a small
 `J` and `T : J → C` with `P ≅ colim(J → C → Ĉ)`. As in the source's proof, `J = y ↓ P` and the
 colimit cocone is the tautological one (`Presheaf.isColimitTautologicalCocone`). -/
@@ -1040,7 +1043,8 @@ theorem lan_yoneda {D : Type u₂} [Category.{v₁} D] (F : C ⥤ D) :
     (Presheaf.compULiftYonedaIsoULiftYonedaCompLan.{v₁} F).symm ≪≫
     isoWhiskerLeft F uliftYonedaIsoYoneda⟩⟩
 
-/-- `ALGD-C2-KAN-36` (定理 36, p.35–36).
+/-- `ALGD-C2-KAN-36`, `ALGD-C2-SHEAF2-02` (定理 36, p.35–36; restated as `sheaf_kan_extension.pdf`
+定理 2, p.1).
 If `⟨F † E, η⟩` is a pointwise left Kan extension and `F` is fully faithful, then `η` is a
 natural isomorphism, so `F † E` extends the domain of `E`. -/
 theorem unit_isIso_of_fullyFaithful {F : C ⥤ D} [F.Full] [F.Faithful] {E : C ⥤ U} {T : D ⥤ U}
@@ -1501,7 +1505,8 @@ private theorem comp_iso_bijective {X Y Z : Cᵒᵖ ⥤ Type v} (e : Y ≅ Z) :
     Function.Bijective (fun k : X ⟶ Y ↦ k ≫ e.hom) :=
   ⟨fun k k' h ↦ by simpa using congrArg (· ≫ e.inv) h, fun β ↦ ⟨β ≫ e.inv, by simp⟩⟩
 
-/-- `ALGD-C2-KAN-28` (系 28, p.32).
+/-- `ALGD-C2-KAN-28`, `ALGD-C2-SHEAF2-04` (系 28, p.32; restated as `sheaf_kan_extension.pdf` 系 4,
+p.2).
 For small `C` and `F : C → D`, `T := (d ↦ Hom_D(F−, d))` with the unit `(η_c)_a = F` is a
 pointwise left Kan extension of the Yoneda embedding `y : C → Ĉ` along `F`. Hence `F † y`
 exists and `F † y(d) ≅ Hom_D(F−, d)` naturally in `d`. -/
@@ -1752,7 +1757,8 @@ noncomputable def universalAdjunction (F : C ⥤ U) {L : (Cᵒᵖ ⥤ Type v) �
         rw [universalHomEquiv_app, universalHomEquiv_app]
         simp }
 
-/-- `ALGD-C2-KAN-45` (定理 45, p.39–40).
+/-- `ALGD-C2-KAN-45`, `ALGD-C2-SHEAF2-03` (定理 45, p.39–40; restated as `sheaf_kan_extension.pdf`
+定理 3, p.1–2).
 For small `C`, `F : C → U` and a pointwise left Kan extension `⟨y† F, η⟩` of `F` along `y`, there
 is an adjunction `y† F ⊣ F† y : Ĉ → U`, where `F† y = (u ↦ Hom_U(F−, u))` (系 28). -/
 theorem universal_adjunction (F : C ⥤ U) {L : (Cᵒᵖ ⥤ Type v) ⥤ U} {η : F ⟶ yoneda ⋙ L}
@@ -1980,7 +1986,8 @@ section TopologicalSpaces
 
 open TopologicalSpace TopCat
 
-/-- `ALGD-C2-KAN-09` (例 9, p.9–10).
+/-- `ALGD-C2-KAN-09`, `ALGD-C2-SHEAF2-R01` (例 9, p.9–10; recalled in `sheaf_kan_extension.pdf`
+§2, p.2).
 For a continuous `f : X → Y`, the direct image `f_* P (U) := P(f⁻¹ U)` is `F⁻¹` for
 `F := (f⁻¹)^op : O_Y^op → O_X^op`, the inverse image `f^*` is the left Kan extension `F†`, and
 `f^* ⊣ f_*`. In mathlib the first two are the definitions of `TopCat.Presheaf.pushforward` and
@@ -1991,7 +1998,8 @@ theorem pullback_pushforward {X Y : TopCat.{v}} (f : X ⟶ Y) :
     Nonempty (Presheaf.pullback (Type v) f ⊣ Presheaf.pushforward (Type v) f) :=
   ⟨rfl, rfl, ⟨Presheaf.pullbackPushforwardAdjunction (Type v) f⟩⟩
 
-/-- `ALGD-C2-KAN-10` (formula (10), p.10).
+/-- `ALGD-C2-KAN-10`, `ALGD-C2-SHEAF2-08` (formula (10), p.10; restated as
+`sheaf_kan_extension.pdf` formula (8), p.2).
 The inverse image is computed by the pointwise formula `f^* P(U) ≅ colim_{V ⊃ f(U)} P(V)`: the
 value at `U` is the colimit over `F ↓ U`, and `⟨V, h⟩ ∈ F ↓ U` iff `V ⊃ f(U)`. -/
 theorem pullback_obj_iso_colimit {X Y : TopCat.{v}} (f : X ⟶ Y) (P : Y.Presheaf (Type v))
@@ -2008,7 +2016,8 @@ end TopologicalSpaces
 
 /-! ## §5 The universal adjunction -/
 
-/-- `ALGD-C2-KAN-54` (定理 54, p.45–51).
+/-- `ALGD-C2-KAN-54`, `ALGD-C2-SHEAF2-07` (定理 54, p.45–51; restated as `sheaf_kan_extension.pdf`
+定理 7, p.2).
 For a presheaf `P` on a small category `C` there is an equivalence `(y ↓ P)^ ≃ Ĉ/P`. In
 particular, for `P = y(a)`, `y ↓ y(a) ≃ C/a` gives `(C/a)^ ≃ Ĉ/y(a)`. The source proves this
 from 定理 51; mathlib's `overEquivPresheafCostructuredArrow` is a direct construction. -/
