@@ -1,4 +1,6 @@
 name = "ProjectEpisteme"
+license = "Apache-2.0"
+licenseFiles = ["LICENSE", "NOTICE"]
 defaultTargets = ["ProjectEpisteme"]
 
 # An undeclared name in a statement must be an error, not a fresh implicit variable.

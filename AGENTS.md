@@ -15,6 +15,7 @@
 - Follow mathlib notation, including `X ⟶ Y`, `f ≫ g`, and `Cᵒᵖ`. Separate object and morphism universes when needed. Record relevant smallness assumptions, uses of choice or classical logic, and noncomputability. Distinguish natural isomorphism from definitional equality. Use Lean’s existing universe hierarchy and foundations.
 - Check morphism direction and composition order with examples when working with braidings, permutation actions, duality, or complexes. Use the hypotheses each theorem needs, such as `Abelian`, the Grothendieck condition, left exactness, or enough injectives.
 - Write every binder: `autoImplicit` and `relaxedAutoImplicit` are off in `lakefile.toml`. Do not use `set_option maxHeartbeats` or `set_option backward.*`; `checks/ForbiddenOptions.lean` enforces both.
+- Start each module under `ProjectEpisteme/` with the copyright header of the existing modules, followed by `module`. The generated root module and the files in `checks/` have no header.
 - After adding a module, run `lake exe mk_all --lib ProjectEpisteme` to regenerate the root module, which imports every module.
 
 ## Verification and reporting
