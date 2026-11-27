@@ -31,3 +31,7 @@ Run the build from the repository root.
 ```sh
 lake build
 ```
+
+## License
+
+[Apache License 2.0](LICENSE) · [Copyright notice](NOTICE)
